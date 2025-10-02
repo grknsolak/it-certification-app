@@ -12,6 +12,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList, Exam } from '../types';
 import { certificationExams } from '../data/certificationExams';
+import { useTheme } from '../contexts/ThemeContext';
+import { spacing, typography, radius, shadows, gradients } from '../design-system/tokens';
+import Button from '../components/Button';
 
 type ExamListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ExamList'>;
 
@@ -21,146 +24,182 @@ interface Props {
 
 const categories = ['Tümü', 'Cloud Computing', 'Cybersecurity', 'Container Orchestration', 'DevOps'];
 
-const categoryIcons: { [key: string]: string } = {
-  'Tümü': '🎯',
-  'Cloud Computing': '☁️',
-  'Cybersecurity': '🛡️',
-  'Container Orchestration': '🐳',
-  'DevOps': '⚙️',
-};
-
 export default function ExamListScreen({ navigation }: Props) {
+  const { colors } = useTheme();
   const [selectedCategory, setSelectedCategory] = useState('Tümü');
 
   const filteredExams = selectedCategory === 'Tümü' 
     ? certificationExams 
     : certificationExams.filter(exam => exam.category === selectedCategory);
 
-  const getDifficultyBadge = (exam: Exam) => {
+  const getDifficultyColor = (exam: Exam) => {
     const difficulties = exam.questions.map(q => q.difficulty || 'medium');
     const hardCount = difficulties.filter(d => d === 'hard').length;
     const easyCount = difficulties.filter(d => d === 'easy').length;
     
-    if (hardCount > exam.questions.length / 2) return { level: 'hard', colors: ['#ef4444', '#dc2626'] };
-    if (easyCount > exam.questions.length / 2) return { level: 'easy', colors: ['#10b981', '#059669'] };
-    return { level: 'medium', colors: ['#f59e0b', '#d97706'] };
+    if (hardCount > exam.questions.length / 2) return { color: colors.error, label: 'Advanced' };
+    if (easyCount > exam.questions.length / 2) return { color: colors.success, label: 'Beginner' };
+    return { color: colors.warning, label: 'Intermediate' };
   };
 
   const renderExamItem = ({ item }: { item: Exam }) => {
-    const difficulty = getDifficultyBadge(item);
+    const difficulty = getDifficultyColor(item);
     
     return (
-      <TouchableOpacity
-        style={styles.examCard}
-        onPress={() => navigation.navigate('Exam', { examId: item.id })}
-        activeOpacity={0.7}
-      >
-        <LinearGradient
-          colors={['rgba(255,255,255,0.9)', 'rgba(255,255,255,0.95)']}
-          style={styles.examCardGradient}
-        >
-          <View style={styles.examHeader}>
-            <View style={styles.examTitleContainer}>
-              <Text style={styles.examCategory}>{item.icon} {item.category}</Text>
-              <Text style={styles.examTitle}>{item.title}</Text>
+      <View style={[styles.examCard, { backgroundColor: colors.surface }, shadows.md]}>
+        {/* Header */}
+        <View style={styles.examHeader}>
+          <View style={styles.examHeaderLeft}>
+            <View style={styles.categoryRow}>
+              <Text style={styles.examIcon}>{item.icon}</Text>
+              <Text style={[styles.examCategory, typography.captionBold, { color: colors.primary }]}>
+                {item.category}
+              </Text>
             </View>
-            <LinearGradient
-              colors={difficulty.colors}
-              style={styles.difficultyBadge}
-            >
-              <Text style={styles.difficultyText}>{difficulty.level.toUpperCase()}</Text>
-            </LinearGradient>
+            <Text style={[styles.examTitle, typography.h3, { color: colors.textPrimary }]}>
+              {item.title}
+            </Text>
           </View>
-          
-          <Text style={styles.examDescription} numberOfLines={2}>{item.description}</Text>
-          
-          <View style={styles.examInfo}>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoIcon}>📝</Text>
-              <Text style={styles.infoText}>{item.questions.length} Soru</Text>
-            </View>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoIcon}>⏱️</Text>
-              <Text style={styles.infoText}>{item.timeLimit} Dk</Text>
-            </View>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoIcon}>🎯</Text>
-              <Text style={styles.infoText}>{item.passingScore}% Geçiş</Text>
-            </View>
+          <View style={[styles.difficultyBadge, { backgroundColor: `${difficulty.color}15`, borderColor: difficulty.color }]}>
+            <Text style={[styles.difficultyText, typography.smallBold, { color: difficulty.color }]}>
+              {difficulty.label}
+            </Text>
           </View>
-          
-          <TouchableOpacity
-            style={styles.startButton}
+        </View>
+        
+        <Text style={[styles.examDescription, typography.body, { color: colors.textSecondary }]} numberOfLines={2}>
+          {item.description}
+        </Text>
+        
+        {/* Features - Parny style! */}
+        <View style={styles.featuresGrid}>
+          <View style={styles.featureItem}>
+            <View style={[styles.featureIcon, { backgroundColor: `${colors.primary}10` }]}>
+              <Text style={styles.featureEmoji}>📝</Text>
+            </View>
+            <Text style={[styles.featureLabel, typography.caption, { color: colors.textSecondary }]}>
+              Questions
+            </Text>
+            <Text style={[styles.featureValue, typography.bodyBold, { color: colors.textPrimary }]}>
+              {item.questions.length}
+            </Text>
+          </View>
+
+          <View style={styles.featureItem}>
+            <View style={[styles.featureIcon, { backgroundColor: `${colors.success}10` }]}>
+              <Text style={styles.featureEmoji}>⏱️</Text>
+            </View>
+            <Text style={[styles.featureLabel, typography.caption, { color: colors.textSecondary }]}>
+              Duration
+            </Text>
+            <Text style={[styles.featureValue, typography.bodyBold, { color: colors.textPrimary }]}>
+              {item.timeLimit} min
+            </Text>
+          </View>
+
+          <View style={styles.featureItem}>
+            <View style={[styles.featureIcon, { backgroundColor: `${colors.warning}10` }]}>
+              <Text style={styles.featureEmoji}>🎯</Text>
+            </View>
+            <Text style={[styles.featureLabel, typography.caption, { color: colors.textSecondary }]}>
+              Pass Score
+            </Text>
+            <Text style={[styles.featureValue, typography.bodyBold, { color: colors.textPrimary }]}>
+              {item.passingScore}%
+            </Text>
+          </View>
+        </View>
+
+        {/* Action Buttons */}
+        <View style={styles.actionRow}>
+          <Button
+            title="Review"
+            onPress={() => navigation.navigate('QuestionReview', { examId: item.id })}
+            variant="ghost"
+            size="medium"
+            style={styles.reviewButton}
+            accessibilityLabel={`Review ${item.title}`}
+          />
+          <Button
+            title="Start Exam"
             onPress={() => navigation.navigate('Exam', { examId: item.id })}
-          >
-            <LinearGradient
-              colors={['#667eea', '#764ba2']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.startButtonGradient}
-            >
-              <Text style={styles.startButtonText}>🚀 Sınava Başla</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </LinearGradient>
-      </TouchableOpacity>
+            variant="primary"
+            size="medium"
+            icon="🚀"
+            style={styles.startButton}
+            accessibilityLabel={`Start ${item.title} exam`}
+          />
+        </View>
+      </View>
     );
   };
 
   return (
-    <LinearGradient
-      colors={['#667eea', '#764ba2']}
-      style={styles.container}
-    >
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>IT Sertifika Sınavları</Text>
-          <Text style={styles.headerSubtitle}>
-            Sertifika yolculuğunuzu seçin
-          </Text>
-        </View>
-        
-        {/* Kategori Filtresi */}
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Hero Section - Parny Style! */}
+      <LinearGradient
+        colors={gradients.heroAlt}
+        style={styles.hero}
+      >
+        <SafeAreaView>
+          <View style={styles.heroContent}>
+            <Text style={[styles.heroTitle, typography.h1]}>
+              IT Certification Exams
+            </Text>
+            <Text style={[styles.heroSubtitle, typography.bodyLarge]}>
+              Choose your path to certification. Real exam questions, real preparation.
+            </Text>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
+      
+      {/* Category Pills */}
+      <View style={[styles.categorySection, { backgroundColor: colors.background }]}>
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false}
-          style={styles.categoryScroll}
           contentContainerStyle={styles.categoryContainer}
         >
           {categories.map(category => (
             <TouchableOpacity
               key={category}
               style={[
-                styles.categoryChip,
-                selectedCategory === category && styles.categoryChipActive
+                styles.categoryPill,
+                { 
+                  backgroundColor: selectedCategory === category ? colors.primary : colors.surfaceSecondary,
+                  borderColor: selectedCategory === category ? colors.primary : colors.border,
+                }
               ]}
               onPress={() => setSelectedCategory(category)}
+              activeOpacity={0.7}
             >
-              <Text style={styles.categoryChipIcon}>{categoryIcons[category]}</Text>
               <Text style={[
-                styles.categoryChipText,
-                selectedCategory === category && styles.categoryChipTextActive
+                styles.categoryText,
+                typography.bodyBold,
+                { color: selectedCategory === category ? colors.textInverse : colors.textSecondary }
               ]}>
                 {category}
               </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
-        
-        <FlatList
-          data={filteredExams}
-          renderItem={renderExamItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContainer}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>Bu kategoride sınav bulunamadı</Text>
-            </View>
-          }
-        />
-      </SafeAreaView>
-    </LinearGradient>
+      </View>
+      
+      <FlatList
+        data={filteredExams}
+        renderItem={renderExamItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContainer}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={[styles.emptyText, typography.h4, { color: colors.textSecondary }]}>
+              No exams available in this category
+            </Text>
+          </View>
+        }
+      />
+    </View>
   );
 }
 
@@ -168,156 +207,123 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  safeArea: {
-    flex: 1,
+  hero: {
+    paddingVertical: spacing.xxxl,
+    paddingTop: spacing.huge,
   },
-  header: {
-    padding: 20,
-    paddingBottom: 16,
+  heroContent: {
+    paddingHorizontal: spacing.xl,
   },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: '800',
+  heroTitle: {
     color: '#ffffff',
-    marginBottom: 6,
+    marginBottom: spacing.md,
+    textAlign: 'center',
   },
-  headerSubtitle: {
-    fontSize: 15,
+  heroSubtitle: {
     color: 'rgba(255,255,255,0.9)',
+    textAlign: 'center',
+    maxWidth: 600,
+    alignSelf: 'center',
   },
-  categoryScroll: {
-    maxHeight: 50,
-    marginBottom: 12,
+  categorySection: {
+    paddingVertical: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
   },
   categoryContainer: {
-    paddingHorizontal: 20,
-    gap: 10,
+    paddingHorizontal: spacing.xl,
+    gap: spacing.md,
   },
-  categoryChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
-    gap: 6,
+  categoryPill: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderRadius: radius.full,
+    borderWidth: 2,
   },
-  categoryChipActive: {
-    backgroundColor: '#ffffff',
-  },
-  categoryChipIcon: {
-    fontSize: 16,
-  },
-  categoryChipText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  categoryChipTextActive: {
-    color: '#667eea',
-  },
+  categoryText: {},
   listContainer: {
-    padding: 20,
-    paddingTop: 8,
-    paddingBottom: 40,
+    padding: spacing.xl,
+    paddingBottom: spacing.huge,
   },
   examCard: {
-    marginBottom: 16,
-    borderRadius: 20,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  examCardGradient: {
-    padding: 20,
+    borderRadius: radius.xl,
+    padding: spacing.xl,
+    marginBottom: spacing.xl,
   },
   examHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 12,
+    marginBottom: spacing.lg,
   },
-  examTitleContainer: {
+  examHeaderLeft: {
     flex: 1,
-    marginRight: 12,
+    marginRight: spacing.lg,
+  },
+  categoryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+    gap: spacing.sm,
+  },
+  examIcon: {
+    fontSize: 24,
   },
   examCategory: {
-    fontSize: 13,
-    color: '#667eea',
-    fontWeight: '600',
-    marginBottom: 6,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   examTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1d1d1f',
+    marginBottom: spacing.xs,
   },
   difficultyBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.md,
+    borderWidth: 1,
   },
-  difficultyText: {
-    color: '#ffffff',
-    fontSize: 10,
-    fontWeight: '700',
-  },
+  difficultyText: {},
   examDescription: {
-    fontSize: 14,
-    color: '#64748b',
-    lineHeight: 20,
-    marginBottom: 14,
+    marginBottom: spacing.xl,
   },
-  examInfo: {
+  featuresGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-    backgroundColor: 'rgba(102, 126, 234, 0.05)',
-    padding: 12,
-    borderRadius: 12,
+    marginBottom: spacing.xl,
+    gap: spacing.lg,
   },
-  infoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  featureItem: {
     flex: 1,
+    alignItems: 'center',
+  },
+  featureIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: radius.md,
+    alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: spacing.sm,
   },
-  infoIcon: {
-    fontSize: 14,
-    marginRight: 4,
+  featureEmoji: {
+    fontSize: 24,
   },
-  infoText: {
-    fontSize: 12,
-    color: '#475569',
-    fontWeight: '500',
+  featureLabel: {
+    marginBottom: spacing.xs / 2,
+  },
+  featureValue: {},
+  actionRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  reviewButton: {
+    flex: 1,
   },
   startButton: {
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  startButtonGradient: {
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  startButtonText: {
-    color: '#ffffff',
-    fontSize: 14,
-    fontWeight: '700',
+    flex: 2,
   },
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 40,
+    padding: spacing.huge,
   },
-  emptyText: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 16,
-    fontWeight: '500',
-  },
+  emptyText: {},
 });
-

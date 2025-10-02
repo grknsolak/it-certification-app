@@ -1,180 +1,199 @@
 /**
- * Design System Tokens
- * WCAG 2.1 AA Uyumlu - Kontrast oranı ≥ 4.5:1
+ * Design System Tokens - Parny.io Inspired
+ * Modern, Professional, AI-Native Design
  */
 
-// Spacing Scale (4px base)
+// Spacing Scale (8px base) - More generous like Parny
 export const spacing = {
   xs: 4,
   sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
-  xxl: 32,
-  xxxl: 48,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 48,
+  xxxl: 64,
+  huge: 96,
 } as const;
 
-// Typography Scale
+// Typography Scale - Clean & Professional
 export const typography = {
   h1: {
-    fontSize: 32,
-    lineHeight: 40,
+    fontSize: 48,
+    lineHeight: 56,
     fontWeight: '800' as const,
-    letterSpacing: 0.5,
+    letterSpacing: -1,
   },
   h2: {
-    fontSize: 24,
-    lineHeight: 32,
-    fontWeight: '700' as const,
-    letterSpacing: 0.3,
+    fontSize: 36,
+    lineHeight: 44,
+    fontWeight: '800' as const,
+    letterSpacing: -0.5,
   },
   h3: {
+    fontSize: 28,
+    lineHeight: 36,
+    fontWeight: '700' as const,
+    letterSpacing: -0.3,
+  },
+  h4: {
     fontSize: 20,
     lineHeight: 28,
     fontWeight: '700' as const,
-    letterSpacing: 0.2,
-  },
-  h4: {
-    fontSize: 18,
-    lineHeight: 26,
-    fontWeight: '600' as const,
     letterSpacing: 0,
   },
   body: {
     fontSize: 16,
-    lineHeight: 24,
+    lineHeight: 26,
+    fontWeight: '400' as const,
+    letterSpacing: 0,
+  },
+  bodyLarge: {
+    fontSize: 18,
+    lineHeight: 28,
     fontWeight: '400' as const,
     letterSpacing: 0,
   },
   bodyBold: {
     fontSize: 16,
-    lineHeight: 24,
+    lineHeight: 26,
     fontWeight: '600' as const,
     letterSpacing: 0,
   },
   caption: {
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 22,
     fontWeight: '400' as const,
     letterSpacing: 0,
   },
   captionBold: {
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 22,
     fontWeight: '600' as const,
     letterSpacing: 0,
   },
   small: {
     fontSize: 12,
-    lineHeight: 16,
+    lineHeight: 18,
     fontWeight: '400' as const,
     letterSpacing: 0,
   },
   smallBold: {
     fontSize: 12,
-    lineHeight: 16,
-    fontWeight: '600' as const,
-    letterSpacing: 0,
+    lineHeight: 18,
+    fontWeight: '700' as const,
+    letterSpacing: 0.5,
   },
 } as const;
 
-// Border Radius
+// Border Radius - Softer, more modern
 export const radius = {
-  xs: 4,
+  xs: 6,
   sm: 8,
   md: 12,
   lg: 16,
-  xl: 20,
+  xl: 24,
+  xxl: 32,
   full: 9999,
 } as const;
 
-// Shadows
+// Shadows - Subtle and professional like Parny
 export const shadows = {
   sm: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 2,
+    elevation: 1,
   },
   md: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
   lg: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 6,
+  },
+  xl: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.15,
-    shadowRadius: 16,
+    shadowRadius: 32,
     elevation: 8,
   },
 } as const;
 
-// Light Theme Colors
+// Light Theme Colors - Parny inspired
 export const lightColors = {
-  // Primary Brand Colors
-  primary: '#667eea',
-  primaryDark: '#5568d3',
-  primaryLight: '#8b9cf7',
+  // Primary - Professional Purple/Blue
+  primary: '#6366f1',
+  primaryDark: '#4f46e5',
+  primaryLight: '#818cf8',
   
-  // Secondary Brand Colors
-  secondary: '#764ba2',
-  secondaryDark: '#5a3a7a',
-  secondaryLight: '#9a6bc9',
+  // Secondary
+  secondary: '#8b5cf6',
+  secondaryDark: '#7c3aed',
+  secondaryLight: '#a78bfa',
   
-  // Accent Colors
-  accent: '#f093fb',
-  accentDark: '#f5576c',
+  // Accent
+  accent: '#ec4899',
+  accentDark: '#db2777',
   
-  // Semantic Colors
+  // Success
   success: '#10b981',
   successDark: '#059669',
   successLight: '#34d399',
   
+  // Warning
   warning: '#f59e0b',
   warningDark: '#d97706',
   warningLight: '#fbbf24',
   
+  // Error
   error: '#ef4444',
   errorDark: '#dc2626',
   errorLight: '#f87171',
   
+  // Info
   info: '#3b82f6',
   infoDark: '#2563eb',
   infoLight: '#60a5fa',
   
-  // Neutral Scale (Gray)
-  neutral50: '#f9fafb',
-  neutral100: '#f3f4f6',
-  neutral200: '#e5e7eb',
-  neutral300: '#d1d5db',
-  neutral400: '#9ca3af',
-  neutral500: '#6b7280',
-  neutral600: '#4b5563',
-  neutral700: '#374151',
-  neutral800: '#1f2937',
-  neutral900: '#111827',
+  // Neutral Scale
+  neutral50: '#fafafa',
+  neutral100: '#f5f5f5',
+  neutral200: '#e5e5e5',
+  neutral300: '#d4d4d4',
+  neutral400: '#a3a3a3',
+  neutral500: '#737373',
+  neutral600: '#525252',
+  neutral700: '#404040',
+  neutral800: '#262626',
+  neutral900: '#171717',
   
   // Background & Surface
   background: '#ffffff',
-  backgroundSecondary: '#f9fafb',
+  backgroundSecondary: '#fafafa',
   surface: '#ffffff',
-  surfaceSecondary: '#f3f4f6',
+  surfaceSecondary: '#f5f5f5',
+  surfaceHover: '#fafafa',
   
-  // Text Colors (WCAG AA compliant)
-  textPrimary: '#1f2937',
-  textSecondary: '#6b7280',
-  textTertiary: '#9ca3af',
+  // Text Colors
+  textPrimary: '#171717',
+  textSecondary: '#525252',
+  textTertiary: '#a3a3a3',
   textInverse: '#ffffff',
-  textDisabled: '#d1d5db',
+  textDisabled: '#d4d4d4',
   
   // Border Colors
-  border: '#e5e7eb',
-  borderStrong: '#d1d5db',
-  borderLight: '#f3f4f6',
+  border: '#e5e5e5',
+  borderStrong: '#d4d4d4',
+  borderLight: '#f5f5f5',
   
   // Overlay
   overlay: 'rgba(0, 0, 0, 0.5)',
@@ -183,94 +202,103 @@ export const lightColors = {
 
 // Dark Theme Colors
 export const darkColors = {
-  // Primary Brand Colors
-  primary: '#8b9cf7',
-  primaryDark: '#667eea',
-  primaryLight: '#a5b4ff',
+  // Primary
+  primary: '#818cf8',
+  primaryDark: '#6366f1',
+  primaryLight: '#a5b4fc',
   
-  // Secondary Brand Colors
-  secondary: '#9a6bc9',
-  secondaryDark: '#764ba2',
-  secondaryLight: '#b794d9',
+  // Secondary
+  secondary: '#a78bfa',
+  secondaryDark: '#8b5cf6',
+  secondaryLight: '#c4b5fd',
   
-  // Accent Colors
-  accent: '#f5576c',
-  accentDark: '#f093fb',
+  // Accent
+  accent: '#f472b6',
+  accentDark: '#ec4899',
   
-  // Semantic Colors
+  // Success
   success: '#34d399',
   successDark: '#10b981',
   successLight: '#6ee7b7',
   
+  // Warning
   warning: '#fbbf24',
   warningDark: '#f59e0b',
   warningLight: '#fcd34d',
   
+  // Error
   error: '#f87171',
   errorDark: '#ef4444',
   errorLight: '#fca5a5',
   
+  // Info
   info: '#60a5fa',
   infoDark: '#3b82f6',
   infoLight: '#93c5fd',
   
-  // Neutral Scale (Gray) - Inverted for dark mode
-  neutral50: '#111827',
-  neutral100: '#1f2937',
-  neutral200: '#374151',
-  neutral300: '#4b5563',
-  neutral400: '#6b7280',
-  neutral500: '#9ca3af',
-  neutral600: '#d1d5db',
-  neutral700: '#e5e7eb',
-  neutral800: '#f3f4f6',
-  neutral900: '#f9fafb',
+  // Neutral Scale
+  neutral50: '#171717',
+  neutral100: '#262626',
+  neutral200: '#404040',
+  neutral300: '#525252',
+  neutral400: '#737373',
+  neutral500: '#a3a3a3',
+  neutral600: '#d4d4d4',
+  neutral700: '#e5e5e5',
+  neutral800: '#f5f5f5',
+  neutral900: '#fafafa',
   
   // Background & Surface
-  background: '#0f172a',
-  backgroundSecondary: '#1e293b',
-  surface: '#1e293b',
-  surfaceSecondary: '#334155',
+  background: '#0a0a0a',
+  backgroundSecondary: '#171717',
+  surface: '#171717',
+  surfaceSecondary: '#262626',
+  surfaceHover: '#1f1f1f',
   
-  // Text Colors (WCAG AA compliant on dark bg)
-  textPrimary: '#f1f5f9',
-  textSecondary: '#cbd5e1',
-  textTertiary: '#94a3b8',
-  textInverse: '#0f172a',
-  textDisabled: '#475569',
+  // Text Colors
+  textPrimary: '#fafafa',
+  textSecondary: '#d4d4d4',
+  textTertiary: '#a3a3a3',
+  textInverse: '#0a0a0a',
+  textDisabled: '#525252',
   
   // Border Colors
-  border: '#334155',
-  borderStrong: '#475569',
-  borderLight: '#1e293b',
+  border: '#262626',
+  borderStrong: '#404040',
+  borderLight: '#171717',
   
   // Overlay
   overlay: 'rgba(0, 0, 0, 0.7)',
   overlayLight: 'rgba(0, 0, 0, 0.5)',
 } as const;
 
-// Gradients
+// Gradients - Parny style
 export const gradients = {
-  primary: ['#667eea', '#764ba2'],
-  accent: ['#f093fb', '#f5576c'],
+  primary: ['#6366f1', '#8b5cf6'],
+  secondary: ['#8b5cf6', '#ec4899'],
   success: ['#10b981', '#059669'],
   warning: ['#f59e0b', '#d97706'],
   error: ['#ef4444', '#dc2626'],
   purple: ['#a78bfa', '#8b5cf6'],
   blue: ['#60a5fa', '#3b82f6'],
+  pink: ['#f472b6', '#ec4899'],
+  emerald: ['#34d399', '#10b981'],
+  // Hero gradients
+  hero: ['#6366f1', '#8b5cf6', '#ec4899'],
+  heroAlt: ['#3b82f6', '#8b5cf6'],
 } as const;
 
-// Minimum Touch Target Size (iOS & Android guidelines)
+// Touch Targets
 export const touchTarget = {
-  minHeight: 44,
-  minWidth: 44,
+  minHeight: 48,
+  minWidth: 48,
 } as const;
 
 // Animation Durations
 export const duration = {
   fast: 150,
-  normal: 300,
-  slow: 500,
+  normal: 250,
+  slow: 400,
 } as const;
 
 // Z-Index Scale
@@ -283,4 +311,3 @@ export const zIndex = {
   popover: 1060,
   tooltip: 1070,
 } as const;
-
