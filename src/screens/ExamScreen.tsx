@@ -207,7 +207,7 @@ export default function ExamScreen({ navigation, route }: Props) {
         {
           text: 'Bitir',
           style: 'destructive',
-          onPress: handleSubmitExam
+          onPress: () => handleSubmitExam()
         }
       ]
     );
