@@ -6,14 +6,14 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  TextInput,
   Dimensions,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { StackNavigationProp } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RootStackParamList, ExamResult } from '../types';
 import { useTheme } from '../contexts/ThemeContext';
-import { spacing, typography, radius, shadows, gradients } from '../design-system/tokens';
+import { spacing, typography, radius, shadows } from '../design-system/tokens';
 import Button from '../components/Button';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
@@ -29,14 +29,16 @@ interface Stats {
 }
 
 const { width } = Dimensions.get('window');
+const cardWidth = (width - spacing.md * 3) / 2;
 
 export default function HomeScreen({ navigation }: Props) {
-  const { colors, activeTheme } = useTheme();
+  const { colors } = useTheme();
   const [stats, setStats] = useState<Stats>({
     examsCompleted: 0,
     averageScore: 0,
     totalQuestions: 0,
   });
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     loadStats();
@@ -61,153 +63,246 @@ export default function HomeScreen({ navigation }: Props) {
     }
   };
 
+  const categories = [
+    { icon: '☁️', name: 'Cloud', color: '#3B82F6' },
+    { icon: '🛡️', name: 'Security', color: '#EF4444' },
+    { icon: '🐳', name: 'Container', color: '#22C55E' },
+    { icon: '⚙️', name: 'DevOps', color: '#8B5CF6' },
+  ];
+
+  const popularExams = [
+    {
+      id: 1,
+      title: 'AWS Cloud Practitioner',
+      category: 'Cloud Computing',
+      questions: 65,
+      duration: 90,
+      rating: 4.8,
+      reviews: 1234,
+      icon: '☁️',
+      difficulty: 'Beginner',
+      difficultyColor: colors.success,
+    },
+    {
+      id: 2,
+      title: 'CompTIA Security+',
+      category: 'Cybersecurity',
+      questions: 90,
+      duration: 90,
+      rating: 4.6,
+      reviews: 856,
+      icon: '🛡️',
+      difficulty: 'Intermediate',
+      difficultyColor: colors.warning,
+    },
+    {
+      id: 3,
+      title: 'Kubernetes CKA',
+      category: 'Container',
+      questions: 15,
+      duration: 180,
+      rating: 4.9,
+      reviews: 642,
+      icon: '🐳',
+      difficulty: 'Advanced',
+      difficultyColor: colors.error,
+    },
+    {
+      id: 4,
+      title: 'Terraform Associate',
+      category: 'DevOps',
+      questions: 57,
+      duration: 60,
+      rating: 4.7,
+      reviews: 423,
+      icon: '⚙️',
+      difficulty: 'Intermediate',
+      difficultyColor: colors.warning,
+    },
+  ];
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <LinearGradient
-        colors={activeTheme === 'dark' ? ['#1e293b', '#0f172a'] : gradients.primary}
-        style={styles.headerGradient}
-      >
-        <SafeAreaView>
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header - Bike Shopping Style */}
           <View style={styles.header}>
-            <Text style={[styles.greeting, typography.caption]}>Merhaba! 👋</Text>
-            <Text style={[styles.title, typography.h1]}>IT Exam Master</Text>
-            <Text style={[styles.subtitle, typography.body]}>
-              IT sertifikalarında ustalaşın
+            <View>
+              <Text style={[styles.greeting, typography.caption, { color: colors.textSecondary }]}>
+                Welcome back! 👋
+              </Text>
+              <Text style={[styles.title, typography.h1, { color: colors.textPrimary }]}>
+                IT Certification
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={[styles.settingsButton, { backgroundColor: colors.surfaceSecondary }, shadows.sm]}
+              onPress={() => navigation.navigate('Settings')}
+            >
+              <Text style={styles.settingsIcon}>⚙️</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Search Bar - Bike Shopping Style */}
+          <View style={[styles.searchContainer, { backgroundColor: colors.surfaceSecondary }, shadows.sm]}>
+            <Text style={styles.searchIcon}>🔍</Text>
+            <TextInput
+              style={[styles.searchInput, typography.body, { color: colors.textPrimary }]}
+              placeholder="Search certifications..."
+              placeholderTextColor={colors.textTertiary}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+
+          {/* Stats Row - E-commerce style */}
+          <View style={styles.statsRow}>
+            <View style={[styles.statItem, { backgroundColor: colors.surface }, shadows.sm]}>
+              <Text style={[styles.statNumber, typography.h2, { color: colors.primary }]}>
+                {stats.examsCompleted}
+              </Text>
+              <Text style={[styles.statLabel, typography.caption, { color: colors.textSecondary }]}>
+                Completed
+              </Text>
+            </View>
+
+            <View style={[styles.statItem, { backgroundColor: colors.surface }, shadows.sm]}>
+              <Text style={[styles.statNumber, typography.h2, { color: colors.accent }]}>
+                {stats.averageScore}%
+              </Text>
+              <Text style={[styles.statLabel, typography.caption, { color: colors.textSecondary }]}>
+                Avg Score
+              </Text>
+            </View>
+
+            <View style={[styles.statItem, { backgroundColor: colors.surface }, shadows.sm]}>
+              <Text style={[styles.statNumber, typography.h2, { color: colors.secondary }]}>
+                {stats.totalQuestions}
+              </Text>
+              <Text style={[styles.statLabel, typography.caption, { color: colors.textSecondary }]}>
+                Questions
+              </Text>
+            </View>
+          </View>
+
+          {/* Categories - Horizontal Scroll (Bike Shopping) */}
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, typography.h3, { color: colors.textPrimary }]}>
+              Categories
             </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.categoriesScroll}
+            >
+              {categories.map((category, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={[styles.categoryCard, { backgroundColor: colors.surface }, shadows.md]}
+                  onPress={() => navigation.navigate('ExamList')}
+                >
+                  <View style={[styles.categoryIcon, { backgroundColor: `${category.color}15` }]}>
+                    <Text style={styles.categoryEmoji}>{category.icon}</Text>
+                  </View>
+                  <Text style={[styles.categoryName, typography.bodyBold, { color: colors.textPrimary }]}>
+                    {category.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           </View>
 
-          {/* Stats Cards - YENI TASARIM! */}
-          <View style={styles.statsContainer}>
-            <LinearGradient
-              colors={['rgba(16, 185, 129, 0.2)', 'rgba(5, 150, 105, 0.2)']}
-              style={[styles.statCard, { borderColor: 'rgba(255,255,255,0.3)' }]}
-            >
-              <Text style={styles.statIcon}>✅</Text>
-              <Text style={[styles.statNumber, typography.h2]}>{stats.examsCompleted}</Text>
-              <Text style={[styles.statLabel, typography.caption]}>Tamamlanan</Text>
-            </LinearGradient>
-
-            <LinearGradient
-              colors={['rgba(245, 158, 11, 0.2)', 'rgba(217, 119, 6, 0.2)']}
-              style={[styles.statCard, { borderColor: 'rgba(255,255,255,0.3)' }]}
-            >
-              <Text style={styles.statIcon}>📊</Text>
-              <Text style={[styles.statNumber, typography.h2]}>{stats.averageScore}%</Text>
-              <Text style={[styles.statLabel, typography.caption]}>Ort. Puan</Text>
-            </LinearGradient>
-
-            <LinearGradient
-              colors={['rgba(59, 130, 246, 0.2)', 'rgba(37, 99, 235, 0.2)']}
-              style={[styles.statCard, { borderColor: 'rgba(255,255,255,0.3)' }]}
-            >
-              <Text style={styles.statIcon}>❓</Text>
-              <Text style={[styles.statNumber, typography.h2]}>{stats.totalQuestions}</Text>
-              <Text style={[styles.statLabel, typography.caption]}>Soru</Text>
-            </LinearGradient>
-          </View>
-        </SafeAreaView>
-      </LinearGradient>
-
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Ana Buton - BOMBA! */}
-        <Button
-          title="Sınava Başla"
-          onPress={() => navigation.navigate('ExamList')}
-          variant="primary"
-          size="large"
-          fullWidth
-          icon="🚀"
-          style={styles.primaryButton}
-          accessibilityLabel="Yeni sınava başla"
-        />
-
-        {/* Sertifikalar Grid - YENİ! */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, typography.h3, { color: colors.textPrimary }]}>
-            Mevcut Sertifikalar
-          </Text>
-          
-          <View style={styles.certGrid}>
-            <LinearGradient
-              colors={gradients.blue}
-              style={[styles.certCard, shadows.md]}
-            >
-              <Text style={styles.certIcon}>☁️</Text>
-              <Text style={[styles.certTitle, typography.bodyBold]}>AWS</Text>
-              <Text style={[styles.certDesc, typography.small]}>Cloud Computing</Text>
-              <View style={styles.certBadge}>
-                <Text style={[styles.certBadgeText, typography.small]}>8 Sınav</Text>
-              </View>
-            </LinearGradient>
-
-            <LinearGradient
-              colors={gradients.purple}
-              style={[styles.certCard, shadows.md]}
-            >
-              <Text style={styles.certIcon}>☁️</Text>
-              <Text style={[styles.certTitle, typography.bodyBold]}>Google Cloud</Text>
-              <Text style={[styles.certDesc, typography.small]}>GCP</Text>
-              <View style={styles.certBadge}>
-                <Text style={[styles.certBadgeText, typography.small]}>2 Sınav</Text>
-              </View>
-            </LinearGradient>
-
-            <LinearGradient
-              colors={['#34d399', '#10b981']}
-              style={[styles.certCard, shadows.md]}
-            >
-              <Text style={styles.certIcon}>🐳</Text>
-              <Text style={[styles.certTitle, typography.bodyBold]}>Kubernetes</Text>
-              <Text style={[styles.certDesc, typography.small]}>Container</Text>
-              <View style={styles.certBadge}>
-                <Text style={[styles.certBadgeText, typography.small]}>1 Sınav</Text>
-              </View>
-            </LinearGradient>
-
-            <LinearGradient
-              colors={gradients.error}
-              style={[styles.certCard, shadows.md]}
-            >
-              <Text style={styles.certIcon}>🛡️</Text>
-              <Text style={[styles.certTitle, typography.bodyBold]}>Security+</Text>
-              <Text style={[styles.certDesc, typography.small]}>Cybersecurity</Text>
-              <View style={styles.certBadge}>
-                <Text style={[styles.certBadgeText, typography.small]}>1 Sınav</Text>
-              </View>
-            </LinearGradient>
-          </View>
-        </View>
-
-        {/* Quick Actions */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, typography.h3, { color: colors.textPrimary }]}>
-            Hızlı Erişim
-          </Text>
-          
-          <TouchableOpacity
-            style={[styles.actionCard, { backgroundColor: colors.surface }]}
-            onPress={() => navigation.navigate('Settings')}
-            activeOpacity={0.7}
-          >
-            <View style={[styles.actionIconContainer, { backgroundColor: colors.primaryLight }]}>
-              <Text style={styles.actionIcon}>⚙️</Text>
-            </View>
-            <View style={styles.actionContent}>
-              <Text style={[styles.actionTitle, typography.bodyBold, { color: colors.textPrimary }]}>
-                Ayarlar
+          {/* Popular Exams - Grid (Bike Shopping Product Cards) */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, typography.h3, { color: colors.textPrimary }]}>
+                Popular Certifications
               </Text>
-              <Text style={[styles.actionDesc, typography.caption, { color: colors.textSecondary }]}>
-                Tema ve tercihlerinizi yönetin
-              </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('ExamList')}>
+                <Text style={[styles.seeAll, typography.bodyBold, { color: colors.primary }]}>
+                  See All
+                </Text>
+              </TouchableOpacity>
             </View>
-            <Text style={[styles.actionArrow, { color: colors.textTertiary }]}>›</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+
+            <View style={styles.examGrid}>
+              {popularExams.map((exam) => (
+                <TouchableOpacity
+                  key={exam.id}
+                  style={[styles.examCard, { backgroundColor: colors.surface }, shadows.md]}
+                  onPress={() => navigation.navigate('ExamList')}
+                  activeOpacity={0.7}
+                >
+                  {/* Card Image Area */}
+                  <View style={[styles.examImageArea, { backgroundColor: colors.backgroundSecondary }]}>
+                    <Text style={styles.examIcon}>{exam.icon}</Text>
+                    <View style={[styles.difficultyBadge, { backgroundColor: `${exam.difficultyColor}15` }]}>
+                      <Text style={[styles.difficultyText, typography.smallBold, { color: exam.difficultyColor }]}>
+                        {exam.difficulty}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Card Info */}
+                  <View style={styles.examInfo}>
+                    <Text style={[styles.examCategory, typography.small, { color: colors.textTertiary }]}>
+                      {exam.category}
+                    </Text>
+                    <Text 
+                      style={[styles.examTitle, typography.bodyBold, { color: colors.textPrimary }]}
+                      numberOfLines={2}
+                    >
+                      {exam.title}
+                    </Text>
+
+                    {/* Rating */}
+                    <View style={styles.ratingRow}>
+                      <Text style={styles.star}>⭐</Text>
+                      <Text style={[styles.ratingText, typography.small, { color: colors.textPrimary }]}>
+                        {exam.rating}
+                      </Text>
+                      <Text style={[styles.reviewsText, typography.small, { color: colors.textTertiary }]}>
+                        ({exam.reviews})
+                      </Text>
+                    </View>
+
+                    {/* Details */}
+                    <View style={styles.detailsRow}>
+                      <View style={styles.detailItem}>
+                        <Text style={styles.detailIcon}>📝</Text>
+                        <Text style={[styles.detailText, typography.small, { color: colors.textSecondary }]}>
+                          {exam.questions}
+                        </Text>
+                      </View>
+                      <View style={styles.detailItem}>
+                        <Text style={styles.detailIcon}>⏱️</Text>
+                        <Text style={[styles.detailText, typography.small, { color: colors.textSecondary }]}>
+                          {exam.duration}m
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* CTA Button */}
+          <Button
+            title="Browse All Certifications"
+            onPress={() => navigation.navigate('ExamList')}
+            variant="primary"
+            size="large"
+            fullWidth
+            icon="🚀"
+            style={styles.ctaButton}
+          />
+        </ScrollView>
+      </SafeAreaView>
     </View>
   );
 }
@@ -216,129 +311,174 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  headerGradient: {
-    paddingBottom: spacing.xl,
-  },
-  header: {
-    padding: spacing.xl,
-    paddingTop: spacing.lg,
-  },
-  greeting: {
-    color: 'rgba(255,255,255,0.8)',
-    marginBottom: spacing.xs,
-  },
-  title: {
-    color: '#ffffff',
-    marginBottom: spacing.sm,
-  },
-  subtitle: {
-    color: 'rgba(255,255,255,0.9)',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing.xl,
-    gap: spacing.md,
-  },
-  statCard: {
+  safeArea: {
     flex: 1,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
-    borderWidth: 1,
-    ...shadows.md,
-  },
-  statIcon: {
-    fontSize: 32,
-    marginBottom: spacing.sm,
-  },
-  statNumber: {
-    color: '#ffffff',
-    fontWeight: '800',
-    marginBottom: spacing.xs / 2,
-  },
-  statLabel: {
-    color: 'rgba(255,255,255,0.9)',
-    fontWeight: '600',
-    textAlign: 'center',
   },
   scrollView: {
     flex: 1,
   },
-  content: {
-    padding: spacing.xl,
-    paddingTop: spacing.xxxl,
+  scrollContent: {
+    paddingBottom: spacing.xxxl,
   },
-  primaryButton: {
-    marginBottom: spacing.xxxl,
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    padding: spacing.md,
+    paddingTop: spacing.lg,
   },
+  greeting: {
+    marginBottom: spacing.xs / 2,
+  },
+  title: {},
+  settingsButton: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  settingsIcon: {
+    fontSize: 24,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.md,
+    height: 52,
+    borderRadius: radius.lg,
+  },
+  searchIcon: {
+    fontSize: 20,
+    marginRight: spacing.sm,
+  },
+  searchInput: {
+    flex: 1,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.md,
+    gap: spacing.sm,
+    marginBottom: spacing.xl,
+  },
+  statItem: {
+    flex: 1,
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    alignItems: 'center',
+  },
+  statNumber: {
+    marginBottom: spacing.xs / 2,
+  },
+  statLabel: {},
   section: {
-    marginBottom: spacing.xxxl,
+    marginBottom: spacing.xl,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
   },
   sectionTitle: {
-    marginBottom: spacing.lg,
-  },
-  certGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.lg,
-  },
-  certCard: {
-    width: (width - spacing.xl * 2 - spacing.lg) / 2,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
-  },
-  certIcon: {
-    fontSize: 48,
-    marginBottom: spacing.md,
-  },
-  certTitle: {
-    color: '#ffffff',
-    marginBottom: spacing.xs / 2,
-    textAlign: 'center',
-  },
-  certDesc: {
-    color: 'rgba(255,255,255,0.8)',
-    marginBottom: spacing.md,
-    textAlign: 'center',
-  },
-  certBadge: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs / 2,
-    borderRadius: radius.full,
+    marginBottom: spacing.md,
   },
-  certBadgeText: {
-    color: '#ffffff',
-    fontWeight: '700',
+  seeAll: {},
+  categoriesScroll: {
+    paddingHorizontal: spacing.md,
+    gap: spacing.md,
   },
-  actionCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  categoryCard: {
     padding: spacing.lg,
     borderRadius: radius.lg,
-    ...shadows.sm,
+    alignItems: 'center',
+    minWidth: 100,
   },
-  actionIconContainer: {
+  categoryIcon: {
     width: 56,
     height: 56,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: spacing.lg,
+    marginBottom: spacing.sm,
   },
-  actionIcon: {
+  categoryEmoji: {
     fontSize: 28,
   },
-  actionContent: {
-    flex: 1,
+  categoryName: {},
+  examGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: spacing.md,
+    gap: spacing.md,
   },
-  actionTitle: {
+  examCard: {
+    width: cardWidth,
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+  },
+  examImageArea: {
+    height: 140,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  examIcon: {
+    fontSize: 56,
+  },
+  difficultyBadge: {
+    position: 'absolute',
+    top: spacing.sm,
+    right: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+    borderRadius: radius.sm,
+  },
+  difficultyText: {},
+  examInfo: {
+    padding: spacing.md,
+  },
+  examCategory: {
     marginBottom: spacing.xs / 2,
+    textTransform: 'uppercase',
   },
-  actionDesc: {},
-  actionArrow: {
-    fontSize: 24,
-    fontWeight: '300',
+  examTitle: {
+    marginBottom: spacing.sm,
+    minHeight: 40,
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  star: {
+    fontSize: 14,
+    marginRight: spacing.xs / 2,
+  },
+  ratingText: {
+    marginRight: spacing.xs / 2,
+    fontWeight: '600',
+  },
+  reviewsText: {},
+  detailsRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs / 2,
+  },
+  detailIcon: {
+    fontSize: 14,
+  },
+  detailText: {},
+  ctaButton: {
+    marginHorizontal: spacing.md,
+    marginTop: spacing.lg,
   },
 });

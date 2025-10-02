@@ -1,323 +1,303 @@
 /**
- * iOS-Style Glassmorphism Design System
- * Premium, Modern, Apple-inspired Design
+ * Design System Tokens - Bike Shopping UI Inspired
+ * Modern E-commerce Visual Language for IT Exam Platform
  */
 
-// Spacing Scale - iOS generous spacing
+// Spacing - 8pt grid system (Bike Shopping style)
 export const spacing = {
   xs: 4,
   sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
-  xxl: 32,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 40,
   xxxl: 48,
   huge: 64,
 } as const;
 
-// Typography - SF Pro inspired
+// Typography - Clean, Modern (Bike Shopping inspired)
 export const typography = {
   h1: {
-    fontSize: 34,
-    lineHeight: 41,
+    fontSize: 32,
+    lineHeight: 40,
     fontWeight: '700' as const,
-    letterSpacing: 0.4,
+    letterSpacing: -0.5,
   },
   h2: {
-    fontSize: 28,
-    lineHeight: 34,
+    fontSize: 24,
+    lineHeight: 32,
     fontWeight: '700' as const,
-    letterSpacing: 0.4,
+    letterSpacing: -0.3,
   },
   h3: {
-    fontSize: 22,
+    fontSize: 20,
     lineHeight: 28,
     fontWeight: '600' as const,
-    letterSpacing: 0.4,
+    letterSpacing: -0.2,
   },
   h4: {
-    fontSize: 20,
-    lineHeight: 25,
-    fontWeight: '600' as const,
-    letterSpacing: 0.4,
-  },
-  body: {
-    fontSize: 17,
-    lineHeight: 22,
-    fontWeight: '400' as const,
-    letterSpacing: -0.4,
-  },
-  bodyLarge: {
-    fontSize: 19,
+    fontSize: 18,
     lineHeight: 24,
-    fontWeight: '400' as const,
-    letterSpacing: -0.4,
-  },
-  bodyBold: {
-    fontSize: 17,
-    lineHeight: 22,
-    fontWeight: '600' as const,
-    letterSpacing: -0.4,
-  },
-  caption: {
-    fontSize: 15,
-    lineHeight: 20,
-    fontWeight: '400' as const,
-    letterSpacing: -0.2,
-  },
-  captionBold: {
-    fontSize: 15,
-    lineHeight: 20,
-    fontWeight: '600' as const,
-    letterSpacing: -0.2,
-  },
-  small: {
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: '400' as const,
-    letterSpacing: -0.1,
-  },
-  smallBold: {
-    fontSize: 13,
-    lineHeight: 18,
     fontWeight: '600' as const,
     letterSpacing: 0,
   },
+  body: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '400' as const,
+    letterSpacing: 0,
+  },
+  bodyBold: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '600' as const,
+    letterSpacing: 0,
+  },
+  caption: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '400' as const,
+    letterSpacing: 0,
+  },
+  captionBold: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '600' as const,
+    letterSpacing: 0,
+  },
+  small: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '400' as const,
+    letterSpacing: 0,
+  },
+  smallBold: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '700' as const,
+    letterSpacing: 0.5,
+  },
 } as const;
 
-// Border Radius - iOS style
+// Border Radius - Bike Shopping style (16px standard)
 export const radius = {
-  xs: 8,
-  sm: 10,
+  xs: 4,
+  sm: 8,
   md: 12,
   lg: 16,
   xl: 20,
-  xxl: 28,
+  xxl: 24,
   full: 9999,
 } as const;
 
-// Shadows - Soft iOS shadows
+// Shadows - Soft, Modern (Bike Shopping)
 export const shadows = {
   sm: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   md: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
     shadowRadius: 8,
-    elevation: 2,
+    elevation: 4,
   },
   lg: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
     shadowRadius: 16,
-    elevation: 4,
+    elevation: 6,
   },
   xl: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
+    shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.12,
     shadowRadius: 24,
-    elevation: 6,
+    elevation: 8,
   },
 } as const;
 
-// Light Theme - iOS Glassmorphism
+// Light Theme - Bike Shopping Colors
 export const lightColors = {
-  // Primary - iOS Blue
-  primary: '#007AFF',
-  primaryDark: '#0051D5',
-  primaryLight: '#4DA2FF',
+  // Primary - Modern Blue (Bike Shopping)
+  primary: '#3B82F6',
+  primaryDark: '#2563EB',
+  primaryLight: '#60A5FA',
   
-  // Secondary - iOS Purple
-  secondary: '#AF52DE',
-  secondaryDark: '#8944AB',
-  secondaryLight: '#C77FEA',
+  // Accent - Success Green
+  accent: '#22C55E',
+  accentDark: '#16A34A',
+  accentLight: '#4ADE80',
   
-  // Accent - iOS Pink
-  accent: '#FF2D55',
-  accentDark: '#D50032',
+  // Secondary - Purple (for variety)
+  secondary: '#8B5CF6',
+  secondaryDark: '#7C3AED',
+  secondaryLight: '#A78BFA',
   
-  // Success - iOS Green
-  success: '#34C759',
-  successDark: '#248A3D',
-  successLight: '#5DD67D',
+  // Success
+  success: '#22C55E',
+  successDark: '#16A34A',
+  successLight: '#4ADE80',
   
-  // Warning - iOS Orange
-  warning: '#FF9500',
-  warningDark: '#C93400',
-  warningLight: '#FFB340',
+  // Warning
+  warning: '#F59E0B',
+  warningDark: '#D97706',
+  warningLight: '#FBBF24',
   
-  // Error - iOS Red
-  error: '#FF3B30',
-  errorDark: '#D70015',
-  errorLight: '#FF6961',
+  // Error
+  error: '#EF4444',
+  errorDark: '#DC2626',
+  errorLight: '#F87171',
   
-  // Info - iOS Teal
-  info: '#5AC8FA',
-  infoDark: '#0A84FF',
-  infoLight: '#64D2FF',
+  // Info
+  info: '#3B82F6',
+  infoDark: '#2563EB',
+  infoLight: '#60A5FA',
   
-  // Neutral Scale - iOS grays
-  neutral50: '#F9F9F9',
-  neutral100: '#F2F2F7',
-  neutral200: '#E5E5EA',
-  neutral300: '#D1D1D6',
-  neutral400: '#C7C7CC',
-  neutral500: '#AEAEB2',
-  neutral600: '#8E8E93',
-  neutral700: '#636366',
-  neutral800: '#48484A',
-  neutral900: '#1C1C1E',
+  // Slate Scale (Bike Shopping gray palette)
+  slate50: '#F8FAFC',
+  slate100: '#F1F5F9',
+  slate200: '#E2E8F0',
+  slate300: '#CBD5E1',
+  slate400: '#94A3B8',
+  slate500: '#64748B',
+  slate600: '#475569',
+  slate700: '#334155',
+  slate800: '#1E293B',
+  slate900: '#0F172A',
   
-  // Glass surfaces
-  glass: 'rgba(255, 255, 255, 0.7)',
-  glassDark: 'rgba(255, 255, 255, 0.5)',
-  glassLight: 'rgba(255, 255, 255, 0.9)',
-  
-  // Background
-  background: '#F2F2F7',
-  backgroundSecondary: '#FFFFFF',
-  surface: 'rgba(255, 255, 255, 0.8)',
-  surfaceSecondary: 'rgba(255, 255, 255, 0.6)',
-  surfaceHover: 'rgba(255, 255, 255, 0.9)',
+  // Background & Surface
+  background: '#FFFFFF',
+  backgroundSecondary: '#F8FAFC',
+  surface: '#FFFFFF',
+  surfaceSecondary: '#F8FAFC',
+  surfaceHover: '#F1F5F9',
   
   // Text Colors
-  textPrimary: '#000000',
-  textSecondary: '#3C3C43',
-  textTertiary: '#8E8E93',
+  textPrimary: '#0F172A',
+  textSecondary: '#475569',
+  textTertiary: '#94A3B8',
   textInverse: '#FFFFFF',
-  textDisabled: '#C7C7CC',
+  textDisabled: '#CBD5E1',
   
-  // Border
-  border: 'rgba(0, 0, 0, 0.08)',
-  borderStrong: 'rgba(0, 0, 0, 0.12)',
-  borderLight: 'rgba(255, 255, 255, 0.2)',
+  // Border Colors
+  border: '#E2E8F0',
+  borderStrong: '#CBD5E1',
+  borderLight: '#F1F5F9',
   
   // Overlay
-  overlay: 'rgba(0, 0, 0, 0.4)',
-  overlayLight: 'rgba(0, 0, 0, 0.2)',
+  overlay: 'rgba(15, 23, 42, 0.5)',
+  overlayLight: 'rgba(15, 23, 42, 0.3)',
+  
+  // Rating/Review
+  rating: '#FBBF24',
 } as const;
 
-// Dark Theme - iOS Dark Mode
+// Dark Theme - Bike Shopping Dark Mode
 export const darkColors = {
-  // Primary - iOS Blue (brighter in dark mode)
-  primary: '#0A84FF',
-  primaryDark: '#007AFF',
-  primaryLight: '#409CFF',
+  // Primary - Brighter blue for dark mode
+  primary: '#60A5FA',
+  primaryDark: '#3B82F6',
+  primaryLight: '#93C5FD',
   
-  // Secondary - iOS Purple
-  secondary: '#BF5AF2',
-  secondaryDark: '#AF52DE',
-  secondaryLight: '#D27BFF',
+  // Accent - Bright green
+  accent: '#4ADE80',
+  accentDark: '#22C55E',
+  accentLight: '#86EFAC',
   
-  // Accent - iOS Pink
-  accent: '#FF375F',
-  accentDark: '#FF2D55',
+  // Secondary
+  secondary: '#A78BFA',
+  secondaryDark: '#8B5CF6',
+  secondaryLight: '#C4B5FD',
   
-  // Success - iOS Green
-  success: '#32D74B',
-  successDark: '#30D158',
-  successLight: '#63DE76',
+  // Success
+  success: '#4ADE80',
+  successDark: '#22C55E',
+  successLight: '#86EFAC',
   
-  // Warning - iOS Orange
-  warning: '#FF9F0A',
-  warningDark: '#FF9500',
-  warningLight: '#FFB340',
+  // Warning
+  warning: '#FBBF24',
+  warningDark: '#F59E0B',
+  warningLight: '#FCD34D',
   
-  // Error - iOS Red
-  error: '#FF453A',
-  errorDark: '#FF3B30',
-  errorLight: '#FF6961',
+  // Error
+  error: '#F87171',
+  errorDark: '#EF4444',
+  errorLight: '#FCA5A5',
   
-  // Info - iOS Teal
-  info: '#64D2FF',
-  infoDark: '#5AC8FA',
-  infoLight: '#90E0FF',
+  // Info
+  info: '#60A5FA',
+  infoDark: '#3B82F6',
+  infoLight: '#93C5FD',
   
-  // Neutral Scale
-  neutral50: '#000000',
-  neutral100: '#1C1C1E',
-  neutral200: '#2C2C2E',
-  neutral300: '#3A3A3C',
-  neutral400: '#48484A',
-  neutral500: '#636366',
-  neutral600: '#8E8E93',
-  neutral700: '#AEAEB2',
-  neutral800: '#C7C7CC',
-  neutral900: '#E5E5EA',
+  // Slate Scale (inverted for dark)
+  slate50: '#0F172A',
+  slate100: '#1E293B',
+  slate200: '#334155',
+  slate300: '#475569',
+  slate400: '#64748B',
+  slate500: '#94A3B8',
+  slate600: '#CBD5E1',
+  slate700: '#E2E8F0',
+  slate800: '#F1F5F9',
+  slate900: '#F8FAFC',
   
-  // Glass surfaces - Dark mode frosted glass
-  glass: 'rgba(28, 28, 30, 0.7)',
-  glassDark: 'rgba(28, 28, 30, 0.5)',
-  glassLight: 'rgba(28, 28, 30, 0.9)',
-  
-  // Background
-  background: '#000000',
-  backgroundSecondary: '#1C1C1E',
-  surface: 'rgba(28, 28, 30, 0.8)',
-  surfaceSecondary: 'rgba(44, 44, 46, 0.6)',
-  surfaceHover: 'rgba(44, 44, 46, 0.9)',
+  // Background & Surface
+  background: '#0F172A',
+  backgroundSecondary: '#1E293B',
+  surface: '#1E293B',
+  surfaceSecondary: '#334155',
+  surfaceHover: '#475569',
   
   // Text Colors
-  textPrimary: '#FFFFFF',
-  textSecondary: '#EBEBF5',
-  textTertiary: '#AEAEB2',
-  textInverse: '#000000',
-  textDisabled: '#636366',
+  textPrimary: '#F8FAFC',
+  textSecondary: '#CBD5E1',
+  textTertiary: '#94A3B8',
+  textInverse: '#0F172A',
+  textDisabled: '#475569',
   
-  // Border
-  border: 'rgba(255, 255, 255, 0.08)',
-  borderStrong: 'rgba(255, 255, 255, 0.12)',
-  borderLight: 'rgba(255, 255, 255, 0.04)',
+  // Border Colors
+  border: '#334155',
+  borderStrong: '#475569',
+  borderLight: '#1E293B',
   
   // Overlay
-  overlay: 'rgba(0, 0, 0, 0.6)',
-  overlayLight: 'rgba(0, 0, 0, 0.4)',
+  overlay: 'rgba(15, 23, 42, 0.7)',
+  overlayLight: 'rgba(15, 23, 42, 0.5)',
+  
+  // Rating/Review
+  rating: '#FBBF24',
 } as const;
 
-// Gradients - Subtle iOS style
+// Gradients - Clean, Modern (Bike Shopping)
 export const gradients = {
-  primary: ['#007AFF', '#0A84FF'],
-  secondary: ['#AF52DE', '#BF5AF2'],
-  success: ['#34C759', '#32D74B'],
-  warning: ['#FF9500', '#FF9F0A'],
-  error: ['#FF3B30', '#FF453A'],
-  purple: ['#AF52DE', '#BF5AF2'],
-  blue: ['#007AFF', '#0A84FF'],
-  pink: ['#FF2D55', '#FF375F'],
-  emerald: ['#34C759', '#32D74B'],
-  // iOS gradients
-  hero: ['#007AFF', '#AF52DE'],
-  heroAlt: ['#0A84FF', '#BF5AF2', '#FF375F'],
-  glass: ['rgba(255, 255, 255, 0.7)', 'rgba(255, 255, 255, 0.5)'],
+  primary: ['#3B82F6', '#2563EB'],
+  accent: ['#22C55E', '#16A34A'],
+  secondary: ['#8B5CF6', '#7C3AED'],
+  success: ['#22C55E', '#16A34A'],
+  warning: ['#F59E0B', '#D97706'],
+  error: ['#EF4444', '#DC2626'],
+  // Hero gradients
+  hero: ['#3B82F6', '#8B5CF6'],
+  heroAlt: ['#2563EB', '#7C3AED'],
 } as const;
 
-// Blur Intensity - for BlurView
-export const blur = {
-  light: 10,
-  regular: 20,
-  prominent: 40,
-  ultra: 60,
-} as const;
-
-// Touch Targets
+// Touch Targets - Accessibility
 export const touchTarget = {
   minHeight: 44,
   minWidth: 44,
 } as const;
 
-// Animation Durations - iOS-like
+// Animation Durations
 export const duration = {
-  fast: 200,
-  normal: 300,
-  slow: 500,
+  fast: 150,
+  normal: 250,
+  slow: 400,
 } as const;
 
 // Z-Index Scale
@@ -329,4 +309,23 @@ export const zIndex = {
   modal: 1050,
   popover: 1060,
   tooltip: 1070,
+} as const;
+
+// Badge Styles (for difficulty, category, etc.)
+export const badges = {
+  beginner: {
+    bg: '#DCFCE7',
+    text: '#16A34A',
+    border: '#86EFAC',
+  },
+  intermediate: {
+    bg: '#FEF3C7',
+    text: '#D97706',
+    border: '#FCD34D',
+  },
+  advanced: {
+    bg: '#FEE2E2',
+    text: '#DC2626',
+    border: '#FCA5A5',
+  },
 } as const;
