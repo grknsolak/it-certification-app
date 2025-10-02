@@ -28,10 +28,34 @@ export default function ExamScreen({ navigation, route }: Props) {
   const examData = certificationExams.find(e => e.id === examId);
   
   // Mode'a göre soruları ayarla
-  const questions = mode === 'exam' && examData?.realExamQuestionCount
-    ? examData.questions.slice(0, examData.realExamQuestionCount)
-    : examData?.questions || [];
+  const getQuestions = () => {
+    if (!examData) return [];
+    
+    if (mode === 'exam' && examData.realExamQuestionCount) {
+      const targetCount = examData.realExamQuestionCount;
+      const availableQuestions = examData.questions;
+      
+      // Gerçek soru sayısına ulaşmak için soruları tekrarla
+      const repeatedQuestions: Question[] = [];
+      let index = 0;
+      
+      for (let i = 0; i < targetCount; i++) {
+        const question = availableQuestions[index % availableQuestions.length];
+        // Her tekrarda unique ID oluştur
+        repeatedQuestions.push({
+          ...question,
+          id: `${question.id}-repeat-${i}`,
+        });
+        index++;
+      }
+      
+      return repeatedQuestions;
+    }
+    
+    return examData.questions;
+  };
   
+  const questions = getQuestions();
   const exam = examData ? { ...examData, questions } : null;
   
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
