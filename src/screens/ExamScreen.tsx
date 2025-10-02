@@ -67,6 +67,7 @@ export default function ExamScreen({ navigation, route }: Props) {
   const [bookmarkedQuestions, setBookmarkedQuestions] = useState<number[]>([]);
   const [showQuestionGrid, setShowQuestionGrid] = useState(true); // İlk girişte göster!
   const [hasStarted, setHasStarted] = useState(false); // Kullanıcı başladı mı?
+  const [questionFilter, setQuestionFilter] = useState<'all' | 'answered' | 'bookmarked' | 'unanswered'>('all');
 
   useEffect(() => {
     if (!exam) {
@@ -325,18 +326,65 @@ export default function ExamScreen({ navigation, route }: Props) {
               </View>
               
               <View style={styles.modalLegend}>
-                <View style={styles.legendItem}>
-                  <View style={[styles.legendBox, { backgroundColor: '#10b981' }]} />
-                  <Text style={styles.legendText}>Cevaplandı</Text>
-                </View>
-                <View style={styles.legendItem}>
-                  <View style={[styles.legendBox, { backgroundColor: '#f59e0b' }]} />
-                  <Text style={styles.legendText}>⭐ İşaretli</Text>
-                </View>
-                <View style={styles.legendItem}>
-                  <View style={[styles.legendBox, { backgroundColor: '#e5e7eb' }]} />
-                  <Text style={styles.legendText}>Cevaplanmadı</Text>
-                </View>
+                <TouchableOpacity 
+                  style={styles.legendItem}
+                  onPress={() => setQuestionFilter('all')}
+                >
+                  <View style={[
+                    styles.legendBox, 
+                    { backgroundColor: '#667eea' },
+                    questionFilter === 'all' && styles.legendBoxActive
+                  ]} />
+                  <Text style={[
+                    styles.legendText,
+                    questionFilter === 'all' && styles.legendTextActive
+                  ]}>Tümü</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.legendItem}
+                  onPress={() => setQuestionFilter('answered')}
+                >
+                  <View style={[
+                    styles.legendBox, 
+                    { backgroundColor: '#10b981' },
+                    questionFilter === 'answered' && styles.legendBoxActive
+                  ]} />
+                  <Text style={[
+                    styles.legendText,
+                    questionFilter === 'answered' && styles.legendTextActive
+                  ]}>Cevaplandı</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.legendItem}
+                  onPress={() => setQuestionFilter('bookmarked')}
+                >
+                  <View style={[
+                    styles.legendBox, 
+                    { backgroundColor: '#f59e0b' },
+                    questionFilter === 'bookmarked' && styles.legendBoxActive
+                  ]} />
+                  <Text style={[
+                    styles.legendText,
+                    questionFilter === 'bookmarked' && styles.legendTextActive
+                  ]}>⭐ İşaretli</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.legendItem}
+                  onPress={() => setQuestionFilter('unanswered')}
+                >
+                  <View style={[
+                    styles.legendBox, 
+                    { backgroundColor: '#e5e7eb' },
+                    questionFilter === 'unanswered' && styles.legendBoxActive
+                  ]} />
+                  <Text style={[
+                    styles.legendText,
+                    questionFilter === 'unanswered' && styles.legendTextActive
+                  ]}>Cevaplanmadı</Text>
+                </TouchableOpacity>
               </View>
 
               <ScrollView style={styles.questionGrid} contentContainerStyle={styles.questionGridContent}>
@@ -344,6 +392,14 @@ export default function ExamScreen({ navigation, route }: Props) {
                   const isAnswered = answers.some(a => a.questionId === exam.questions[index].id);
                   const isBookmarked = bookmarkedQuestions.includes(index);
                   const isCurrent = index === currentQuestionIndex;
+                  
+                  // Filter logic
+                  let shouldShow = true;
+                  if (questionFilter === 'answered' && !isAnswered) shouldShow = false;
+                  if (questionFilter === 'bookmarked' && !isBookmarked) shouldShow = false;
+                  if (questionFilter === 'unanswered' && isAnswered) shouldShow = false;
+                  
+                  if (!shouldShow) return null;
                   
                   return (
                     <TouchableOpacity
@@ -433,68 +489,61 @@ export default function ExamScreen({ navigation, route }: Props) {
       </ScrollView>
 
       <View style={styles.footer}>
-        <SafeAreaView edges={['bottom']}>
+        <SafeAreaView>
           <View style={styles.footerButtons}>
             {/* Önceki Butonu */}
             {currentQuestionIndex > 0 && (
               <TouchableOpacity
-                style={styles.iconButton}
+                style={styles.footerButton}
                 onPress={handlePreviousQuestion}
               >
-                <Text style={styles.iconButtonText}>←</Text>
+                <Text style={styles.footerButtonText}>← Önceki</Text>
               </TouchableOpacity>
             )}
 
             {/* Sorular Butonu */}
             <TouchableOpacity
-              style={styles.iconButton}
+              style={styles.footerButton}
               onPress={() => setShowQuestionGrid(true)}
             >
-              <Text style={styles.iconButtonText}>📋</Text>
+              <Text style={styles.footerButtonText}>📋 Sorular</Text>
             </TouchableOpacity>
 
             {/* İşaretle Butonu */}
             <TouchableOpacity
-              style={[styles.iconButton, bookmarkedQuestions.includes(currentQuestionIndex) && styles.iconButtonActive]}
+              style={[
+                styles.footerButton,
+                bookmarkedQuestions.includes(currentQuestionIndex) && styles.footerButtonBookmarked
+              ]}
               onPress={toggleBookmark}
             >
-              <Text style={styles.iconButtonText}>
-                {bookmarkedQuestions.includes(currentQuestionIndex) ? '⭐' : '☆'}
+              <Text style={styles.footerButtonText}>
+                {bookmarkedQuestions.includes(currentQuestionIndex) ? '⭐ İşaretli' : '☆ İşaretle'}
               </Text>
             </TouchableOpacity>
 
             {/* Bitir Butonu */}
             <TouchableOpacity
-              style={[styles.iconButton, styles.finishIconButton]}
+              style={[styles.footerButton, styles.footerButtonFinish]}
               onPress={handleFinishEarly}
             >
-              <Text style={styles.iconButtonText}>🏁</Text>
+              <Text style={styles.footerButtonText}>🏁 Bitir</Text>
             </TouchableOpacity>
 
-            {/* Sonraki / Bitir Butonu */}
+            {/* Sonraki / Bitir Son Soru Butonu */}
             {currentQuestionIndex < exam.questions.length - 1 ? (
               <TouchableOpacity
-                style={styles.nextButton}
+                style={[styles.footerButton, styles.footerButtonNext]}
                 onPress={handleNextQuestion}
               >
-                <LinearGradient
-                  colors={['#10b981', '#059669']}
-                  style={styles.nextButtonGradient}
-                >
-                  <Text style={styles.nextButtonText}>Sonraki</Text>
-                </LinearGradient>
+                <Text style={styles.footerButtonText}>Sonraki →</Text>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
-                style={styles.nextButton}
+                style={[styles.footerButton, styles.footerButtonFinish]}
                 onPress={handleSkipAndFinish}
               >
-                <LinearGradient
-                  colors={['#ef4444', '#dc2626']}
-                  style={styles.nextButtonGradient}
-                >
-                  <Text style={styles.nextButtonText}>Bitir</Text>
-                </LinearGradient>
+                <Text style={styles.footerButtonText}>✓ Tamamla</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -682,39 +731,32 @@ const styles = StyleSheet.create({
   },
   footerButtons: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
     alignItems: 'center',
   },
-  iconButton: {
-    width: 44,
-    height: 44,
+  footerButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     borderRadius: 12,
     backgroundColor: '#f3f4f6',
     alignItems: 'center',
     justifyContent: 'center',
+    minWidth: 100,
   },
-  iconButtonActive: {
+  footerButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1f2937',
+  },
+  footerButtonBookmarked: {
     backgroundColor: '#fef3c7',
   },
-  finishIconButton: {
+  footerButtonFinish: {
     backgroundColor: '#fee2e2',
   },
-  iconButtonText: {
-    fontSize: 20,
-  },
-  nextButton: {
-    flex: 1,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  nextButtonGradient: {
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  nextButtonText: {
-    color: '#ffffff',
-    fontSize: 15,
-    fontWeight: '700',
+  footerButtonNext: {
+    backgroundColor: '#d1fae5',
   },
   modalOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -766,10 +808,18 @@ const styles = StyleSheet.create({
     height: 16,
     borderRadius: 4,
   },
+  legendBoxActive: {
+    borderWidth: 3,
+    borderColor: '#1f2937',
+  },
   legendText: {
     fontSize: 12,
     color: '#6b7280',
     fontWeight: '500',
+  },
+  legendTextActive: {
+    color: '#1f2937',
+    fontWeight: '700',
   },
   questionGrid: {
     flex: 1,
