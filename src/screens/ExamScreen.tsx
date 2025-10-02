@@ -396,21 +396,45 @@ export default function ExamScreen({ navigation, route }: Props) {
 
       <View style={styles.footer}>
         <SafeAreaView>
-          <View style={styles.footerButtons}>
+          {/* Üst Satır: Önceki / Sonraki */}
+          <View style={styles.footerTopRow}>
             {/* Önceki Butonu */}
-            {currentQuestionIndex > 0 && (
+            {currentQuestionIndex > 0 ? (
               <TouchableOpacity
-                style={styles.footerButton}
+                style={[styles.footerButton, styles.footerNavButton]}
                 onPress={handlePreviousQuestion}
               >
                 <Text style={styles.footerButtonText}>← Önceki</Text>
               </TouchableOpacity>
+            ) : (
+              <View style={styles.footerSpacer} />
             )}
 
+            {/* Sonraki / Bitir Son Soru Butonu */}
+            {currentQuestionIndex < exam.questions.length - 1 ? (
+              <TouchableOpacity
+                style={[styles.footerButton, styles.footerNavButton, styles.footerButtonNext]}
+                onPress={handleNextQuestion}
+              >
+                <Text style={styles.footerButtonText}>Sonraki →</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={[styles.footerButton, styles.footerNavButton, styles.footerButtonFinish]}
+                onPress={handleSkipAndFinish}
+              >
+                <Text style={styles.footerButtonText}>✓ Tamamla</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Alt Satır: Sorular / Bitir */}
+          <View style={styles.footerBottomRow}>
             {/* Sorular Butonu - Toggle */}
             <TouchableOpacity
               style={[
                 styles.footerButton,
+                styles.footerActionButton,
                 showQuestionGrid && styles.footerButtonActive
               ]}
               onPress={() => setShowQuestionGrid(!showQuestionGrid)}
@@ -420,28 +444,11 @@ export default function ExamScreen({ navigation, route }: Props) {
 
             {/* Bitir Butonu */}
             <TouchableOpacity
-              style={[styles.footerButton, styles.footerButtonFinish]}
+              style={[styles.footerButton, styles.footerActionButton, styles.footerButtonFinish]}
               onPress={handleFinishEarly}
             >
               <Text style={styles.footerButtonText}>🏁 Bitir</Text>
             </TouchableOpacity>
-
-            {/* Sonraki / Bitir Son Soru Butonu */}
-            {currentQuestionIndex < exam.questions.length - 1 ? (
-              <TouchableOpacity
-                style={[styles.footerButton, styles.footerButtonNext]}
-                onPress={handleNextQuestion}
-              >
-                <Text style={styles.footerButtonText}>Sonraki →</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={[styles.footerButton, styles.footerButtonFinish]}
-                onPress={handleSkipAndFinish}
-              >
-                <Text style={styles.footerButtonText}>✓ Tamamla</Text>
-              </TouchableOpacity>
-            )}
           </View>
         </SafeAreaView>
       </View>
@@ -529,40 +536,65 @@ export default function ExamScreen({ navigation, route }: Props) {
               </View>
 
               <ScrollView style={styles.questionGrid} contentContainerStyle={styles.questionGridContent}>
-                {exam.questions.map((_, index) => {
-                  const isAnswered = answers.some(a => a.questionId === exam.questions[index].id);
-                  const isBookmarked = bookmarkedQuestions.includes(index);
-                  const isCurrent = index === currentQuestionIndex;
-                  
-                  // Filter logic
-                  let shouldShow = true;
-                  if (questionFilter === 'answered' && !isAnswered) shouldShow = false;
-                  if (questionFilter === 'bookmarked' && !isBookmarked) shouldShow = false;
-                  if (questionFilter === 'unanswered' && isAnswered) shouldShow = false;
-                  
-                  if (!shouldShow) return null;
-                  
-                  return (
-                    <TouchableOpacity
-                      key={index}
-                      style={[
-                        styles.questionGridItem,
-                        isAnswered && styles.questionGridItemAnswered,
-                        isBookmarked && styles.questionGridItemBookmarked,
-                        isCurrent && styles.questionGridItemCurrent,
-                      ]}
-                      onPress={() => goToQuestion(index)}
-                    >
-                      <Text style={[
-                        styles.questionGridItemText,
-                        (isAnswered || isBookmarked || isCurrent) && styles.questionGridItemTextActive
-                      ]}>
-                        {index + 1}
-                      </Text>
-                      {isBookmarked && <Text style={styles.questionGridStar}>⭐</Text>}
-                    </TouchableOpacity>
-                  );
-                })}
+                {(() => {
+                  const filteredQuestions = exam.questions.filter((_, index) => {
+                    const isAnswered = answers.some(a => a.questionId === exam.questions[index].id);
+                    const isBookmarked = bookmarkedQuestions.includes(index);
+                    
+                    if (questionFilter === 'answered' && !isAnswered) return false;
+                    if (questionFilter === 'bookmarked' && !isBookmarked) return false;
+                    if (questionFilter === 'unanswered' && isAnswered) return false;
+                    return true;
+                  });
+
+                  if (filteredQuestions.length === 0) {
+                    return (
+                      <View style={styles.emptyFilterState}>
+                        <Text style={styles.emptyFilterEmoji}>🔍</Text>
+                        <Text style={styles.emptyFilterText}>
+                          {questionFilter === 'answered' && 'Henüz cevaplanan soru yok'}
+                          {questionFilter === 'bookmarked' && 'Henüz işaretlenen soru yok'}
+                          {questionFilter === 'unanswered' && 'Tüm sorular cevaplandı!'}
+                        </Text>
+                      </View>
+                    );
+                  }
+
+                  return exam.questions.map((_, index) => {
+                    const isAnswered = answers.some(a => a.questionId === exam.questions[index].id);
+                    const isBookmarked = bookmarkedQuestions.includes(index);
+                    const isCurrent = index === currentQuestionIndex;
+                    
+                    // Filter logic
+                    let shouldShow = true;
+                    if (questionFilter === 'answered' && !isAnswered) shouldShow = false;
+                    if (questionFilter === 'bookmarked' && !isBookmarked) shouldShow = false;
+                    if (questionFilter === 'unanswered' && isAnswered) shouldShow = false;
+                    
+                    if (!shouldShow) return null;
+                    
+                    return (
+                      <TouchableOpacity
+                        key={index}
+                        style={[
+                          styles.questionGridItem,
+                          isAnswered && styles.questionGridItemAnswered,
+                          isBookmarked && styles.questionGridItemBookmarked,
+                          isCurrent && styles.questionGridItemCurrent,
+                        ]}
+                        onPress={() => goToQuestion(index)}
+                      >
+                        <Text style={[
+                          styles.questionGridItemText,
+                          (isAnswered || isBookmarked || isCurrent) && styles.questionGridItemTextActive
+                        ]}>
+                          {index + 1}
+                        </Text>
+                        {isBookmarked && <Text style={styles.questionGridStar}>⭐</Text>}
+                      </TouchableOpacity>
+                    );
+                  });
+                })()}
               </ScrollView>
             </TouchableOpacity>
           </SafeAreaView>
@@ -751,19 +783,22 @@ const styles = StyleSheet.create({
   },
   footer: {
     backgroundColor: '#ffffff',
-    padding: 16,
+    padding: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 8,
   },
-  footerButtons: {
+  footerTopRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    justifyContent: 'space-between',
     gap: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  footerBottomRow: {
+    flexDirection: 'row',
+    gap: 8,
   },
   footerButton: {
     paddingVertical: 12,
@@ -772,15 +807,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3f4f6',
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 100,
+  },
+  footerNavButton: {
+    flex: 1,
+  },
+  footerActionButton: {
+    flex: 1,
+  },
+  footerSpacer: {
+    flex: 1,
   },
   footerButtonText: {
     fontSize: 14,
     fontWeight: '600',
     color: '#1f2937',
-  },
-  footerButtonBookmarked: {
-    backgroundColor: '#fef3c7',
   },
   footerButtonFinish: {
     backgroundColor: '#fee2e2',
@@ -903,6 +943,22 @@ const styles = StyleSheet.create({
     top: -4,
     right: -4,
     fontSize: 16,
+  },
+  emptyFilterState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+  },
+  emptyFilterEmoji: {
+    fontSize: 48,
+    marginBottom: 12,
+  },
+  emptyFilterText: {
+    fontSize: 15,
+    color: '#6b7280',
+    fontWeight: '500',
+    textAlign: 'center',
   },
 });
 
