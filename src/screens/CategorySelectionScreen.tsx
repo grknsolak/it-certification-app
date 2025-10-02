@@ -226,9 +226,9 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxxl,
   },
   header: {
-    padding: spacing.md,
+    paddingHorizontal: spacing.md,
     paddingTop: spacing.xl,
-    paddingBottom: spacing.xl,
+    paddingBottom: spacing.lg,
   },
   backButton: {
     width: 44,

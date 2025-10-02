@@ -315,50 +315,42 @@ export default function SubCategoryScreen({ navigation, route }: Props) {
             </View>
           </View>
 
-          {/* Sub-Categories Grid */}
-          <View style={styles.grid}>
+          {/* Sub-Categories Compact List - Minimal & Clean */}
+          <View style={styles.subCategoriesList}>
             {subCategories.map((subCategory) => (
               <TouchableOpacity
                 key={subCategory.id}
-                style={styles.cardWrapper}
+                style={[styles.compactCard, { backgroundColor: colors.surface }, shadows.sm]}
                 onPress={() => handleSubCategorySelect(subCategory)}
-                activeOpacity={0.8}
+                activeOpacity={0.7}
               >
-                <View style={[styles.card, { backgroundColor: colors.surface }, shadows.lg]}>
-                  {/* Icon Header */}
-                  <LinearGradient
-                    colors={subCategory.gradient}
-                    style={styles.iconHeader}
-                  >
-                    <Text style={styles.icon}>{subCategory.icon}</Text>
-                    <View style={styles.examCount}>
-                      <Text style={[styles.examCountText, typography.smallBold]}>
-                        {subCategory.exams} Exams
-                      </Text>
-                    </View>
-                  </LinearGradient>
-
-                  {/* Content */}
-                  <View style={styles.cardContent}>
-                    <Text style={[styles.cardTitle, typography.h4, { color: colors.textPrimary }]}>
+                <LinearGradient
+                  colors={subCategory.gradient as any}
+                  style={styles.compactIconWrapper}
+                >
+                  <Text style={styles.compactIcon}>{subCategory.icon}</Text>
+                </LinearGradient>
+                
+                <View style={styles.compactContent}>
+                  <View style={styles.compactHeader}>
+                    <Text style={[styles.compactTitle, typography.bodyBold, { color: colors.textPrimary }]}>
                       {subCategory.name}
                     </Text>
-                    <Text 
-                      style={[styles.cardDescription, typography.caption, { color: colors.textSecondary }]}
-                      numberOfLines={2}
-                    >
-                      {subCategory.description}
-                    </Text>
-
-                    {/* Action */}
-                    <View style={[styles.actionRow, { borderTopColor: colors.border }]}>
-                      <Text style={[styles.actionText, typography.bodyBold, { color: colors.primary }]}>
-                        View Exams
+                    <View style={[styles.compactBadge, { backgroundColor: colors.backgroundSecondary }]}>
+                      <Text style={[styles.compactBadgeText, { color: colors.textSecondary }]}>
+                        {subCategory.exams}
                       </Text>
-                      <Text style={[styles.actionArrow, { color: colors.primary }]}>→</Text>
                     </View>
                   </View>
+                  <Text 
+                    style={[styles.compactDescription, typography.caption, { color: colors.textSecondary }]}
+                    numberOfLines={1}
+                  >
+                    {subCategory.description}
+                  </Text>
                 </View>
+                
+                <Text style={[styles.compactArrow, { color: colors.textTertiary }]}>›</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -382,9 +374,9 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxxl,
   },
   header: {
-    padding: spacing.md,
+    paddingHorizontal: spacing.md,
     paddingTop: spacing.xl,
-    paddingBottom: spacing.xl,
+    paddingBottom: spacing.lg,
   },
   backButton: {
     width: 44,
@@ -402,77 +394,67 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerIcon: {
-    fontSize: 64,
-    marginBottom: spacing.md,
+    fontSize: 48,
+    marginBottom: spacing.sm,
   },
   title: {
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
     textAlign: 'center',
   },
   subtitle: {
-    lineHeight: 24,
+    lineHeight: 20,
     textAlign: 'center',
   },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  subCategoriesList: {
     paddingHorizontal: spacing.md,
+    gap: spacing.sm,
+  },
+  compactCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.md,
+    borderRadius: radius.lg,
     gap: spacing.md,
   },
-  cardWrapper: {
-    width: cardWidth,
-    marginBottom: spacing.md,
-  },
-  card: {
-    borderRadius: radius.xl,
-    overflow: 'hidden',
-  },
-  iconHeader: {
-    height: 120,
+  compactIconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
   },
-  icon: {
-    fontSize: 48,
+  compactIcon: {
+    fontSize: 24,
   },
-  examCount: {
-    position: 'absolute',
-    top: spacing.sm,
-    right: spacing.sm,
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs / 2,
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+  compactContent: {
+    flex: 1,
+    gap: spacing.xs / 2,
   },
-  examCountText: {
-    color: '#ffffff',
-    fontSize: 11,
-  },
-  cardContent: {
-    padding: spacing.lg,
-  },
-  cardTitle: {
-    marginBottom: spacing.sm,
-  },
-  cardDescription: {
-    lineHeight: 20,
-    marginBottom: spacing.lg,
-    minHeight: 40,
-  },
-  actionRow: {
+  compactHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: spacing.md,
-    borderTopWidth: 1,
   },
-  actionText: {},
-  actionArrow: {
-    fontSize: 20,
-    fontWeight: '700',
+  compactTitle: {
+    flex: 1,
+  },
+  compactBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: radius.sm,
+    minWidth: 28,
+    alignItems: 'center',
+  },
+  compactBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  compactDescription: {
+    lineHeight: 16,
+  },
+  compactArrow: {
+    fontSize: 24,
+    fontWeight: '300',
   },
 });
 
