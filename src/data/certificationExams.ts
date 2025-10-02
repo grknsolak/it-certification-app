@@ -8,6 +8,7 @@ export const certificationExams: Exam[] = [
     timeLimit: 90,
     passingScore: 70,
     category: 'Cloud Computing',
+    subCategory: 'AWS',
     icon: '☁️',
     createdAt: new Date(),
     questions: [
@@ -90,6 +91,7 @@ export const certificationExams: Exam[] = [
     timeLimit: 130,
     passingScore: 72,
     category: 'Cloud Computing',
+    subCategory: 'AWS',
     icon: '☁️',
     createdAt: new Date(),
     questions: [
@@ -144,6 +146,7 @@ export const certificationExams: Exam[] = [
     timeLimit: 90,
     passingScore: 75,
     category: 'Cybersecurity',
+    subCategory: 'CompTIA',
     icon: '🛡️',
     createdAt: new Date(),
     questions: [
@@ -198,6 +201,7 @@ export const certificationExams: Exam[] = [
     timeLimit: 120,
     passingScore: 70,
     category: 'Cloud Computing',
+    subCategory: 'Google Cloud',
     icon: '☁️',
     createdAt: new Date(),
     questions: [
@@ -238,6 +242,7 @@ export const certificationExams: Exam[] = [
     timeLimit: 180,
     passingScore: 66,
     category: 'Container Orchestration',
+    subCategory: 'Kubernetes / CNCF',
     icon: '🐳',
     createdAt: new Date(),
     questions: [
@@ -278,6 +283,7 @@ export const certificationExams: Exam[] = [
     timeLimit: 60,
     passingScore: 70,
     category: 'DevOps',
+    subCategory: 'Terraform / HashiCorp',
     icon: '⚙️',
     createdAt: new Date(),
     questions: [

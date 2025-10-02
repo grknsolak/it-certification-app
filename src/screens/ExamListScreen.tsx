@@ -30,11 +30,15 @@ const categories = ['All Certifications', 'Cloud Computing', 'Cybersecurity', 'C
 export default function ExamListScreen({ navigation, route }: Props) {
   const { colors } = useTheme();
   const initialCategory = route.params?.category || 'All Certifications';
+  const subCategory = route.params?.subCategory;
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
 
-  const filteredExams = selectedCategory === 'All Certifications' 
-    ? certificationExams 
-    : certificationExams.filter(exam => exam.category === selectedCategory);
+  // Filter by subCategory if provided, otherwise by category
+  const filteredExams = subCategory
+    ? certificationExams.filter(exam => exam.subCategory === subCategory)
+    : selectedCategory === 'All Certifications' 
+      ? certificationExams 
+      : certificationExams.filter(exam => exam.category === selectedCategory);
 
   const getDifficultyColor = (exam: Exam) => {
     const difficulties = exam.questions.map(q => q.difficulty || 'medium');
@@ -154,46 +158,50 @@ export default function ExamListScreen({ navigation, route }: Props) {
               <Text style={styles.backIcon}>←</Text>
             </TouchableOpacity>
             <Text style={[styles.heroTitle, typography.h1]}>
-              IT Certification Exams
+              {subCategory || 'IT Certification Exams'}
             </Text>
             <Text style={[styles.heroSubtitle, typography.bodyLarge]}>
-              Choose your path to certification. Real exam questions, real preparation.
+              {subCategory 
+                ? `${filteredExams.length} certification exams available`
+                : 'Choose your path to certification. Real exam questions, real preparation.'}
             </Text>
           </View>
         </SafeAreaView>
       </LinearGradient>
       
-      {/* Category Pills */}
-      <View style={[styles.categorySection, { backgroundColor: colors.background }]}>
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoryContainer}
-        >
-          {categories.map(category => (
-            <TouchableOpacity
-              key={category}
-              style={[
-                styles.categoryPill,
-                { 
-                  backgroundColor: selectedCategory === category ? colors.primary : colors.surfaceSecondary,
-                  borderColor: selectedCategory === category ? colors.primary : colors.border,
-                }
-              ]}
-              onPress={() => setSelectedCategory(category)}
-              activeOpacity={0.7}
-            >
-              <Text style={[
-                styles.categoryText,
-                typography.bodyBold,
-                { color: selectedCategory === category ? colors.textInverse : colors.textSecondary }
-              ]}>
-                {category}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
+      {/* Category Pills - Only show if no subCategory */}
+      {!subCategory && (
+        <View style={[styles.categorySection, { backgroundColor: colors.background }]}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoryContainer}
+          >
+            {categories.map(category => (
+              <TouchableOpacity
+                key={category}
+                style={[
+                  styles.categoryPill,
+                  { 
+                    backgroundColor: selectedCategory === category ? colors.primary : colors.surfaceSecondary,
+                    borderColor: selectedCategory === category ? colors.primary : colors.border,
+                  }
+                ]}
+                onPress={() => setSelectedCategory(category)}
+                activeOpacity={0.7}
+              >
+                <Text style={[
+                  styles.categoryText,
+                  typography.bodyBold,
+                  { color: selectedCategory === category ? colors.textInverse : colors.textSecondary }
+                ]}>
+                  {category}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      )}
       
       <FlatList
         data={filteredExams}

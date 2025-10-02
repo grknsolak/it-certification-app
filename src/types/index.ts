@@ -18,6 +18,7 @@ export interface Exam {
   timeLimit: number; // dakika cinsinden
   passingScore: number; // yüzde olarak
   category: string;
+  subCategory?: string; // Alt kategori (örn: AWS, Azure, Cisco)
   icon?: string;
   createdAt: Date;
 }
