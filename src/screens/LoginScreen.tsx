@@ -8,14 +8,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  ImageBackground,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../types';
 import { useTheme } from '../contexts/ThemeContext';
-import { spacing, typography, radius, shadows, gradients, blur } from '../design-system/tokens';
+import { spacing, typography, radius, shadows, gradients } from '../design-system/tokens';
 import Button from '../components/Button';
 
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
@@ -44,23 +42,16 @@ export default function LoginScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      {/* Background Gradient */}
+      {/* Background Gradient - Bike Shopping Style */}
       <LinearGradient
         colors={activeTheme === 'dark' 
-          ? ['#000000', '#1C1C1E', '#2C2C2E']
-          : ['#007AFF', '#0A84FF', '#AF52DE']}
+          ? ['#0F172A', '#1E293B']
+          : ['#3B82F6', '#8B5CF6']}
         style={styles.background}
       >
-        {/* Floating Orbs - iOS style */}
-        <View style={[styles.orb, styles.orb1, { 
-          backgroundColor: activeTheme === 'dark' ? 'rgba(10, 132, 255, 0.3)' : 'rgba(255, 255, 255, 0.3)' 
-        }]} />
-        <View style={[styles.orb, styles.orb2, {
-          backgroundColor: activeTheme === 'dark' ? 'rgba(191, 90, 242, 0.2)' : 'rgba(255, 255, 255, 0.2)'
-        }]} />
-        <View style={[styles.orb, styles.orb3, {
-          backgroundColor: activeTheme === 'dark' ? 'rgba(255, 55, 95, 0.2)' : 'rgba(255, 255, 255, 0.15)'
-        }]} />
+        {/* Decorative Circles */}
+        <View style={[styles.circle, styles.circle1]} />
+        <View style={[styles.circle, styles.circle2]} />
       </LinearGradient>
 
       <SafeAreaView style={styles.safeArea}>
@@ -75,29 +66,21 @@ export default function LoginScreen({ navigation }: Props) {
           >
             {/* Logo */}
             <View style={styles.logoContainer}>
-              <BlurView
-                intensity={blur.prominent}
-                tint={activeTheme === 'dark' ? 'dark' : 'light'}
-                style={styles.logoBlur}
-              >
+              <View style={[styles.logoCircle, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
                 <Text style={styles.logoIcon}>🎓</Text>
-              </BlurView>
-              <Text style={[styles.appName, typography.h1, { color: colors.textInverse }]}>
-                IT Exam Certification
+              </View>
+              <Text style={[styles.appName, typography.h1, { color: '#ffffff' }]}>
+                IT Certification
               </Text>
-              <Text style={[styles.tagline, typography.body, { color: 'rgba(255,255,255,0.8)' }]}>
-                Premium Exam Preparation
+              <Text style={[styles.tagline, typography.body, { color: 'rgba(255,255,255,0.9)' }]}>
+                Your path to certification success
               </Text>
             </View>
 
-            {/* Glass Card */}
-            <BlurView
-              intensity={blur.prominent}
-              tint={activeTheme === 'dark' ? 'dark' : 'light'}
-              style={[styles.glassCard, shadows.xl]}
-            >
+            {/* Card - Bike Shopping Style */}
+            <View style={[styles.card, { backgroundColor: colors.surface }, shadows.xl]}>
               <Text style={[styles.welcomeTitle, typography.h2, { color: colors.textPrimary }]}>
-                Welcome Back
+                Welcome Back! 👋
               </Text>
               <Text style={[styles.welcomeSubtitle, typography.caption, { color: colors.textSecondary }]}>
                 Sign in to continue your learning journey
@@ -107,13 +90,10 @@ export default function LoginScreen({ navigation }: Props) {
               <View style={styles.formContainer}>
                 <View style={styles.inputContainer}>
                   <Text style={[styles.inputLabel, typography.captionBold, { color: colors.textPrimary }]}>
-                    Email
+                    Email Address
                   </Text>
-                  <BlurView
-                    intensity={blur.light}
-                    tint={activeTheme === 'dark' ? 'dark' : 'light'}
-                    style={[styles.inputBlur, { borderColor: colors.border }]}
-                  >
+                  <View style={[styles.inputWrapper, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+                    <Text style={styles.inputIcon}>📧</Text>
                     <TextInput
                       style={[styles.input, typography.body, { color: colors.textPrimary }]}
                       placeholder="your@email.com"
@@ -124,18 +104,15 @@ export default function LoginScreen({ navigation }: Props) {
                       autoCapitalize="none"
                       autoComplete="email"
                     />
-                  </BlurView>
+                  </View>
                 </View>
 
                 <View style={styles.inputContainer}>
                   <Text style={[styles.inputLabel, typography.captionBold, { color: colors.textPrimary }]}>
                     Password
                   </Text>
-                  <BlurView
-                    intensity={blur.light}
-                    tint={activeTheme === 'dark' ? 'dark' : 'light'}
-                    style={[styles.inputBlur, { borderColor: colors.border }]}
-                  >
+                  <View style={[styles.inputWrapper, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+                    <Text style={styles.inputIcon}>🔒</Text>
                     <TextInput
                       style={[styles.input, typography.body, { color: colors.textPrimary }]}
                       placeholder="Enter your password"
@@ -145,7 +122,7 @@ export default function LoginScreen({ navigation }: Props) {
                       secureTextEntry
                       autoComplete="password"
                     />
-                  </BlurView>
+                  </View>
                 </View>
 
                 <Button
@@ -155,6 +132,7 @@ export default function LoginScreen({ navigation }: Props) {
                   size="large"
                   loading={isLoading}
                   fullWidth
+                  icon="🚀"
                   style={{ marginTop: spacing.lg }}
                 />
               </View>
@@ -173,22 +151,26 @@ export default function LoginScreen({ navigation }: Props) {
                 variant="outline"
                 size="large"
                 fullWidth
+                icon="👤"
               />
-            </BlurView>
+            </View>
 
             {/* Features */}
             <View style={styles.featuresContainer}>
-              {['200+ Questions', 'Progress Tracking', 'Certification Ready'].map((feature, index) => (
-                <BlurView
+              {[
+                { icon: '✅', text: '200+ Questions' },
+                { icon: '📊', text: 'Track Progress' },
+                { icon: '🏆', text: 'Get Certified' },
+              ].map((feature, index) => (
+                <View
                   key={index}
-                  intensity={blur.regular}
-                  tint={activeTheme === 'dark' ? 'dark' : 'light'}
-                  style={[styles.featureItem, shadows.md]}
+                  style={[styles.featureItem, { backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}
                 >
-                  <Text style={[styles.featureText, typography.small, { color: colors.textInverse }]}>
-                    {feature}
+                  <Text style={styles.featureIcon}>{feature.icon}</Text>
+                  <Text style={[styles.featureText, typography.small, { color: '#ffffff' }]}>
+                    {feature.text}
                   </Text>
-                </BlurView>
+                </View>
               ))}
             </View>
           </ScrollView>
@@ -205,27 +187,22 @@ const styles = StyleSheet.create({
   background: {
     ...StyleSheet.absoluteFillObject,
   },
-  orb: {
+  circle: {
     position: 'absolute',
     borderRadius: 9999,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
-  orb1: {
+  circle1: {
     width: 300,
     height: 300,
     top: -100,
     right: -100,
   },
-  orb2: {
+  circle2: {
     width: 400,
     height: 400,
     bottom: -150,
     left: -150,
-  },
-  orb3: {
-    width: 200,
-    height: 200,
-    top: '40%',
-    right: -50,
   },
   safeArea: {
     flex: 1,
@@ -235,23 +212,22 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: spacing.xl,
+    padding: spacing.md,
     justifyContent: 'center',
   },
   logoContainer: {
     alignItems: 'center',
     marginBottom: spacing.xxxl,
   },
-  logoBlur: {
+  logoCircle: {
     width: 100,
     height: 100,
     borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.lg,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   logoIcon: {
     fontSize: 50,
@@ -263,13 +239,10 @@ const styles = StyleSheet.create({
   tagline: {
     textAlign: 'center',
   },
-  glassCard: {
-    borderRadius: radius.xxl,
+  card: {
+    borderRadius: radius.xl,
     padding: spacing.xl,
     marginBottom: spacing.xl,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   welcomeTitle: {
     marginBottom: spacing.xs,
@@ -288,15 +261,20 @@ const styles = StyleSheet.create({
   inputLabel: {
     marginBottom: spacing.sm,
   },
-  inputBlur: {
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderRadius: radius.md,
-    overflow: 'hidden',
+    paddingHorizontal: spacing.md,
     borderWidth: 1,
+    minHeight: 52,
+  },
+  inputIcon: {
+    fontSize: 20,
+    marginRight: spacing.sm,
   },
   input: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    minHeight: 52,
+    flex: 1,
   },
   divider: {
     flexDirection: 'row',
@@ -309,11 +287,12 @@ const styles = StyleSheet.create({
   },
   dividerText: {
     marginHorizontal: spacing.lg,
+    fontWeight: '600',
   },
   featuresContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   featureItem: {
     flex: 1,
@@ -321,9 +300,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     borderRadius: radius.md,
     alignItems: 'center',
-    overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  featureIcon: {
+    fontSize: 24,
+    marginBottom: spacing.xs,
   },
   featureText: {
     fontWeight: '600',
