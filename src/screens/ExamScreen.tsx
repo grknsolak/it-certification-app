@@ -217,30 +217,48 @@ export default function ExamScreen({ navigation, route }: Props) {
   const handleSubmitExam = async () => {
     if (!exam) return;
 
-    let finalAnswers = answers;
+    let finalAnswers = [...answers];
+    
+    // Mevcut sorunun cevabını ekle (eğer varsa ve henüz eklenmemişse)
     if (selectedAnswer !== null) {
       const currentQuestion = exam.questions[currentQuestionIndex];
-      let isCorrect = false;
+      const alreadyAnswered = finalAnswers.some(a => a.questionId === currentQuestion.id);
       
-      if (Array.isArray(currentQuestion.correctAnswer)) {
-        const selectedArray = selectedAnswer as number[];
-        isCorrect = selectedArray.length === currentQuestion.correctAnswer.length &&
-                   currentQuestion.correctAnswer.every(correct => selectedArray.includes(correct));
-      } else {
-        isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+      if (!alreadyAnswered) {
+        let isCorrect = false;
+        
+        if (Array.isArray(currentQuestion.correctAnswer)) {
+          const selectedArray = selectedAnswer as number[];
+          isCorrect = selectedArray.length === currentQuestion.correctAnswer.length &&
+                     currentQuestion.correctAnswer.every(correct => selectedArray.includes(correct));
+        } else {
+          isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+        }
+        
+        finalAnswers.push({
+          questionId: currentQuestion.id,
+          selectedOption: selectedAnswer,
+          isCorrect,
+          timeSpent: 0,
+        });
       }
-      
-      finalAnswers = [...answers, {
-        questionId: currentQuestion.id,
-        selectedOption: selectedAnswer,
-        isCorrect,
-        timeSpent: 0,
-      }];
     }
+
+    // Cevaplanmayan soruları boş cevap olarak ekle
+    exam.questions.forEach(q => {
+      if (!finalAnswers.some(a => a.questionId === q.id)) {
+        finalAnswers.push({
+          questionId: q.id,
+          selectedOption: -1, // -1 = cevaplanmadı
+          isCorrect: false,
+          timeSpent: 0,
+        });
+      }
+    });
 
     const correctAnswers = finalAnswers.filter(answer => answer.isCorrect).length;
     const score = Math.round((correctAnswers / exam.questions.length) * 100);
-    const timeSpent = (exam.timeLimit * 60) - timeLeft;
+    const timeSpent = mode === 'exam' ? (exam.timeLimit * 60) - timeLeft : 0;
 
     const result: ExamResult = {
       examId: exam.id,
@@ -734,6 +752,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 8,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   footerButton: {
     paddingVertical: 12,
