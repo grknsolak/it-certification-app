@@ -149,75 +149,45 @@ export default function CategorySelectionScreen({ navigation }: Props) {
             </Text>
           </View>
 
-          {/* Categories Horizontal Scroll */}
-          <ScrollView 
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoriesScrollContent}
-            style={styles.categoriesScroll}
-          >
+          {/* Categories Compact List - Minimal & Clean */}
+          <View style={styles.categoriesList}>
             {categories.map((category) => (
               <TouchableOpacity
                 key={category.id}
-                style={styles.categoryCardWrapper}
+                style={[styles.compactCard, { backgroundColor: colors.surface }, shadows.sm]}
                 onPress={() => handleCategorySelect(category)}
-                activeOpacity={0.8}
+                activeOpacity={0.7}
               >
-                <View style={[styles.categoryCard, { backgroundColor: colors.surface }, shadows.xl]}>
-                  {/* Header with Icon & Badge */}
-                  <View style={styles.cardHeader}>
-                    <LinearGradient
-                      colors={category.gradient as any}
-                      style={styles.iconGradient}
-                    >
-                      <Text style={styles.categoryIcon}>{category.icon}</Text>
-                    </LinearGradient>
-                    <View style={[styles.examBadge, { backgroundColor: colors.backgroundSecondary }]}>
-                      <Text style={[styles.examBadgeText, typography.smallBold, { color: colors.textSecondary }]}>
-                        {category.exams} Exams
+                <LinearGradient
+                  colors={category.gradient as any}
+                  style={styles.compactIconWrapper}
+                >
+                  <Text style={styles.compactIcon}>{category.icon}</Text>
+                </LinearGradient>
+                
+                <View style={styles.compactContent}>
+                  <View style={styles.compactHeader}>
+                    <Text style={[styles.compactTitle, typography.bodyBold, { color: colors.textPrimary }]}>
+                      {category.name}
+                    </Text>
+                    <View style={[styles.compactBadge, { backgroundColor: colors.backgroundSecondary }]}>
+                      <Text style={[styles.compactBadgeText, { color: colors.textSecondary }]}>
+                        {category.exams}
                       </Text>
                     </View>
                   </View>
-
-                  {/* Title */}
-                  <Text style={[styles.categoryName, typography.h3, { color: colors.textPrimary }]}>
-                    {category.name}
-                  </Text>
-
-                  {/* Certifications List */}
-                  <View style={styles.certificationsContainer}>
-                    {category.certifications.slice(0, 3).map((cert, index) => (
-                      <View key={index} style={styles.certItem}>
-                        <Text style={[styles.certBullet, { color: colors.textTertiary }]}>•</Text>
-                        <Text 
-                          style={[styles.certText, typography.caption, { color: colors.textSecondary }]}
-                          numberOfLines={1}
-                        >
-                          {cert}
-                        </Text>
-                      </View>
-                    ))}
-                    {category.certifications.length > 3 && (
-                      <Text style={[styles.moreText, typography.captionBold, { color: colors.primary }]}>
-                        +{category.certifications.length - 3} more
-                      </Text>
-                    )}
-                  </View>
-
-                  {/* Action Button */}
-                  <LinearGradient
-                    colors={category.gradient as any}
-                    style={styles.actionButton}
+                  <Text 
+                    style={[styles.compactDescription, typography.caption, { color: colors.textSecondary }]}
+                    numberOfLines={1}
                   >
-                    <Text style={[styles.actionButtonText, typography.bodyBold]}>
-                      Explore Certifications
-                    </Text>
-                    <Text style={styles.actionArrow}>→</Text>
-                  </LinearGradient>
+                    {category.certifications.slice(0, 2).join(' • ')}
+                  </Text>
                 </View>
+                
+                <Text style={[styles.compactArrow, { color: colors.textTertiary }]}>›</Text>
               </TouchableOpacity>
             ))}
-          </ScrollView>
+          </View>
 
           {/* Footer */}
           <View style={[styles.footer, { backgroundColor: colors.surfaceSecondary }]}>
@@ -281,86 +251,56 @@ const styles = StyleSheet.create({
   subtitle: {
     lineHeight: 24,
   },
-  categoriesScroll: {
-    marginBottom: spacing.xl,
-  },
-  categoriesScrollContent: {
+  categoriesList: {
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    gap: spacing.sm,
+  },
+  compactCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.md,
+    borderRadius: radius.lg,
     gap: spacing.md,
   },
-  categoryCardWrapper: {
-    width: 320, // Daha geniş kartlar
-  },
-  categoryCard: {
-    borderRadius: radius.xl,
-    padding: spacing.lg,
-    minHeight: 320,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: spacing.lg,
-  },
-  iconGradient: {
-    width: 64,
-    height: 64,
-    borderRadius: radius.lg,
+  compactIconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  categoryIcon: {
-    fontSize: 32,
+  compactIcon: {
+    fontSize: 24,
   },
-  examBadge: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs / 2,
-    borderRadius: radius.full,
-  },
-  examBadgeText: {
-    fontSize: 11,
-  },
-  categoryName: {
-    marginBottom: spacing.md,
-  },
-  certificationsContainer: {
-    marginBottom: spacing.lg,
+  compactContent: {
     flex: 1,
+    gap: spacing.xs / 2,
   },
-  certItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: spacing.xs,
-  },
-  certBullet: {
-    marginRight: spacing.xs,
-    fontSize: 12,
-  },
-  certText: {
-    flex: 1,
-    lineHeight: 18,
-  },
-  moreText: {
-    marginTop: spacing.xs / 2,
-  },
-  actionButton: {
+  compactHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.md,
   },
-  actionButtonText: {
-    color: '#ffffff',
+  compactTitle: {
     flex: 1,
   },
-  actionArrow: {
-    fontSize: 20,
-    color: '#ffffff',
-    fontWeight: '700',
-    marginLeft: spacing.sm,
+  compactBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: radius.sm,
+    minWidth: 28,
+    alignItems: 'center',
+  },
+  compactBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  compactDescription: {
+    lineHeight: 16,
+  },
+  compactArrow: {
+    fontSize: 24,
+    fontWeight: '300',
   },
   footer: {
     margin: spacing.md,
