@@ -11,6 +11,8 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../types';
+import { useTheme } from '../contexts/ThemeContext';
+import { spacing, typography, radius, shadows } from '../design-system/tokens';
 
 type SettingsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Settings'>;
 
@@ -19,6 +21,7 @@ interface Props {
 }
 
 export default function SettingsScreen({ navigation }: Props) {
+  const { colors, mode, setTheme } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
@@ -52,59 +55,102 @@ export default function SettingsScreen({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.backgroundSecondary }]}>
       <View style={styles.content}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Tercihler</Text>
+        <View style={[styles.section, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Tema</Text>
           
-          <View style={styles.settingItem}>
+          <TouchableOpacity
+            style={[styles.settingButton, { borderBottomColor: colors.border }]}
+            onPress={() => setTheme('light')}
+          >
             <View style={styles.settingInfo}>
-              <Text style={styles.settingTitle}>Bildirimler</Text>
-              <Text style={styles.settingDescription}>Sınav hatırlatıcıları al</Text>
+              <Text style={[styles.settingTitle, { color: colors.textPrimary }]}>☀️ Açık Tema</Text>
+              <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>Her zaman açık tema kullan</Text>
+            </View>
+            {mode === 'light' && <Text style={styles.checkmark}>✓</Text>}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.settingButton, { borderBottomColor: colors.border }]}
+            onPress={() => setTheme('dark')}
+          >
+            <View style={styles.settingInfo}>
+              <Text style={[styles.settingTitle, { color: colors.textPrimary }]}>🌙 Koyu Tema</Text>
+              <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>Her zaman koyu tema kullan</Text>
+            </View>
+            {mode === 'dark' && <Text style={styles.checkmark}>✓</Text>}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.settingButton, { borderBottomColor: colors.border }]}
+            onPress={() => setTheme('system')}
+          >
+            <View style={styles.settingInfo}>
+              <Text style={[styles.settingTitle, { color: colors.textPrimary }]}>📱 Sistem</Text>
+              <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>Cihaz ayarlarını takip et</Text>
+            </View>
+            {mode === 'system' && <Text style={styles.checkmark}>✓</Text>}
+          </TouchableOpacity>
+        </View>
+
+        <View style={[styles.section, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Tercihler</Text>
+          
+          <View style={[styles.settingItem, { borderBottomColor: colors.border }]}>
+            <View style={styles.settingInfo}>
+              <Text style={[styles.settingTitle, { color: colors.textPrimary }]}>Bildirimler</Text>
+              <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>Sınav hatırlatıcıları al</Text>
             </View>
             <Switch
               value={notifications}
               onValueChange={setNotifications}
-              trackColor={{ false: '#e2e8f0', true: '#667eea' }}
-              thumbColor={notifications ? '#ffffff' : '#ffffff'}
+              trackColor={{ false: colors.neutral300, true: colors.primary }}
+              thumbColor={colors.surface}
             />
           </View>
 
-          <View style={styles.settingItem}>
+          <View style={[styles.settingItem, { borderBottomColor: colors.border }]}>
             <View style={styles.settingInfo}>
-              <Text style={styles.settingTitle}>Ses Efektleri</Text>
-              <Text style={styles.settingDescription}>Sınavlarda ses çal</Text>
+              <Text style={[styles.settingTitle, { color: colors.textPrimary }]}>Ses Efektleri</Text>
+              <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>Sınavlarda ses çal</Text>
             </View>
             <Switch
               value={soundEnabled}
               onValueChange={setSoundEnabled}
-              trackColor={{ false: '#e2e8f0', true: '#667eea' }}
-              thumbColor={soundEnabled ? '#ffffff' : '#ffffff'}
+              trackColor={{ false: colors.neutral300, true: colors.primary }}
+              thumbColor={colors.surface}
             />
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Veri Yönetimi</Text>
+        <View style={[styles.section, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Veri Yönetimi</Text>
           
-          <TouchableOpacity style={styles.settingButton} onPress={handleClearData}>
+          <TouchableOpacity 
+            style={[styles.settingButton, { borderBottomColor: colors.border }]} 
+            onPress={handleClearData}
+          >
             <View style={styles.settingInfo}>
-              <Text style={styles.settingTitle}>Tüm Verileri Temizle</Text>
-              <Text style={styles.settingDescription}>Sınav geçmişini ve ayarları sil</Text>
+              <Text style={[styles.settingTitle, { color: colors.textPrimary }]}>Tüm Verileri Temizle</Text>
+              <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>Sınav geçmişini ve ayarları sil</Text>
             </View>
-            <Text style={styles.arrow}>›</Text>
+            <Text style={[styles.arrow, { color: colors.textTertiary }]}>›</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Destek</Text>
+        <View style={[styles.section, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Destek</Text>
           
-          <TouchableOpacity style={styles.settingButton} onPress={handleAbout}>
+          <TouchableOpacity 
+            style={[styles.settingButton, { borderBottomColor: colors.border }]} 
+            onPress={handleAbout}
+          >
             <View style={styles.settingInfo}>
-              <Text style={styles.settingTitle}>Hakkında</Text>
-              <Text style={styles.settingDescription}>Uygulama bilgileri</Text>
+              <Text style={[styles.settingTitle, { color: colors.textPrimary }]}>Hakkında</Text>
+              <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>Uygulama bilgileri</Text>
             </View>
-            <Text style={styles.arrow}>›</Text>
+            <Text style={[styles.arrow, { color: colors.textTertiary }]}>›</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -115,61 +161,52 @@ export default function SettingsScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
   },
   content: {
-    padding: 20,
+    padding: spacing.lg,
   },
   section: {
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 4,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    ...shadows.sm,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1e293b',
-    marginBottom: 16,
+    ...typography.h4,
+    marginBottom: spacing.lg,
   },
   settingItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
   },
   settingButton: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
   },
   settingInfo: {
     flex: 1,
   },
   settingTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1e293b',
-    marginBottom: 2,
+    ...typography.bodyBold,
+    marginBottom: spacing.xs / 2,
   },
   settingDescription: {
-    fontSize: 14,
-    color: '#64748b',
+    ...typography.caption,
   },
   arrow: {
     fontSize: 20,
-    color: '#cbd5e1',
-    marginLeft: 12,
+    marginLeft: spacing.md,
+  },
+  checkmark: {
+    fontSize: 20,
+    color: '#10b981',
+    fontWeight: '700',
   },
 });
 
