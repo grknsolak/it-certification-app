@@ -326,7 +326,127 @@ export default function ExamScreen({ navigation, route }: Props) {
         </SafeAreaView>
       </LinearGradient>
 
-      {/* Question Grid Modal - Popup */}
+      <ScrollView 
+        style={styles.content}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.questionContainer}>
+          {/* Sadece İşaretle İkonu - Sağ Üstte */}
+          <TouchableOpacity
+            style={[
+              styles.iconOnlyBookmark,
+              bookmarkedQuestions.includes(currentQuestionIndex) && styles.iconOnlyBookmarkActive
+            ]}
+            onPress={toggleBookmark}
+          >
+            <Text style={styles.iconOnlyBookmarkText}>
+              {bookmarkedQuestions.includes(currentQuestionIndex) ? '⭐' : '☆'}
+            </Text>
+          </TouchableOpacity>
+          
+          <Text style={styles.questionText}>{currentQuestion.question}</Text>
+          {Array.isArray(currentQuestion.correctAnswer) && (
+            <View style={styles.multiSelectBadge}>
+              <Text style={styles.multiSelectText}>
+                📋 {currentQuestion.correctAnswer.length} cevap seçin: {((selectedAnswer as number[]) || []).length}/{currentQuestion.correctAnswer.length}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        <View style={styles.optionsContainer}>
+          {currentQuestion.options.map((option, index) => {
+            const isSelected = Array.isArray(currentQuestion.correctAnswer) 
+              ? ((selectedAnswer as number[]) || []).includes(index)
+              : selectedAnswer === index;
+            const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+              
+            return (
+              <TouchableOpacity
+                key={index}
+                style={styles.optionButton}
+                onPress={() => handleAnswerSelect(index)}
+                activeOpacity={0.7}
+              >
+                {isSelected ? (
+                  <LinearGradient
+                    colors={['#667eea', '#764ba2']}
+                    style={styles.optionGradient}
+                  >
+                    <View style={styles.optionLetter}>
+                      <Text style={styles.optionLetterTextSelected}>{letters[index]}</Text>
+                    </View>
+                    <Text style={styles.selectedOptionText}>{option}</Text>
+                    <Text style={styles.checkmark}>✓</Text>
+                  </LinearGradient>
+                ) : (
+                  <View style={styles.optionContent}>
+                    <View style={styles.optionLetterUnselected}>
+                      <Text style={styles.optionLetterTextUnselected}>{letters[index]}</Text>
+                    </View>
+                    <Text style={styles.optionText}>{option}</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </ScrollView>
+
+      <View style={styles.footer}>
+        <SafeAreaView>
+          <View style={styles.footerButtons}>
+            {/* Önceki Butonu */}
+            {currentQuestionIndex > 0 && (
+              <TouchableOpacity
+                style={styles.footerButton}
+                onPress={handlePreviousQuestion}
+              >
+                <Text style={styles.footerButtonText}>← Önceki</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Sorular Butonu - Toggle */}
+            <TouchableOpacity
+              style={[
+                styles.footerButton,
+                showQuestionGrid && styles.footerButtonActive
+              ]}
+              onPress={() => setShowQuestionGrid(!showQuestionGrid)}
+            >
+              <Text style={styles.footerButtonText}>📋 Sorular</Text>
+            </TouchableOpacity>
+
+            {/* Bitir Butonu */}
+            <TouchableOpacity
+              style={[styles.footerButton, styles.footerButtonFinish]}
+              onPress={handleFinishEarly}
+            >
+              <Text style={styles.footerButtonText}>🏁 Bitir</Text>
+            </TouchableOpacity>
+
+            {/* Sonraki / Bitir Son Soru Butonu */}
+            {currentQuestionIndex < exam.questions.length - 1 ? (
+              <TouchableOpacity
+                style={[styles.footerButton, styles.footerButtonNext]}
+                onPress={handleNextQuestion}
+              >
+                <Text style={styles.footerButtonText}>Sonraki →</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={[styles.footerButton, styles.footerButtonFinish]}
+                onPress={handleSkipAndFinish}
+              >
+                <Text style={styles.footerButtonText}>✓ Tamamla</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </SafeAreaView>
+      </View>
+
+      {/* Question Grid Modal - Popup (En üstte) */}
       {showQuestionGrid && (
         <TouchableOpacity 
           style={styles.modalOverlay}
@@ -448,126 +568,6 @@ export default function ExamScreen({ navigation, route }: Props) {
           </SafeAreaView>
         </TouchableOpacity>
       )}
-
-      <ScrollView 
-        style={styles.content}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.questionContainer}>
-          {/* Sadece İşaretle İkonu - Sağ Üstte */}
-          <TouchableOpacity
-            style={[
-              styles.iconOnlyBookmark,
-              bookmarkedQuestions.includes(currentQuestionIndex) && styles.iconOnlyBookmarkActive
-            ]}
-            onPress={toggleBookmark}
-          >
-            <Text style={styles.iconOnlyBookmarkText}>
-              {bookmarkedQuestions.includes(currentQuestionIndex) ? '⭐' : '☆'}
-            </Text>
-          </TouchableOpacity>
-          
-          <Text style={styles.questionText}>{currentQuestion.question}</Text>
-          {Array.isArray(currentQuestion.correctAnswer) && (
-            <View style={styles.multiSelectBadge}>
-              <Text style={styles.multiSelectText}>
-                📋 {currentQuestion.correctAnswer.length} cevap seçin: {((selectedAnswer as number[]) || []).length}/{currentQuestion.correctAnswer.length}
-              </Text>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.optionsContainer}>
-          {currentQuestion.options.map((option, index) => {
-            const isSelected = Array.isArray(currentQuestion.correctAnswer) 
-              ? ((selectedAnswer as number[]) || []).includes(index)
-              : selectedAnswer === index;
-            const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
-              
-            return (
-              <TouchableOpacity
-                key={index}
-                style={styles.optionButton}
-                onPress={() => handleAnswerSelect(index)}
-                activeOpacity={0.7}
-              >
-                {isSelected ? (
-                  <LinearGradient
-                    colors={['#667eea', '#764ba2']}
-                    style={styles.optionGradient}
-                  >
-                    <View style={styles.optionLetter}>
-                      <Text style={styles.optionLetterTextSelected}>{letters[index]}</Text>
-                    </View>
-                    <Text style={styles.selectedOptionText}>{option}</Text>
-                    <Text style={styles.checkmark}>✓</Text>
-                  </LinearGradient>
-                ) : (
-                  <View style={styles.optionContent}>
-                    <View style={styles.optionLetterUnselected}>
-                      <Text style={styles.optionLetterTextUnselected}>{letters[index]}</Text>
-                    </View>
-                    <Text style={styles.optionText}>{option}</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </ScrollView>
-
-      <View style={styles.footer}>
-        <SafeAreaView>
-          <View style={styles.footerButtons}>
-            {/* Önceki Butonu */}
-            {currentQuestionIndex > 0 && (
-              <TouchableOpacity
-                style={styles.footerButton}
-                onPress={handlePreviousQuestion}
-              >
-                <Text style={styles.footerButtonText}>← Önceki</Text>
-              </TouchableOpacity>
-            )}
-
-            {/* Sorular Butonu - Toggle */}
-            <TouchableOpacity
-              style={[
-                styles.footerButton,
-                showQuestionGrid && styles.footerButtonActive
-              ]}
-              onPress={() => setShowQuestionGrid(!showQuestionGrid)}
-            >
-              <Text style={styles.footerButtonText}>📋 Sorular</Text>
-            </TouchableOpacity>
-
-            {/* Bitir Butonu */}
-            <TouchableOpacity
-              style={[styles.footerButton, styles.footerButtonFinish]}
-              onPress={handleFinishEarly}
-            >
-              <Text style={styles.footerButtonText}>🏁 Bitir</Text>
-            </TouchableOpacity>
-
-            {/* Sonraki / Bitir Son Soru Butonu */}
-            {currentQuestionIndex < exam.questions.length - 1 ? (
-              <TouchableOpacity
-                style={[styles.footerButton, styles.footerButtonNext]}
-                onPress={handleNextQuestion}
-              >
-                <Text style={styles.footerButtonText}>Sonraki →</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={[styles.footerButton, styles.footerButtonFinish]}
-                onPress={handleSkipAndFinish}
-              >
-                <Text style={styles.footerButtonText}>✓ Tamamla</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        </SafeAreaView>
-      </View>
     </View>
   );
 }
@@ -794,9 +794,14 @@ const styles = StyleSheet.create({
     borderColor: '#3b82f6',
   },
   modalOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'flex-end',
+    zIndex: 9999,
   },
   modalSafeArea: {
     flex: 1,
