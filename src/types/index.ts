@@ -62,6 +62,7 @@ export interface UserPreferences {
 // Navigation types
 export type RootStackParamList = {
   Login: undefined;
+  CategorySelection: undefined;
   Home: undefined;
   ExamList: { category?: string };
   Exam: { examId: string };

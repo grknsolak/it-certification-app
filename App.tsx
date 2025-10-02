@@ -8,6 +8,7 @@ import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 import ErrorBoundary from './src/components/ErrorBoundary';
 
 import LoginScreen from './src/screens/LoginScreen';
+import CategorySelectionScreen from './src/screens/CategorySelectionScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import ExamListScreen from './src/screens/ExamListScreen';
 import ExamScreen from './src/screens/ExamScreen';
@@ -42,6 +43,11 @@ function AppNavigator() {
           <Stack.Screen 
             name="Login" 
             component={LoginScreen} 
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="CategorySelection" 
+            component={CategorySelectionScreen} 
             options={{ headerShown: false }}
           />
           <Stack.Screen 

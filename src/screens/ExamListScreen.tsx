@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList, Exam } from '../types';
 import { certificationExams } from '../data/certificationExams';
 import { useTheme } from '../contexts/ThemeContext';
@@ -17,18 +18,21 @@ import { spacing, typography, radius, shadows, gradients } from '../design-syste
 import Button from '../components/Button';
 
 type ExamListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ExamList'>;
+type ExamListScreenRouteProp = RouteProp<RootStackParamList, 'ExamList'>;
 
 interface Props {
   navigation: ExamListScreenNavigationProp;
+  route: ExamListScreenRouteProp;
 }
 
-const categories = ['Tümü', 'Cloud Computing', 'Cybersecurity', 'Container Orchestration', 'DevOps'];
+const categories = ['All Certifications', 'Cloud Computing', 'Cybersecurity', 'Container Orchestration', 'DevOps', 'Networking'];
 
-export default function ExamListScreen({ navigation }: Props) {
+export default function ExamListScreen({ navigation, route }: Props) {
   const { colors } = useTheme();
-  const [selectedCategory, setSelectedCategory] = useState('Tümü');
+  const initialCategory = route.params?.category || 'All Certifications';
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
 
-  const filteredExams = selectedCategory === 'Tümü' 
+  const filteredExams = selectedCategory === 'All Certifications' 
     ? certificationExams 
     : certificationExams.filter(exam => exam.category === selectedCategory);
 
