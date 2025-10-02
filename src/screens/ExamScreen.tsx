@@ -65,8 +65,8 @@ export default function ExamScreen({ navigation, route }: Props) {
   const [timeLeft, setTimeLeft] = useState(mode === 'exam' && exam?.timeLimit ? exam.timeLimit * 60 : 0);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [bookmarkedQuestions, setBookmarkedQuestions] = useState<number[]>([]);
-  const [showQuestionGrid, setShowQuestionGrid] = useState(true); // İlk girişte göster!
-  const [hasStarted, setHasStarted] = useState(false); // Kullanıcı başladı mı?
+  const [showQuestionGrid, setShowQuestionGrid] = useState(false); // Grid'i sadece buton tıklandığında göster
+  const [hasStarted, setHasStarted] = useState(true); // Otomatik başlat
   const [questionFilter, setQuestionFilter] = useState<'all' | 'answered' | 'bookmarked' | 'unanswered'>('all');
 
   useEffect(() => {
@@ -128,11 +128,6 @@ export default function ExamScreen({ navigation, route }: Props) {
     setCurrentQuestionIndex(index);
     setSelectedAnswer(null);
     setShowQuestionGrid(false);
-    
-    // İlk kez soru seçildiğinde başla
-    if (!hasStarted) {
-      setHasStarted(true);
-    }
   };
 
   const saveCurrentAnswer = () => {
@@ -452,10 +447,27 @@ export default function ExamScreen({ navigation, route }: Props) {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.questionContainer}>
-          <View style={styles.questionBadge}>
-            <Text style={styles.questionBadgeText}>
-              {currentQuestion.difficulty?.toUpperCase() || 'MEDIUM'} • {currentQuestion.category || exam.category}
-            </Text>
+          <View style={styles.questionHeader}>
+            <View style={styles.questionBadge}>
+              <Text style={styles.questionBadgeText}>
+                {currentQuestion.difficulty?.toUpperCase() || 'MEDIUM'} • {currentQuestion.category || exam.category}
+              </Text>
+            </View>
+            {/* Büyük İşaretle Butonu */}
+            <TouchableOpacity
+              style={[
+                styles.bigBookmarkButton,
+                bookmarkedQuestions.includes(currentQuestionIndex) && styles.bigBookmarkButtonActive
+              ]}
+              onPress={toggleBookmark}
+            >
+              <Text style={styles.bigBookmarkIcon}>
+                {bookmarkedQuestions.includes(currentQuestionIndex) ? '⭐' : '☆'}
+              </Text>
+              <Text style={styles.bigBookmarkText}>
+                {bookmarkedQuestions.includes(currentQuestionIndex) ? 'İşaretli' : 'İşaretle'}
+              </Text>
+            </TouchableOpacity>
           </View>
           <Text style={styles.questionText}>{currentQuestion.question}</Text>
           {Array.isArray(currentQuestion.correctAnswer) && (
@@ -525,19 +537,6 @@ export default function ExamScreen({ navigation, route }: Props) {
               onPress={() => setShowQuestionGrid(true)}
             >
               <Text style={styles.footerButtonText}>📋 Sorular</Text>
-            </TouchableOpacity>
-
-            {/* İşaretle Butonu */}
-            <TouchableOpacity
-              style={[
-                styles.footerButton,
-                bookmarkedQuestions.includes(currentQuestionIndex) && styles.footerButtonBookmarked
-              ]}
-              onPress={toggleBookmark}
-            >
-              <Text style={styles.footerButtonText}>
-                {bookmarkedQuestions.includes(currentQuestionIndex) ? '⭐ İşaretli' : '☆ İşaretle'}
-              </Text>
             </TouchableOpacity>
 
             {/* Bitir Butonu */}
@@ -634,18 +633,47 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 6,
   },
+  questionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+    gap: 12,
+  },
   questionBadge: {
     backgroundColor: 'rgba(102, 126, 234, 0.1)',
-    alignSelf: 'flex-start',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
-    marginBottom: 16,
+    flex: 1,
   },
   questionBadgeText: {
     fontSize: 11,
     fontWeight: '700',
     color: '#667eea',
+  },
+  bigBookmarkButton: {
+    backgroundColor: '#f3f4f6',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  bigBookmarkButtonActive: {
+    backgroundColor: '#fef3c7',
+    borderColor: '#f59e0b',
+  },
+  bigBookmarkIcon: {
+    fontSize: 20,
+  },
+  bigBookmarkText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1f2937',
   },
   questionText: {
     fontSize: 17,
