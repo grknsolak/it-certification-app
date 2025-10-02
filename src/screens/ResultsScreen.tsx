@@ -53,16 +53,18 @@ export default function ResultsScreen({ navigation, route }: Props) {
 
   return (
     <View style={styles.container}>
+      {/* Modern Header */}
       <LinearGradient
-        colors={isPassed ? ['#10b981', '#059669'] : ['#ef4444', '#dc2626']}
-        style={styles.headerGradient}
+        colors={isPassed ? ['#667eea', '#764ba2'] : ['#f093fb', '#f5576c']}
+        style={styles.modernHeader}
       >
         <SafeAreaView>
-          <View style={styles.header}>
-            <Text style={styles.title}>
-              {isPassed ? '🎉 Tebrikler!' : '📚 Çalışmaya Devam!'}
+          <View style={styles.headerContent}>
+            <Text style={styles.headerEmoji}>{isPassed ? '🎉' : '📚'}</Text>
+            <Text style={styles.headerTitle}>
+              {isPassed ? 'Sınav Tamamlandı!' : 'Sınav Sonucu'}
             </Text>
-            <Text style={styles.subtitle}>{exam?.title}</Text>
+            <Text style={styles.headerSubtitle}>{exam?.title}</Text>
           </View>
         </SafeAreaView>
       </LinearGradient>
@@ -71,57 +73,48 @@ export default function ResultsScreen({ navigation, route }: Props) {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Skor Dairesi */}
-        <View style={styles.scoreContainer}>
-          <LinearGradient
-            colors={getScoreColor(result.score)}
-            style={styles.scoreCircle}
-          >
-            <Text style={styles.scorePercentage}>{result.score}%</Text>
-          </LinearGradient>
-          <Text style={styles.scoreEmoji}>{scoreMessage.emoji}</Text>
-          <Text style={styles.scoreMessage}>{scoreMessage.text}</Text>
-          <View style={[styles.statusBadge, isPassed ? styles.passedBadge : styles.failedBadge]}>
-            <Text style={[styles.statusText, isPassed ? styles.passedText : styles.failedText]}>
-              {isPassed ? '✅ GEÇTİ' : '❌ KALDI'}
-            </Text>
+        {/* Skor Özeti - Modern Card */}
+        <View style={styles.summaryCard}>
+          <View style={styles.scoreRow}>
+            <View style={styles.scoreMain}>
+              <Text style={styles.scoreLabel}>Puanınız</Text>
+              <LinearGradient
+                colors={getScoreColor(result.score) as any}
+                style={styles.compactScoreCircle}
+              >
+                <Text style={styles.compactScoreText}>{result.score}%</Text>
+              </LinearGradient>
+            </View>
+            <View style={[styles.statusBadge, isPassed ? styles.passedBadge : styles.failedBadge]}>
+              <Text style={[styles.statusText, isPassed ? styles.passedText : styles.failedText]}>
+                {isPassed ? '✅ GEÇTİ' : '❌ KALDI'}
+              </Text>
+            </View>
+          </View>
+          
+          <View style={styles.divider} />
+          
+          {/* Sınav İstatistikleri */}
+          <View style={styles.statsCompact}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{result.correctAnswers}</Text>
+              <Text style={styles.statLabelSmall}>Doğru</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={[styles.statValue, { color: '#ef4444' }]}>{result.wrongAnswers}</Text>
+              <Text style={styles.statLabelSmall}>Yanlış</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{result.totalQuestions}</Text>
+              <Text style={styles.statLabelSmall}>Toplam</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{formatTime(result.timeSpent)}</Text>
+              <Text style={styles.statLabelSmall}>Süre</Text>
+            </View>
           </View>
         </View>
 
-        {/* İstatistikler */}
-        <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
-            <LinearGradient colors={['#10b981', '#059669']} style={styles.statCardGradient}>
-              <Text style={styles.statIcon}>✓</Text>
-              <Text style={styles.statNumber}>{result.correctAnswers}</Text>
-              <Text style={styles.statLabel}>Doğru</Text>
-            </LinearGradient>
-          </View>
-
-          <View style={styles.statCard}>
-            <LinearGradient colors={['#ef4444', '#dc2626']} style={styles.statCardGradient}>
-              <Text style={styles.statIcon}>✗</Text>
-              <Text style={styles.statNumber}>{result.wrongAnswers}</Text>
-              <Text style={styles.statLabel}>Yanlış</Text>
-            </LinearGradient>
-          </View>
-
-          <View style={styles.statCard}>
-            <LinearGradient colors={['#667eea', '#764ba2']} style={styles.statCardGradient}>
-              <Text style={styles.statIcon}>📝</Text>
-              <Text style={styles.statNumber}>{result.totalQuestions}</Text>
-              <Text style={styles.statLabel}>Soru</Text>
-            </LinearGradient>
-          </View>
-
-          <View style={styles.statCard}>
-            <LinearGradient colors={['#f59e0b', '#d97706']} style={styles.statCardGradient}>
-              <Text style={styles.statIcon}>⏱️</Text>
-              <Text style={styles.statNumberSmall}>{formatTime(result.timeSpent)}</Text>
-              <Text style={styles.statLabel}>Süre</Text>
-            </LinearGradient>
-          </View>
-        </View>
 
         {/* Detaylar */}
         <View style={styles.detailsCard}>
@@ -146,14 +139,14 @@ export default function ResultsScreen({ navigation, route }: Props) {
         <View style={styles.actionButtons}>
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => navigation.navigate('ExamList')}
+            onPress={() => navigation.navigate('ExamList', { category: 'All Certifications' })}
           >
             <Text style={styles.actionButtonText}>🔄 Başka Sınav Dene</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => navigation.navigate('Home')}
+            onPress={() => navigation.navigate('CategorySelection')}
           >
             <Text style={styles.actionButtonText}>🏠 Ana Sayfaya Dön</Text>
           </TouchableOpacity>
@@ -168,61 +161,100 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f7',
   },
-  headerGradient: {
-    paddingBottom: 30,
+  modernHeader: {
+    paddingTop: 40,
+    paddingBottom: 40,
   },
-  header: {
-    padding: 20,
-    paddingTop: 10,
+  headerContent: {
     alignItems: 'center',
+    paddingHorizontal: 20,
   },
-  title: {
+  headerEmoji: {
+    fontSize: 60,
+    marginBottom: 12,
+  },
+  headerTitle: {
     fontSize: 28,
     fontWeight: '800',
     color: '#ffffff',
     marginBottom: 8,
+    textAlign: 'center',
   },
-  subtitle: {
-    fontSize: 16,
+  headerSubtitle: {
+    fontSize: 15,
     color: 'rgba(255,255,255,0.9)',
     fontWeight: '500',
     textAlign: 'center',
   },
   content: {
-    padding: 20,
+    padding: 16,
     paddingBottom: 40,
   },
-  scoreContainer: {
-    alignItems: 'center',
-    marginTop: -60,
-    marginBottom: 30,
+  summaryCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 6,
   },
-  scoreCircle: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
+  scoreRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  scoreMain: {
+    alignItems: 'center',
+  },
+  scoreLabel: {
+    fontSize: 13,
+    color: '#64748b',
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  compactScoreCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 12,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  scorePercentage: {
-    fontSize: 48,
+  compactScoreText: {
+    fontSize: 32,
     fontWeight: '800',
     color: '#ffffff',
   },
-  scoreEmoji: {
-    fontSize: 50,
-    marginTop: 16,
+  divider: {
+    height: 1,
+    backgroundColor: '#e5e7eb',
+    marginBottom: 20,
   },
-  scoreMessage: {
-    fontSize: 22,
+  statsCompact: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: 24,
     fontWeight: '700',
-    color: '#1d1d1f',
-    marginTop: 12,
+    color: '#10b981',
+    marginBottom: 4,
+  },
+  statLabelSmall: {
+    fontSize: 12,
+    color: '#64748b',
+    fontWeight: '500',
   },
   statusBadge: {
     paddingHorizontal: 24,

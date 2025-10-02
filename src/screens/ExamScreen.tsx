@@ -447,28 +447,19 @@ export default function ExamScreen({ navigation, route }: Props) {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.questionContainer}>
-          <View style={styles.questionHeader}>
-            <View style={styles.questionBadge}>
-              <Text style={styles.questionBadgeText}>
-                {currentQuestion.difficulty?.toUpperCase() || 'MEDIUM'} • {currentQuestion.category || exam.category}
-              </Text>
-            </View>
-            {/* Büyük İşaretle Butonu */}
-            <TouchableOpacity
-              style={[
-                styles.bigBookmarkButton,
-                bookmarkedQuestions.includes(currentQuestionIndex) && styles.bigBookmarkButtonActive
-              ]}
-              onPress={toggleBookmark}
-            >
-              <Text style={styles.bigBookmarkIcon}>
-                {bookmarkedQuestions.includes(currentQuestionIndex) ? '⭐' : '☆'}
-              </Text>
-              <Text style={styles.bigBookmarkText}>
-                {bookmarkedQuestions.includes(currentQuestionIndex) ? 'İşaretli' : 'İşaretle'}
-              </Text>
-            </TouchableOpacity>
-          </View>
+          {/* Sadece İşaretle İkonu - Sağ Üstte */}
+          <TouchableOpacity
+            style={[
+              styles.iconOnlyBookmark,
+              bookmarkedQuestions.includes(currentQuestionIndex) && styles.iconOnlyBookmarkActive
+            ]}
+            onPress={toggleBookmark}
+          >
+            <Text style={styles.iconOnlyBookmarkText}>
+              {bookmarkedQuestions.includes(currentQuestionIndex) ? '⭐' : '☆'}
+            </Text>
+          </TouchableOpacity>
+          
           <Text style={styles.questionText}>{currentQuestion.question}</Text>
           {Array.isArray(currentQuestion.correctAnswer) && (
             <View style={styles.multiSelectBadge}>
@@ -632,54 +623,35 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 6,
+    position: 'relative',
   },
-  questionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-    gap: 12,
-  },
-  questionBadge: {
-    backgroundColor: 'rgba(102, 126, 234, 0.1)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    flex: 1,
-  },
-  questionBadgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#667eea',
-  },
-  bigBookmarkButton: {
+  iconOnlyBookmark: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: '#f3f4f6',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 12,
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    justifyContent: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
+    zIndex: 10,
   },
-  bigBookmarkButtonActive: {
+  iconOnlyBookmarkActive: {
     backgroundColor: '#fef3c7',
     borderColor: '#f59e0b',
   },
-  bigBookmarkIcon: {
-    fontSize: 20,
-  },
-  bigBookmarkText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#1f2937',
+  iconOnlyBookmarkText: {
+    fontSize: 24,
   },
   questionText: {
     fontSize: 17,
     color: '#1d1d1f',
     lineHeight: 26,
     fontWeight: '500',
+    paddingRight: 50, // İkon için alan bırak
   },
   multiSelectBadge: {
     marginTop: 16,
