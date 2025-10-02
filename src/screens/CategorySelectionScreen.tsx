@@ -91,6 +91,12 @@ export default function CategorySelectionScreen({ navigation }: Props) {
         >
           {/* Header */}
           <View style={styles.header}>
+            <TouchableOpacity
+              style={[styles.backButton, { backgroundColor: colors.surfaceSecondary }, shadows.sm]}
+              onPress={() => navigation.goBack()}
+            >
+              <Text style={styles.backIcon}>←</Text>
+            </TouchableOpacity>
             <Text style={[styles.greeting, typography.caption, { color: colors.textSecondary }]}>
               Let's get started! 🚀
             </Text>
@@ -178,6 +184,18 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     paddingTop: spacing.xl,
     paddingBottom: spacing.lg,
+  },
+  backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.md,
+  },
+  backIcon: {
+    fontSize: 24,
+    fontWeight: '600',
   },
   greeting: {
     marginBottom: spacing.xs / 2,

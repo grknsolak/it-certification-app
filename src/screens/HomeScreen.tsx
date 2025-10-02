@@ -131,13 +131,21 @@ export default function HomeScreen({ navigation }: Props) {
         >
           {/* Header - Bike Shopping Style */}
           <View style={styles.header}>
-            <View>
-              <Text style={[styles.greeting, typography.caption, { color: colors.textSecondary }]}>
-                Welcome back! 👋
-              </Text>
-              <Text style={[styles.title, typography.h1, { color: colors.textPrimary }]}>
-                IT Certification
-              </Text>
+            <View style={styles.headerLeft}>
+              <TouchableOpacity
+                style={[styles.backButton, { backgroundColor: colors.surfaceSecondary }, shadows.sm]}
+                onPress={() => navigation.goBack()}
+              >
+                <Text style={styles.backIcon}>←</Text>
+              </TouchableOpacity>
+              <View>
+                <Text style={[styles.greeting, typography.caption, { color: colors.textSecondary }]}>
+                  Welcome back! 👋
+                </Text>
+                <Text style={[styles.title, typography.h1, { color: colors.textPrimary }]}>
+                  IT Certification
+                </Text>
+              </View>
             </View>
             <TouchableOpacity
               style={[styles.settingsButton, { backgroundColor: colors.surfaceSecondary }, shadows.sm]}
@@ -326,6 +334,23 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     padding: spacing.md,
     paddingTop: spacing.lg,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    flex: 1,
+  },
+  backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  backIcon: {
+    fontSize: 24,
+    fontWeight: '600',
   },
   greeting: {
     marginBottom: spacing.xs / 2,

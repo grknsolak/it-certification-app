@@ -32,12 +32,12 @@ export default function LoginScreen({ navigation }: Props) {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      navigation.replace('CategorySelection');
+      navigation.navigate('CategorySelection');
     }, 1000);
   };
 
   const handleGuestLogin = () => {
-    navigation.replace('CategorySelection');
+    navigation.navigate('CategorySelection');
   };
 
   return (

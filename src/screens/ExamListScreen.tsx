@@ -147,6 +147,12 @@ export default function ExamListScreen({ navigation, route }: Props) {
       >
         <SafeAreaView>
           <View style={styles.heroContent}>
+            <TouchableOpacity
+              style={[styles.backButton, shadows.sm]}
+              onPress={() => navigation.goBack()}
+            >
+              <Text style={styles.backIcon}>←</Text>
+            </TouchableOpacity>
             <Text style={[styles.heroTitle, typography.h1]}>
               IT Certification Exams
             </Text>
@@ -217,6 +223,20 @@ const styles = StyleSheet.create({
   },
   heroContent: {
     paddingHorizontal: spacing.xl,
+  },
+  backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  backIcon: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#ffffff',
   },
   heroTitle: {
     color: '#ffffff',
