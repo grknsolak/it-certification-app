@@ -10,6 +10,7 @@ export const certificationExams: Exam[] = [
     category: 'Cloud Computing',
     subCategory: 'AWS',
     icon: '☁️',
+    realExamQuestionCount: 65, // Gerçek sınavda 65 soru
     createdAt: new Date(),
     questions: [
       {
@@ -93,6 +94,7 @@ export const certificationExams: Exam[] = [
     category: 'Cloud Computing',
     subCategory: 'AWS',
     icon: '☁️',
+    realExamQuestionCount: 65, // Gerçek sınavda 65 soru
     createdAt: new Date(),
     questions: [
       {
@@ -148,6 +150,7 @@ export const certificationExams: Exam[] = [
     category: 'Cybersecurity',
     subCategory: 'CompTIA',
     icon: '🛡️',
+    realExamQuestionCount: 90, // Gerçek sınavda 90 soru
     createdAt: new Date(),
     questions: [
       {
@@ -203,6 +206,7 @@ export const certificationExams: Exam[] = [
     category: 'Cloud Computing',
     subCategory: 'Google Cloud',
     icon: '☁️',
+    realExamQuestionCount: 50, // Gerçek sınavda 50 soru
     createdAt: new Date(),
     questions: [
       {
@@ -244,6 +248,7 @@ export const certificationExams: Exam[] = [
     category: 'Container Orchestration',
     subCategory: 'Kubernetes / CNCF',
     icon: '🐳',
+    realExamQuestionCount: 15, // Gerçek sınavda 15-20 performans tabanlı soru
     createdAt: new Date(),
     questions: [
       {
@@ -285,6 +290,7 @@ export const certificationExams: Exam[] = [
     category: 'DevOps',
     subCategory: 'Terraform / HashiCorp',
     icon: '⚙️',
+    realExamQuestionCount: 57, // Gerçek sınavda 57 soru
     createdAt: new Date(),
     questions: [
       {

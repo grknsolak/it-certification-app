@@ -20,6 +20,7 @@ export interface Exam {
   category: string;
   subCategory?: string; // Alt kategori (örn: AWS, Azure, Cisco)
   icon?: string;
+  realExamQuestionCount?: number; // Gerçek sınavdaki soru sayısı (exam mode için)
   createdAt: Date;
 }
 
@@ -71,7 +72,10 @@ export type RootStackParamList = {
   };
   Home: undefined;
   ExamList: { category?: string; subCategory?: string };
-  Exam: { examId: string };
+  Exam: { 
+    examId: string;
+    mode: 'practice' | 'exam'; // practice = serbest, exam = zamanlı
+  };
   Results: { result: ExamResult };
   Settings: undefined;
   QuestionReview: { examId: string };

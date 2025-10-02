@@ -118,23 +118,30 @@ export default function ExamListScreen({ navigation, route }: Props) {
           </View>
         </View>
 
-        {/* Action Buttons */}
+        {/* Action Buttons - 3 Modes */}
         <View style={styles.actionRow}>
           <Button
-            title="Review"
+            title="📚 Review"
             onPress={() => navigation.navigate('QuestionReview', { examId: item.id })}
             variant="ghost"
-            size="medium"
+            size="small"
             style={styles.reviewButton}
             accessibilityLabel={`Review ${item.title}`}
           />
           <Button
-            title="Start Exam"
-            onPress={() => navigation.navigate('Exam', { examId: item.id })}
+            title="💡 Practice"
+            onPress={() => navigation.navigate('Exam', { examId: item.id, mode: 'practice' })}
+            variant="outline"
+            size="small"
+            style={styles.practiceButton}
+            accessibilityLabel={`Practice ${item.title}`}
+          />
+          <Button
+            title="🚀 Exam"
+            onPress={() => navigation.navigate('Exam', { examId: item.id, mode: 'exam' })}
             variant="primary"
-            size="medium"
-            icon="🚀"
-            style={styles.startButton}
+            size="small"
+            style={styles.examButton}
             accessibilityLabel={`Start ${item.title} exam`}
           />
         </View>

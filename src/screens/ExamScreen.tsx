@@ -24,13 +24,21 @@ interface Props {
 }
 
 export default function ExamScreen({ navigation, route }: Props) {
-  const { examId } = route.params;
-  const exam = certificationExams.find(e => e.id === examId);
+  const { examId, mode } = route.params;
+  const examData = certificationExams.find(e => e.id === examId);
+  
+  // Mode'a göre soruları ayarla
+  const questions = mode === 'exam' && examData?.realExamQuestionCount
+    ? examData.questions.slice(0, examData.realExamQuestionCount)
+    : examData?.questions || [];
+  
+  const exam = examData ? { ...examData, questions } : null;
   
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | number[] | null>(null);
   const [answers, setAnswers] = useState<Answer[]>([]);
-  const [timeLeft, setTimeLeft] = useState(exam?.timeLimit ? exam.timeLimit * 60 : 0);
+  // Practice mode'da timer yok
+  const [timeLeft, setTimeLeft] = useState(mode === 'exam' && exam?.timeLimit ? exam.timeLimit * 60 : 0);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   useEffect(() => {
@@ -42,15 +50,16 @@ export default function ExamScreen({ navigation, route }: Props) {
   }, [exam, navigation]);
 
   useEffect(() => {
-    if (timeLeft > 0 && !isSubmitted) {
+    // Sadece exam mode'da timer çalışsın
+    if (mode === 'exam' && timeLeft > 0 && !isSubmitted) {
       const timer = setTimeout(() => {
         setTimeLeft(timeLeft - 1);
       }, 1000);
       return () => clearTimeout(timer);
-    } else if (timeLeft === 0 && !isSubmitted) {
+    } else if (mode === 'exam' && timeLeft === 0 && !isSubmitted) {
       handleSubmitExam();
     }
-  }, [timeLeft, isSubmitted]);
+  }, [timeLeft, isSubmitted, mode]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -187,10 +196,17 @@ export default function ExamScreen({ navigation, route }: Props) {
                 />
               </View>
               <View style={styles.progressInfo}>
-                <Text style={styles.progressText}>
-                  Soru {currentQuestionIndex + 1} / {exam.questions.length}
-                </Text>
-                <Text style={styles.timerText}>⏱️ {formatTime(timeLeft)}</Text>
+                <View>
+                  <Text style={styles.progressText}>
+                    Soru {currentQuestionIndex + 1} / {exam.questions.length}
+                  </Text>
+                  <Text style={styles.modeText}>
+                    {mode === 'exam' ? '🎯 Sınav Modu' : '💡 Alıştırma Modu'}
+                  </Text>
+                </View>
+                {mode === 'exam' && (
+                  <Text style={styles.timerText}>⏱️ {formatTime(timeLeft)}</Text>
+                )}
               </View>
             </View>
           </View>
@@ -315,6 +331,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#ffffff',
     fontWeight: '600',
+  },
+  modeText: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.8)',
+    fontWeight: '500',
+    marginTop: 4,
   },
   timerText: {
     fontSize: 15,
