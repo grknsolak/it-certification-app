@@ -21,63 +21,100 @@ interface Props {
 }
 
 const { width } = Dimensions.get('window');
-const cardWidth = (width - spacing.md * 3) / 2;
+const isLargeScreen = width > 768;
+const cardWidth = isLargeScreen 
+  ? (width - spacing.md * 4) / 3 
+  : (width - spacing.md * 3) / 2;
 
 export default function CategorySelectionScreen({ navigation }: Props) {
   const { colors } = useTheme();
 
   const categories = [
     {
-      id: 'cloud',
-      name: 'Cloud Computing',
+      id: 'cloud-devops',
+      name: 'Cloud & DevOps',
       icon: '☁️',
       gradient: ['#3B82F6', '#2563EB'],
-      exams: 8,
-      description: 'AWS, Google Cloud, Azure certifications',
+      certifications: [
+        'AWS (Cloud Practitioner, Solutions Architect, DevOps, ML, Gen AI)',
+        'Azure (AZ-900, AZ-104, AZ-305)',
+        'Google Cloud (Engineer, Architect, Data)',
+        'Kubernetes (CKA, CKAD, CKS)',
+        'Terraform Associate',
+      ],
+      exams: 25,
     },
     {
-      id: 'security',
+      id: 'cybersecurity',
       name: 'Cybersecurity',
-      icon: '🛡️',
+      icon: '🔒',
       gradient: ['#EF4444', '#DC2626'],
-      exams: 3,
-      description: 'CompTIA Security+, ethical hacking',
+      certifications: [
+        'CompTIA Security+',
+        'CEH (Certified Ethical Hacker)',
+        'CISSP (Security Professional)',
+        'CISM (Security Manager)',
+        'OSCP (Offensive Security)',
+        'ISO 27001 (Lead Auditor/Implementer)',
+      ],
+      exams: 15,
     },
     {
-      id: 'container',
-      name: 'Container Orchestration',
-      icon: '🐳',
-      gradient: ['#22C55E', '#16A34A'],
-      exams: 2,
-      description: 'Kubernetes, Docker certifications',
-    },
-    {
-      id: 'devops',
-      name: 'DevOps',
-      icon: '⚙️',
+      id: 'data-ai',
+      name: 'Data & AI',
+      icon: '📊',
       gradient: ['#8B5CF6', '#7C3AED'],
-      exams: 2,
-      description: 'Terraform, CI/CD, automation',
-    },
-    {
-      id: 'networking',
-      name: 'Networking',
-      icon: '🌐',
-      gradient: ['#F59E0B', '#D97706'],
-      exams: 1,
-      description: 'Cisco, network engineering',
-    },
-    {
-      id: 'all',
-      name: 'All Certifications',
-      icon: '🎯',
-      gradient: ['#6366F1', '#4F46E5'],
+      certifications: [
+        'AWS ML Specialty / Gen AI',
+        'Microsoft DP-100, AI-102',
+        'Google Professional Data Engineer',
+        'Databricks Certifications',
+        'TensorFlow Developer',
+      ],
       exams: 12,
-      description: 'Browse all available exams',
+    },
+    {
+      id: 'networking-systems',
+      name: 'Networking & Systems',
+      icon: '🖥️',
+      gradient: ['#F59E0B', '#D97706'],
+      certifications: [
+        'Cisco (CCNA, CCNP, CCIE)',
+        'VMware (VCP, VCAP, VCDX)',
+        'Linux Foundation (LFCS, LFCE)',
+      ],
+      exams: 10,
+    },
+    {
+      id: 'software-agile',
+      name: 'Software & Agile',
+      icon: '👨‍💻',
+      gradient: ['#22C55E', '#16A34A'],
+      certifications: [
+        'Scrum Master (PSM, CSM)',
+        'PMI-ACP (Agile Practitioner)',
+        'TOGAF (Architecture)',
+        'ITIL (Foundation, Intermediate)',
+        'SAFe (Scaled Agile)',
+      ],
+      exams: 18,
+    },
+    {
+      id: 'business-management',
+      name: 'Business & Management',
+      icon: '📈',
+      gradient: ['#EC4899', '#DB2777'],
+      certifications: [
+        'PMP (Project Management)',
+        'PRINCE2 (Foundation, Practitioner)',
+        'COBIT Certification',
+        'Product Management',
+      ],
+      exams: 8,
     },
   ];
 
-  const handleCategorySelect = (categoryName: string) => {
+  const handleCategorySelect = (categoryId: string, categoryName: string) => {
     navigation.navigate('ExamList', { category: categoryName });
   };
 
@@ -95,72 +132,101 @@ export default function CategorySelectionScreen({ navigation }: Props) {
               style={[styles.backButton, { backgroundColor: colors.surfaceSecondary }, shadows.sm]}
               onPress={() => navigation.goBack()}
             >
-              <Text style={styles.backIcon}>←</Text>
+              <Text style={[styles.backIcon, { color: colors.textPrimary }]}>←</Text>
             </TouchableOpacity>
             <Text style={[styles.greeting, typography.caption, { color: colors.textSecondary }]}>
-              Let's get started! 🚀
+              Start Your Journey! 🚀
             </Text>
             <Text style={[styles.title, typography.h1, { color: colors.textPrimary }]}>
-              Choose Your Path
+              IT Certification Categories
             </Text>
             <Text style={[styles.subtitle, typography.body, { color: colors.textSecondary }]}>
-              Select a certification category to begin your learning journey
+              Select a professional certification path
             </Text>
           </View>
 
-          {/* Categories Grid - Bike Shopping Style */}
+          {/* Categories Grid - Professional Design */}
           <View style={styles.categoriesGrid}>
             {categories.map((category) => (
               <TouchableOpacity
                 key={category.id}
                 style={styles.categoryCardWrapper}
-                onPress={() => handleCategorySelect(category.name)}
+                onPress={() => handleCategorySelect(category.id, category.name)}
                 activeOpacity={0.8}
               >
-                <LinearGradient
-                  colors={category.gradient}
-                  style={[styles.categoryCard, shadows.lg]}
-                >
-                  {/* Badge with exam count */}
-                  <View style={styles.examCountBadge}>
-                    <Text style={[styles.examCountText, typography.smallBold]}>
-                      {category.exams} Exams
-                    </Text>
-                  </View>
-
-                  {/* Icon */}
-                  <View style={styles.iconContainer}>
-                    <Text style={styles.categoryIcon}>{category.icon}</Text>
+                <View style={[styles.categoryCard, { backgroundColor: colors.surface }, shadows.xl]}>
+                  {/* Header with Icon & Badge */}
+                  <View style={styles.cardHeader}>
+                    <LinearGradient
+                      colors={category.gradient}
+                      style={styles.iconGradient}
+                    >
+                      <Text style={styles.categoryIcon}>{category.icon}</Text>
+                    </LinearGradient>
+                    <View style={[styles.examBadge, { backgroundColor: colors.backgroundSecondary }]}>
+                      <Text style={[styles.examBadgeText, typography.smallBold, { color: colors.textSecondary }]}>
+                        {category.exams} Exams
+                      </Text>
+                    </View>
                   </View>
 
                   {/* Title */}
-                  <Text style={[styles.categoryName, typography.h4]}>
+                  <Text style={[styles.categoryName, typography.h3, { color: colors.textPrimary }]}>
                     {category.name}
                   </Text>
 
-                  {/* Description */}
-                  <Text style={[styles.categoryDescription, typography.caption]}>
-                    {category.description}
-                  </Text>
-
-                  {/* Arrow */}
-                  <View style={styles.arrowContainer}>
-                    <Text style={styles.arrow}>→</Text>
+                  {/* Certifications List */}
+                  <View style={styles.certificationsContainer}>
+                    {category.certifications.slice(0, 3).map((cert, index) => (
+                      <View key={index} style={styles.certItem}>
+                        <Text style={[styles.certBullet, { color: colors.textTertiary }]}>•</Text>
+                        <Text 
+                          style={[styles.certText, typography.caption, { color: colors.textSecondary }]}
+                          numberOfLines={1}
+                        >
+                          {cert}
+                        </Text>
+                      </View>
+                    ))}
+                    {category.certifications.length > 3 && (
+                      <Text style={[styles.moreText, typography.captionBold, { color: colors.primary }]}>
+                        +{category.certifications.length - 3} more
+                      </Text>
+                    )}
                   </View>
-                </LinearGradient>
+
+                  {/* Action Button */}
+                  <LinearGradient
+                    colors={category.gradient}
+                    style={styles.actionButton}
+                  >
+                    <Text style={[styles.actionButtonText, typography.bodyBold]}>
+                      Explore Certifications
+                    </Text>
+                    <Text style={styles.actionArrow}>→</Text>
+                  </LinearGradient>
+                </View>
               </TouchableOpacity>
             ))}
           </View>
 
-          {/* Skip Option */}
-          <TouchableOpacity
-            style={[styles.skipButton, { backgroundColor: colors.surfaceSecondary }]}
-            onPress={() => navigation.navigate('Home')}
-          >
-            <Text style={[styles.skipText, typography.bodyBold, { color: colors.textSecondary }]}>
-              Skip and Browse All
+          {/* Footer */}
+          <View style={[styles.footer, { backgroundColor: colors.surfaceSecondary }]}>
+            <Text style={[styles.footerTitle, typography.h4, { color: colors.textPrimary }]}>
+              Not sure where to start?
             </Text>
-          </TouchableOpacity>
+            <Text style={[styles.footerText, typography.body, { color: colors.textSecondary }]}>
+              Browse all certifications and find the perfect path for your career
+            </Text>
+            <TouchableOpacity
+              style={[styles.browseButton, { backgroundColor: colors.primary }, shadows.md]}
+              onPress={() => navigation.navigate('ExamList', { category: 'All Certifications' })}
+            >
+              <Text style={[styles.browseButtonText, typography.bodyBold, { color: colors.textInverse }]}>
+                Browse All Certifications
+              </Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -183,7 +249,7 @@ const styles = StyleSheet.create({
   header: {
     padding: spacing.md,
     paddingTop: spacing.xl,
-    paddingBottom: spacing.lg,
+    paddingBottom: spacing.xl,
   },
   backButton: {
     width: 44,
@@ -219,63 +285,92 @@ const styles = StyleSheet.create({
   categoryCard: {
     borderRadius: radius.xl,
     padding: spacing.lg,
-    minHeight: 220,
+    minHeight: 320,
+  },
+  cardHeader: {
+    flexDirection: 'row',
     justifyContent: 'space-between',
-    position: 'relative',
-    overflow: 'hidden',
+    alignItems: 'flex-start',
+    marginBottom: spacing.lg,
   },
-  examCountBadge: {
-    position: 'absolute',
-    top: spacing.md,
-    right: spacing.md,
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs / 2,
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  examCountText: {
-    color: '#ffffff',
-    fontSize: 11,
-  },
-  iconContainer: {
-    marginTop: spacing.lg,
-  },
-  categoryIcon: {
-    fontSize: 48,
-  },
-  categoryName: {
-    color: '#ffffff',
-    marginBottom: spacing.xs,
-    marginTop: spacing.md,
-  },
-  categoryDescription: {
-    color: 'rgba(255, 255, 255, 0.85)',
-    lineHeight: 20,
-  },
-  arrowContainer: {
-    alignSelf: 'flex-end',
-    marginTop: spacing.md,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  iconGradient: {
+    width: 64,
+    height: 64,
+    borderRadius: radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  arrow: {
+  categoryIcon: {
+    fontSize: 32,
+  },
+  examBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+    borderRadius: radius.full,
+  },
+  examBadgeText: {
+    fontSize: 11,
+  },
+  categoryName: {
+    marginBottom: spacing.md,
+  },
+  certificationsContainer: {
+    marginBottom: spacing.lg,
+    flex: 1,
+  },
+  certItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: spacing.xs,
+  },
+  certBullet: {
+    marginRight: spacing.xs,
+    fontSize: 12,
+  },
+  certText: {
+    flex: 1,
+    lineHeight: 18,
+  },
+  moreText: {
+    marginTop: spacing.xs / 2,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.md,
+  },
+  actionButtonText: {
+    color: '#ffffff',
+    flex: 1,
+  },
+  actionArrow: {
     fontSize: 20,
     color: '#ffffff',
     fontWeight: '700',
+    marginLeft: spacing.sm,
   },
-  skipButton: {
-    marginHorizontal: spacing.md,
-    marginTop: spacing.lg,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
+  footer: {
+    margin: spacing.md,
+    padding: spacing.xl,
+    borderRadius: radius.xl,
     alignItems: 'center',
   },
-  skipText: {},
+  footerTitle: {
+    marginBottom: spacing.sm,
+    textAlign: 'center',
+  },
+  footerText: {
+    marginBottom: spacing.lg,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  browseButton: {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    borderRadius: radius.md,
+  },
+  browseButtonText: {},
 });
-
