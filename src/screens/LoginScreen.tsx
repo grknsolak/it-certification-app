@@ -4,14 +4,17 @@ import {
   Text,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../types';
+import { useTheme } from '../contexts/ThemeContext';
+import { spacing, typography, radius, shadows, gradients } from '../design-system/tokens';
+import Button from '../components/Button';
 
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
 
@@ -20,12 +23,17 @@ interface Props {
 }
 
 export default function LoginScreen({ navigation }: Props) {
+  const { colors, activeTheme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = () => {
-    // Basit doğrulama - gerçek uygulamada API çağrısı yapılır
-    navigation.replace('Home');
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      navigation.replace('Home');
+    }, 1000);
   };
 
   const handleGuestLogin = () => {
@@ -34,7 +42,7 @@ export default function LoginScreen({ navigation }: Props) {
 
   return (
     <LinearGradient
-      colors={['#667eea', '#764ba2']}
+      colors={activeTheme === 'dark' ? ['#1e293b', '#0f172a'] : gradients.primary}
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
@@ -42,98 +50,120 @@ export default function LoginScreen({ navigation }: Props) {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardView}
         >
-          <View style={styles.content}>
-            {/* Logo */}
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* Logo - DAHA BÜYÜK! */}
             <View style={styles.logoContainer}>
-              <Text style={styles.logoIcon}>🎓</Text>
-              <Text style={styles.appName}>IT Exam Certification</Text>
-              <Text style={styles.tagline}>Sertifika yolculuğunuz burada başlıyor</Text>
-            </View>
-
-            {/* Hoşgeldiniz */}
-            <View style={styles.welcomeContainer}>
-              <Text style={styles.welcomeTitle}>Hoş Geldiniz!</Text>
-              <Text style={styles.welcomeSubtitle}>
-                IT sertifikalarınıza hazırlanın
+              <View style={[styles.logoCircle, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+                <Text style={styles.logoIcon}>🎓</Text>
+              </View>
+              <Text style={[styles.appName, typography.h1]}>IT Exam Certification</Text>
+              <Text style={[styles.tagline, typography.body]}>
+                Sertifika yolculuğunuz burada başlıyor
               </Text>
             </View>
 
-            {/* Form */}
-            <View style={styles.formContainer}>
-              <View style={styles.inputContainer}>
-                <View style={styles.inputWrapper}>
-                  <Text style={styles.inputIcon}>📧</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="E-posta"
-                    placeholderTextColor="rgba(255,255,255,0.6)"
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                  />
-                </View>
-              </View>
+            {/* Welcome Card */}
+            <View style={[styles.welcomeCard, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.welcomeTitle, typography.h2, { color: colors.textPrimary }]}>
+                Hoş Geldiniz! 👋
+              </Text>
+              <Text style={[styles.welcomeSubtitle, typography.body, { color: colors.textSecondary }]}>
+                IT sertifikalarınıza hazırlanın
+              </Text>
 
-              <View style={styles.inputContainer}>
-                <View style={styles.inputWrapper}>
-                  <Text style={styles.inputIcon}>🔒</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Şifre"
-                    placeholderTextColor="rgba(255,255,255,0.6)"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                  />
+              {/* Form */}
+              <View style={styles.formContainer}>
+                <View style={styles.inputContainer}>
+                  <Text style={[styles.inputLabel, typography.captionBold, { color: colors.textPrimary }]}>
+                    E-posta
+                  </Text>
+                  <View style={[styles.inputWrapper, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+                    <Text style={styles.inputIcon}>📧</Text>
+                    <TextInput
+                      style={[styles.input, typography.body, { color: colors.textPrimary }]}
+                      placeholder="ornek@email.com"
+                      placeholderTextColor={colors.textTertiary}
+                      value={email}
+                      onChangeText={setEmail}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoComplete="email"
+                      accessibilityLabel="E-posta adresi"
+                    />
+                  </View>
                 </View>
-              </View>
 
-              <TouchableOpacity
-                style={styles.loginButton}
-                onPress={handleLogin}
-                activeOpacity={0.8}
-              >
-                <LinearGradient
-                  colors={['#f093fb', '#f5576c']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.loginButtonGradient}
-                >
-                  <Text style={styles.loginButtonText}>🚀 Giriş Yap</Text>
-                </LinearGradient>
-              </TouchableOpacity>
+                <View style={styles.inputContainer}>
+                  <Text style={[styles.inputLabel, typography.captionBold, { color: colors.textPrimary }]}>
+                    Şifre
+                  </Text>
+                  <View style={[styles.inputWrapper, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+                    <Text style={styles.inputIcon}>🔒</Text>
+                    <TextInput
+                      style={[styles.input, typography.body, { color: colors.textPrimary }]}
+                      placeholder="••••••••"
+                      placeholderTextColor={colors.textTertiary}
+                      value={password}
+                      onChangeText={setPassword}
+                      secureTextEntry
+                      autoComplete="password"
+                      accessibilityLabel="Şifre"
+                    />
+                  </View>
+                </View>
+
+                <Button
+                  title="Giriş Yap"
+                  onPress={handleLogin}
+                  variant="primary"
+                  size="large"
+                  loading={isLoading}
+                  fullWidth
+                  icon="🚀"
+                  style={{ marginTop: spacing.md }}
+                  accessibilityLabel="Giriş yap butonu"
+                />
+              </View>
 
               <View style={styles.divider}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>veya</Text>
-                <View style={styles.dividerLine} />
+                <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+                <Text style={[styles.dividerText, typography.caption, { color: colors.textSecondary }]}>
+                  veya
+                </Text>
+                <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
               </View>
 
-              <TouchableOpacity
-                style={styles.guestButton}
+              <Button
+                title="Misafir Olarak Devam Et"
                 onPress={handleGuestLogin}
-              >
-                <Text style={styles.guestButtonText}>👤 Misafir Olarak Devam Et</Text>
-              </TouchableOpacity>
+                variant="outline"
+                size="large"
+                fullWidth
+                icon="👤"
+                accessibilityLabel="Misafir girişi"
+              />
             </View>
 
-            {/* Özellikler */}
+            {/* Features */}
             <View style={styles.featuresContainer}>
-              <View style={styles.featureItem}>
+              <View style={[styles.featureItem, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
                 <Text style={styles.featureIcon}>✅</Text>
-                <Text style={styles.featureText}>200+ Soru</Text>
+                <Text style={[styles.featureText, typography.caption]}>200+ Soru</Text>
               </View>
-              <View style={styles.featureItem}>
+              <View style={[styles.featureItem, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
                 <Text style={styles.featureIcon}>📊</Text>
-                <Text style={styles.featureText}>İlerleme Takibi</Text>
+                <Text style={[styles.featureText, typography.caption]}>İlerleme Takibi</Text>
               </View>
-              <View style={styles.featureItem}>
+              <View style={[styles.featureItem, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
                 <Text style={styles.featureIcon}>🏆</Text>
-                <Text style={styles.featureText}>Sertifika Hazırlığı</Text>
+                <Text style={[styles.featureText, typography.caption]}>Sertifika Hazırlığı</Text>
               </View>
             </View>
-          </View>
+          </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </LinearGradient>
@@ -150,137 +180,108 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
-  content: {
-    flex: 1,
-    padding: 24,
+  scrollContent: {
+    flexGrow: 1,
+    padding: spacing.xl,
     justifyContent: 'center',
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: spacing.xxxl,
+  },
+  logoCircle: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.lg,
+    ...shadows.lg,
   },
   logoIcon: {
-    fontSize: 80,
-    marginBottom: 16,
+    fontSize: 60,
   },
   appName: {
-    fontSize: 32,
-    fontWeight: '800',
     color: '#ffffff',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
     textAlign: 'center',
   },
   tagline: {
-    fontSize: 15,
-    color: 'rgba(255,255,255,0.8)',
+    color: 'rgba(255,255,255,0.9)',
     fontWeight: '500',
+    textAlign: 'center',
   },
-  welcomeContainer: {
-    alignItems: 'center',
-    marginBottom: 32,
+  welcomeCard: {
+    borderRadius: radius.xl,
+    padding: spacing.xl,
+    marginBottom: spacing.xl,
+    ...shadows.lg,
   },
   welcomeTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#ffffff',
-    marginBottom: 8,
+    marginBottom: spacing.xs,
+    textAlign: 'center',
   },
   welcomeSubtitle: {
-    fontSize: 15,
-    color: 'rgba(255,255,255,0.8)',
+    textAlign: 'center',
+    marginBottom: spacing.xl,
   },
   formContainer: {
-    marginBottom: 24,
+    marginBottom: spacing.lg,
   },
   inputContainer: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
+  },
+  inputLabel: {
+    marginBottom: spacing.sm,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.lg,
+    borderWidth: 2,
+    minHeight: 56,
   },
   inputIcon: {
     fontSize: 20,
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   input: {
     flex: 1,
-    paddingVertical: 16,
-    fontSize: 16,
-    color: '#ffffff',
-    fontWeight: '500',
-  },
-  loginButton: {
-    marginTop: 8,
-    borderRadius: 14,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  loginButtonGradient: {
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  loginButtonText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#ffffff',
+    minHeight: 44,
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 24,
+    marginVertical: spacing.xl,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.3)',
   },
   dividerText: {
-    marginHorizontal: 16,
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.7)',
+    marginHorizontal: spacing.lg,
     fontWeight: '600',
-  },
-  guestButton: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 14,
-    paddingVertical: 16,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
-  },
-  guestButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#ffffff',
   },
   featuresContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginTop: 32,
+    gap: spacing.md,
   },
   featureItem: {
-    alignItems: 'center',
     flex: 1,
+    alignItems: 'center',
+    padding: spacing.lg,
+    borderRadius: radius.md,
+    ...shadows.sm,
   },
   featureIcon: {
-    fontSize: 24,
-    marginBottom: 6,
+    fontSize: 28,
+    marginBottom: spacing.sm,
   },
   featureText: {
-    fontSize: 11,
     color: 'rgba(255,255,255,0.9)',
     fontWeight: '600',
     textAlign: 'center',
   },
 });
-

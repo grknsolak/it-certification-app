@@ -12,6 +12,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StackNavigationProp } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RootStackParamList, ExamResult } from '../types';
+import { useTheme } from '../contexts/ThemeContext';
+import { spacing, typography, radius, shadows, gradients } from '../design-system/tokens';
+import Button from '../components/Button';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -28,6 +31,7 @@ interface Stats {
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen({ navigation }: Props) {
+  const { colors, activeTheme } = useTheme();
   const [stats, setStats] = useState<Stats>({
     examsCompleted: 0,
     averageScore: 0,
@@ -58,102 +62,153 @@ export default function HomeScreen({ navigation }: Props) {
   };
 
   return (
-    <LinearGradient
-      colors={['#667eea', '#764ba2']}
-      style={styles.container}
-    >
-      <SafeAreaView style={styles.safeArea}>
-        <ScrollView 
-          contentContainerStyle={styles.content}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Header */}
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <LinearGradient
+        colors={activeTheme === 'dark' ? ['#1e293b', '#0f172a'] : gradients.primary}
+        style={styles.headerGradient}
+      >
+        <SafeAreaView>
           <View style={styles.header}>
-            <Text style={styles.title}>IT Exam Certification</Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.greeting, typography.caption]}>Merhaba! 👋</Text>
+            <Text style={[styles.title, typography.h1]}>IT Exam Master</Text>
+            <Text style={[styles.subtitle, typography.body]}>
               IT sertifikalarında ustalaşın
             </Text>
           </View>
 
-          {/* İstatistikler */}
+          {/* Stats Cards - YENI TASARIM! */}
           <View style={styles.statsContainer}>
-            <View style={styles.statCard}>
-              <Text style={styles.statIcon}>✅</Text>
-              <Text style={styles.statNumber}>{stats.examsCompleted}</Text>
-              <Text style={styles.statLabel}>Tamamlanan</Text>
-            </View>
-
-            <View style={styles.statCard}>
-              <Text style={styles.statIcon}>📊</Text>
-              <Text style={styles.statNumber}>{stats.averageScore}%</Text>
-              <Text style={styles.statLabel}>Ort. Puan</Text>
-            </View>
-
-            <View style={styles.statCard}>
-              <Text style={styles.statIcon}>❓</Text>
-              <Text style={styles.statNumber}>{stats.totalQuestions}</Text>
-              <Text style={styles.statLabel}>Soru</Text>
-            </View>
-          </View>
-
-          {/* Ana Buton */}
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={() => navigation.navigate('ExamList')}
-            activeOpacity={0.8}
-          >
             <LinearGradient
-              colors={['#f093fb', '#f5576c']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.gradientButton}
+              colors={['rgba(16, 185, 129, 0.2)', 'rgba(5, 150, 105, 0.2)']}
+              style={[styles.statCard, { borderColor: 'rgba(255,255,255,0.3)' }]}
             >
-              <Text style={styles.primaryButtonIcon}>🚀</Text>
-              <Text style={styles.primaryButtonText}>Sınava Başla</Text>
+              <Text style={styles.statIcon}>✅</Text>
+              <Text style={[styles.statNumber, typography.h2]}>{stats.examsCompleted}</Text>
+              <Text style={[styles.statLabel, typography.caption]}>Tamamlanan</Text>
             </LinearGradient>
-          </TouchableOpacity>
 
-          {/* Sertifikalar */}
-          <View style={styles.featuresContainer}>
-            <Text style={styles.sectionTitle}>Mevcut Sertifikalar</Text>
-            
-            <View style={styles.featureGrid}>
-              <View style={styles.featureCard}>
-                <Text style={styles.featureCardIcon}>☁️</Text>
-                <Text style={styles.featureCardTitle}>AWS</Text>
-                <Text style={styles.featureCardDesc}>Cloud Computing</Text>
-              </View>
+            <LinearGradient
+              colors={['rgba(245, 158, 11, 0.2)', 'rgba(217, 119, 6, 0.2)']}
+              style={[styles.statCard, { borderColor: 'rgba(255,255,255,0.3)' }]}
+            >
+              <Text style={styles.statIcon}>📊</Text>
+              <Text style={[styles.statNumber, typography.h2]}>{stats.averageScore}%</Text>
+              <Text style={[styles.statLabel, typography.caption]}>Ort. Puan</Text>
+            </LinearGradient>
 
-              <View style={styles.featureCard}>
-                <Text style={styles.featureCardIcon}>☁️</Text>
-                <Text style={styles.featureCardTitle}>Google Cloud</Text>
-                <Text style={styles.featureCardDesc}>GCP</Text>
-              </View>
-
-              <View style={styles.featureCard}>
-                <Text style={styles.featureCardIcon}>🐳</Text>
-                <Text style={styles.featureCardTitle}>Kubernetes</Text>
-                <Text style={styles.featureCardDesc}>Container Orchestration</Text>
-              </View>
-
-              <View style={styles.featureCard}>
-                <Text style={styles.featureCardIcon}>🛡️</Text>
-                <Text style={styles.featureCardTitle}>Security+</Text>
-                <Text style={styles.featureCardDesc}>Cybersecurity</Text>
-              </View>
-            </View>
+            <LinearGradient
+              colors={['rgba(59, 130, 246, 0.2)', 'rgba(37, 99, 235, 0.2)']}
+              style={[styles.statCard, { borderColor: 'rgba(255,255,255,0.3)' }]}
+            >
+              <Text style={styles.statIcon}>❓</Text>
+              <Text style={[styles.statNumber, typography.h2]}>{stats.totalQuestions}</Text>
+              <Text style={[styles.statLabel, typography.caption]}>Soru</Text>
+            </LinearGradient>
           </View>
+        </SafeAreaView>
+      </LinearGradient>
 
-          {/* Ayarlar Butonu */}
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Ana Buton - BOMBA! */}
+        <Button
+          title="Sınava Başla"
+          onPress={() => navigation.navigate('ExamList')}
+          variant="primary"
+          size="large"
+          fullWidth
+          icon="🚀"
+          style={styles.primaryButton}
+          accessibilityLabel="Yeni sınava başla"
+        />
+
+        {/* Sertifikalar Grid - YENİ! */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, typography.h3, { color: colors.textPrimary }]}>
+            Mevcut Sertifikalar
+          </Text>
+          
+          <View style={styles.certGrid}>
+            <LinearGradient
+              colors={gradients.blue}
+              style={[styles.certCard, shadows.md]}
+            >
+              <Text style={styles.certIcon}>☁️</Text>
+              <Text style={[styles.certTitle, typography.bodyBold]}>AWS</Text>
+              <Text style={[styles.certDesc, typography.small]}>Cloud Computing</Text>
+              <View style={styles.certBadge}>
+                <Text style={[styles.certBadgeText, typography.small]}>8 Sınav</Text>
+              </View>
+            </LinearGradient>
+
+            <LinearGradient
+              colors={gradients.purple}
+              style={[styles.certCard, shadows.md]}
+            >
+              <Text style={styles.certIcon}>☁️</Text>
+              <Text style={[styles.certTitle, typography.bodyBold]}>Google Cloud</Text>
+              <Text style={[styles.certDesc, typography.small]}>GCP</Text>
+              <View style={styles.certBadge}>
+                <Text style={[styles.certBadgeText, typography.small]}>2 Sınav</Text>
+              </View>
+            </LinearGradient>
+
+            <LinearGradient
+              colors={['#34d399', '#10b981']}
+              style={[styles.certCard, shadows.md]}
+            >
+              <Text style={styles.certIcon}>🐳</Text>
+              <Text style={[styles.certTitle, typography.bodyBold]}>Kubernetes</Text>
+              <Text style={[styles.certDesc, typography.small]}>Container</Text>
+              <View style={styles.certBadge}>
+                <Text style={[styles.certBadgeText, typography.small]}>1 Sınav</Text>
+              </View>
+            </LinearGradient>
+
+            <LinearGradient
+              colors={gradients.error}
+              style={[styles.certCard, shadows.md]}
+            >
+              <Text style={styles.certIcon}>🛡️</Text>
+              <Text style={[styles.certTitle, typography.bodyBold]}>Security+</Text>
+              <Text style={[styles.certDesc, typography.small]}>Cybersecurity</Text>
+              <View style={styles.certBadge}>
+                <Text style={[styles.certBadgeText, typography.small]}>1 Sınav</Text>
+              </View>
+            </LinearGradient>
+          </View>
+        </View>
+
+        {/* Quick Actions */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, typography.h3, { color: colors.textPrimary }]}>
+            Hızlı Erişim
+          </Text>
+          
           <TouchableOpacity
-            style={styles.settingsButton}
+            style={[styles.actionCard, { backgroundColor: colors.surface }]}
             onPress={() => navigation.navigate('Settings')}
+            activeOpacity={0.7}
           >
-            <Text style={styles.settingsButtonText}>⚙️  Ayarlar</Text>
+            <View style={[styles.actionIconContainer, { backgroundColor: colors.primaryLight }]}>
+              <Text style={styles.actionIcon}>⚙️</Text>
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={[styles.actionTitle, typography.bodyBold, { color: colors.textPrimary }]}>
+                Ayarlar
+              </Text>
+              <Text style={[styles.actionDesc, typography.caption, { color: colors.textSecondary }]}>
+                Tema ve tercihlerinizi yönetin
+              </Text>
+            </View>
+            <Text style={[styles.actionArrow, { color: colors.textTertiary }]}>›</Text>
           </TouchableOpacity>
-        </ScrollView>
-      </SafeAreaView>
-    </LinearGradient>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -161,139 +216,129 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  safeArea: {
-    flex: 1,
-  },
-  content: {
-    padding: 20,
-    paddingBottom: 40,
+  headerGradient: {
+    paddingBottom: spacing.xl,
   },
   header: {
-    alignItems: 'center',
-    marginBottom: 30,
-    marginTop: 20,
+    padding: spacing.xl,
+    paddingTop: spacing.lg,
+  },
+  greeting: {
+    color: 'rgba(255,255,255,0.8)',
+    marginBottom: spacing.xs,
   },
   title: {
-    fontSize: 36,
-    fontWeight: '800',
     color: '#ffffff',
-    marginBottom: 12,
-    textAlign: 'center',
+    marginBottom: spacing.sm,
   },
   subtitle: {
-    fontSize: 16,
     color: 'rgba(255,255,255,0.9)',
-    textAlign: 'center',
   },
   statsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-    gap: 12,
+    paddingHorizontal: spacing.xl,
+    gap: spacing.md,
   },
   statCard: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    ...shadows.md,
   },
   statIcon: {
-    fontSize: 24,
-    marginBottom: 8,
+    fontSize: 32,
+    marginBottom: spacing.sm,
   },
   statNumber: {
-    fontSize: 24,
-    fontWeight: '700',
     color: '#ffffff',
-    marginBottom: 4,
+    fontWeight: '800',
+    marginBottom: spacing.xs / 2,
   },
   statLabel: {
-    fontSize: 11,
-    color: 'rgba(255,255,255,0.8)',
+    color: 'rgba(255,255,255,0.9)',
+    fontWeight: '600',
     textAlign: 'center',
-    fontWeight: '500',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  content: {
+    padding: spacing.xl,
+    paddingTop: spacing.xxxl,
   },
   primaryButton: {
-    marginBottom: 24,
-    borderRadius: 16,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    marginBottom: spacing.xxxl,
   },
-  gradientButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 18,
-    paddingHorizontal: 24,
-    gap: 10,
-  },
-  primaryButtonIcon: {
-    fontSize: 24,
-  },
-  primaryButtonText: {
-    color: '#ffffff',
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  featuresContainer: {
-    marginBottom: 24,
+  section: {
+    marginBottom: spacing.xxxl,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#ffffff',
-    marginBottom: 16,
-    textAlign: 'center',
+    marginBottom: spacing.lg,
   },
-  featureGrid: {
+  certGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 12,
+    gap: spacing.lg,
   },
-  featureCard: {
-    width: (width - 52) / 2,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 16,
-    padding: 20,
+  certCard: {
+    width: (width - spacing.xl * 2 - spacing.lg) / 2,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
   },
-  featureCardIcon: {
-    fontSize: 40,
-    marginBottom: 12,
+  certIcon: {
+    fontSize: 48,
+    marginBottom: spacing.md,
   },
-  featureCardTitle: {
-    fontSize: 16,
-    fontWeight: '700',
+  certTitle: {
     color: '#ffffff',
-    marginBottom: 4,
-  },
-  featureCardDesc: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.8)',
+    marginBottom: spacing.xs / 2,
     textAlign: 'center',
   },
-  settingsButton: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+  certDesc: {
+    color: 'rgba(255,255,255,0.8)',
+    marginBottom: spacing.md,
+    textAlign: 'center',
   },
-  settingsButtonText: {
+  certBadge: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs / 2,
+    borderRadius: radius.full,
+  },
+  certBadgeText: {
     color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
+  },
+  actionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    ...shadows.sm,
+  },
+  actionIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.lg,
+  },
+  actionIcon: {
+    fontSize: 28,
+  },
+  actionContent: {
+    flex: 1,
+  },
+  actionTitle: {
+    marginBottom: spacing.xs / 2,
+  },
+  actionDesc: {},
+  actionArrow: {
+    fontSize: 24,
+    fontWeight: '300',
   },
 });
-
