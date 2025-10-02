@@ -99,16 +99,49 @@ export default function ExamScreen({ navigation, route }: Props) {
     if (!exam) return;
     const currentQuestion = exam.questions[currentQuestionIndex];
     
+    let newSelectedAnswer: number | number[];
+    
     // Çoklu cevap kontrolü
     if (Array.isArray(currentQuestion.correctAnswer)) {
       const currentSelections = (selectedAnswer as number[]) || [];
       if (currentSelections.includes(optionIndex)) {
-        setSelectedAnswer(currentSelections.filter(i => i !== optionIndex));
+        newSelectedAnswer = currentSelections.filter(i => i !== optionIndex);
       } else if (currentSelections.length < currentQuestion.correctAnswer.length) {
-        setSelectedAnswer([...currentSelections, optionIndex]);
+        newSelectedAnswer = [...currentSelections, optionIndex];
+      } else {
+        return; // Max seçim sayısına ulaşıldı
       }
     } else {
-      setSelectedAnswer(optionIndex);
+      newSelectedAnswer = optionIndex;
+    }
+    
+    setSelectedAnswer(newSelectedAnswer);
+    
+    // Cevabı hemen kaydet
+    let isCorrect = false;
+    if (Array.isArray(currentQuestion.correctAnswer)) {
+      const selectedArray = newSelectedAnswer as number[];
+      isCorrect = selectedArray.length === currentQuestion.correctAnswer.length &&
+                 currentQuestion.correctAnswer.every(correct => selectedArray.includes(correct));
+    } else {
+      isCorrect = newSelectedAnswer === currentQuestion.correctAnswer;
+    }
+    
+    const newAnswer: Answer = {
+      questionId: currentQuestion.id,
+      selectedOption: newSelectedAnswer,
+      isCorrect,
+      timeSpent: 0,
+    };
+
+    // Eğer bu soru için zaten cevap varsa güncelle, yoksa ekle
+    const existingIndex = answers.findIndex(a => a.questionId === currentQuestion.id);
+    if (existingIndex !== -1) {
+      const newAnswers = [...answers];
+      newAnswers[existingIndex] = newAnswer;
+      setAnswers(newAnswers);
+    } else {
+      setAnswers([...answers, newAnswer]);
     }
   };
 
@@ -121,12 +154,16 @@ export default function ExamScreen({ navigation, route }: Props) {
   };
 
   const goToQuestion = (index: number) => {
-    // Mevcut sorunun cevabını kaydet
-    if (selectedAnswer !== null && exam) {
-      saveCurrentAnswer();
-    }
+    // Seçilen soruya git
     setCurrentQuestionIndex(index);
-    setSelectedAnswer(null);
+    
+    // O sorunun cevabını yükle (varsa)
+    if (exam) {
+      const targetQuestion = exam.questions[index];
+      const existingAnswer = answers.find(a => a.questionId === targetQuestion.id);
+      setSelectedAnswer(existingAnswer ? existingAnswer.selectedOption : null);
+    }
+    
     setShowQuestionGrid(false);
   };
 
@@ -163,31 +200,33 @@ export default function ExamScreen({ navigation, route }: Props) {
   };
 
   const handlePreviousQuestion = () => {
-    if (selectedAnswer !== null && exam) {
-      saveCurrentAnswer();
-    }
-    
+    // Cevaplar otomatik kaydediliyor, sadece soru değiştir
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
-      setSelectedAnswer(null);
+      
+      // Önceki sorunun cevabını yükle
+      const prevQuestion = exam?.questions[currentQuestionIndex - 1];
+      if (prevQuestion) {
+        const prevAnswer = answers.find(a => a.questionId === prevQuestion.id);
+        setSelectedAnswer(prevAnswer ? prevAnswer.selectedOption : null);
+      }
     }
   };
 
   const handleNextQuestion = () => {
-    if (selectedAnswer !== null && exam) {
-      saveCurrentAnswer();
-    }
-    
+    // Cevaplar otomatik kaydediliyor, sadece soru değiştir
     if (exam && currentQuestionIndex < exam.questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setSelectedAnswer(null);
+      
+      // Sonraki sorunun cevabını yükle
+      const nextQuestion = exam.questions[currentQuestionIndex + 1];
+      const nextAnswer = answers.find(a => a.questionId === nextQuestion.id);
+      setSelectedAnswer(nextAnswer ? nextAnswer.selectedOption : null);
     }
   };
 
   const handleSkipAndFinish = () => {
-    if (selectedAnswer !== null && exam) {
-      saveCurrentAnswer();
-    }
+    // Artık cevaplar otomatik kaydediliyor, direkt bitir
     handleSubmitExam();
   };
 
@@ -212,32 +251,9 @@ export default function ExamScreen({ navigation, route }: Props) {
   const handleSubmitExam = async () => {
     if (!exam) return;
 
+    console.log('🏁 Sınav bitiriliyor...', { answersCount: answers.length, totalQuestions: exam.questions.length });
+
     let finalAnswers = [...answers];
-    
-    // Mevcut sorunun cevabını ekle (eğer varsa ve henüz eklenmemişse)
-    if (selectedAnswer !== null) {
-      const currentQuestion = exam.questions[currentQuestionIndex];
-      const alreadyAnswered = finalAnswers.some(a => a.questionId === currentQuestion.id);
-      
-      if (!alreadyAnswered) {
-        let isCorrect = false;
-        
-        if (Array.isArray(currentQuestion.correctAnswer)) {
-          const selectedArray = selectedAnswer as number[];
-          isCorrect = selectedArray.length === currentQuestion.correctAnswer.length &&
-                     currentQuestion.correctAnswer.every(correct => selectedArray.includes(correct));
-        } else {
-          isCorrect = selectedAnswer === currentQuestion.correctAnswer;
-        }
-        
-        finalAnswers.push({
-          questionId: currentQuestion.id,
-          selectedOption: selectedAnswer,
-          isCorrect,
-          timeSpent: 0,
-        });
-      }
-    }
 
     // Cevaplanmayan soruları boş cevap olarak ekle
     exam.questions.forEach(q => {
@@ -250,6 +266,8 @@ export default function ExamScreen({ navigation, route }: Props) {
         });
       }
     });
+
+    console.log('✅ Final cevaplar hazır:', finalAnswers.length);
 
     const correctAnswers = finalAnswers.filter(answer => answer.isCorrect).length;
     const score = Math.round((correctAnswers / exam.questions.length) * 100);
@@ -266,15 +284,19 @@ export default function ExamScreen({ navigation, route }: Props) {
       answers: finalAnswers,
     };
 
+    console.log('📊 Sonuç hazır:', { score, correctAnswers, wrongAnswers: result.wrongAnswers });
+
     try {
       const existingResults = await AsyncStorage.getItem('examResults');
       const results: ExamResult[] = existingResults ? JSON.parse(existingResults) : [];
       results.push(result);
       await AsyncStorage.setItem('examResults', JSON.stringify(results));
+      console.log('💾 Sonuç AsyncStorage\'a kaydedildi');
     } catch (error) {
-      console.error('Sonuç kaydedilemedi:', error);
+      console.error('❌ Sonuç kaydedilemedi:', error);
     }
 
+    console.log('🚀 Results ekranına gidiliyor...');
     setIsSubmitted(true);
     navigation.navigate('Results', { result });
   };
