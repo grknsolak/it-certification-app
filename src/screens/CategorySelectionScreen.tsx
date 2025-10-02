@@ -149,8 +149,13 @@ export default function CategorySelectionScreen({ navigation }: Props) {
             </Text>
           </View>
 
-          {/* Categories Grid - Professional Design */}
-          <View style={styles.categoriesGrid}>
+          {/* Categories Horizontal Scroll */}
+          <ScrollView 
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoriesScrollContent}
+            style={styles.categoriesScroll}
+          >
             {categories.map((category) => (
               <TouchableOpacity
                 key={category.id}
@@ -162,7 +167,7 @@ export default function CategorySelectionScreen({ navigation }: Props) {
                   {/* Header with Icon & Badge */}
                   <View style={styles.cardHeader}>
                     <LinearGradient
-                      colors={category.gradient}
+                      colors={category.gradient as any}
                       style={styles.iconGradient}
                     >
                       <Text style={styles.categoryIcon}>{category.icon}</Text>
@@ -201,7 +206,7 @@ export default function CategorySelectionScreen({ navigation }: Props) {
 
                   {/* Action Button */}
                   <LinearGradient
-                    colors={category.gradient}
+                    colors={category.gradient as any}
                     style={styles.actionButton}
                   >
                     <Text style={[styles.actionButtonText, typography.bodyBold]}>
@@ -212,7 +217,7 @@ export default function CategorySelectionScreen({ navigation }: Props) {
                 </View>
               </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
 
           {/* Footer */}
           <View style={[styles.footer, { backgroundColor: colors.surfaceSecondary }]}>
@@ -276,15 +281,16 @@ const styles = StyleSheet.create({
   subtitle: {
     lineHeight: 24,
   },
-  categoriesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  categoriesScroll: {
+    marginBottom: spacing.xl,
+  },
+  categoriesScrollContent: {
     paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
     gap: spacing.md,
   },
   categoryCardWrapper: {
-    width: cardWidth,
-    marginBottom: spacing.md,
+    width: 320, // Daha geniş kartlar
   },
   categoryCard: {
     borderRadius: radius.xl,
