@@ -326,11 +326,19 @@ export default function ExamScreen({ navigation, route }: Props) {
         </SafeAreaView>
       </LinearGradient>
 
-      {/* Question Grid Modal */}
+      {/* Question Grid Modal - Popup */}
       {showQuestionGrid && (
-        <View style={styles.modalOverlay}>
+        <TouchableOpacity 
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowQuestionGrid(false)}
+        >
           <SafeAreaView style={styles.modalSafeArea}>
-            <View style={styles.modalContent}>
+            <TouchableOpacity 
+              style={styles.modalContent}
+              activeOpacity={1}
+              onPress={(e) => e.stopPropagation()}
+            >
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Tüm Sorular</Text>
                 <TouchableOpacity onPress={() => setShowQuestionGrid(false)}>
@@ -436,9 +444,9 @@ export default function ExamScreen({ navigation, route }: Props) {
                   );
                 })}
               </ScrollView>
-            </View>
+            </TouchableOpacity>
           </SafeAreaView>
-        </View>
+        </TouchableOpacity>
       )}
 
       <ScrollView 
@@ -522,10 +530,13 @@ export default function ExamScreen({ navigation, route }: Props) {
               </TouchableOpacity>
             )}
 
-            {/* Sorular Butonu */}
+            {/* Sorular Butonu - Toggle */}
             <TouchableOpacity
-              style={styles.footerButton}
-              onPress={() => setShowQuestionGrid(true)}
+              style={[
+                styles.footerButton,
+                showQuestionGrid && styles.footerButtonActive
+              ]}
+              onPress={() => setShowQuestionGrid(!showQuestionGrid)}
             >
               <Text style={styles.footerButtonText}>📋 Sorular</Text>
             </TouchableOpacity>
@@ -776,6 +787,11 @@ const styles = StyleSheet.create({
   },
   footerButtonNext: {
     backgroundColor: '#d1fae5',
+  },
+  footerButtonActive: {
+    backgroundColor: '#dbeafe',
+    borderWidth: 2,
+    borderColor: '#3b82f6',
   },
   modalOverlay: {
     ...StyleSheet.absoluteFillObject,
