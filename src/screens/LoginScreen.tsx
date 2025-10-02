@@ -8,12 +8,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ImageBackground,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../types';
 import { useTheme } from '../contexts/ThemeContext';
-import { spacing, typography, radius, shadows, gradients } from '../design-system/tokens';
+import { spacing, typography, radius, shadows, gradients, blur } from '../design-system/tokens';
 import Button from '../components/Button';
 
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
@@ -41,10 +43,26 @@ export default function LoginScreen({ navigation }: Props) {
   };
 
   return (
-    <LinearGradient
-      colors={activeTheme === 'dark' ? ['#1e293b', '#0f172a'] : gradients.primary}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      {/* Background Gradient */}
+      <LinearGradient
+        colors={activeTheme === 'dark' 
+          ? ['#000000', '#1C1C1E', '#2C2C2E']
+          : ['#007AFF', '#0A84FF', '#AF52DE']}
+        style={styles.background}
+      >
+        {/* Floating Orbs - iOS style */}
+        <View style={[styles.orb, styles.orb1, { 
+          backgroundColor: activeTheme === 'dark' ? 'rgba(10, 132, 255, 0.3)' : 'rgba(255, 255, 255, 0.3)' 
+        }]} />
+        <View style={[styles.orb, styles.orb2, {
+          backgroundColor: activeTheme === 'dark' ? 'rgba(191, 90, 242, 0.2)' : 'rgba(255, 255, 255, 0.2)'
+        }]} />
+        <View style={[styles.orb, styles.orb3, {
+          backgroundColor: activeTheme === 'dark' ? 'rgba(255, 55, 95, 0.2)' : 'rgba(255, 255, 255, 0.15)'
+        }]} />
+      </LinearGradient>
+
       <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView 
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -55,124 +73,159 @@ export default function LoginScreen({ navigation }: Props) {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            {/* Logo - DAHA BÜYÜK! */}
+            {/* Logo */}
             <View style={styles.logoContainer}>
-              <View style={[styles.logoCircle, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+              <BlurView
+                intensity={blur.prominent}
+                tint={activeTheme === 'dark' ? 'dark' : 'light'}
+                style={styles.logoBlur}
+              >
                 <Text style={styles.logoIcon}>🎓</Text>
-              </View>
-              <Text style={[styles.appName, typography.h1]}>IT Exam Certification</Text>
-              <Text style={[styles.tagline, typography.body]}>
-                Sertifika yolculuğunuz burada başlıyor
+              </BlurView>
+              <Text style={[styles.appName, typography.h1, { color: colors.textInverse }]}>
+                IT Exam Certification
+              </Text>
+              <Text style={[styles.tagline, typography.body, { color: 'rgba(255,255,255,0.8)' }]}>
+                Premium Exam Preparation
               </Text>
             </View>
 
-            {/* Welcome Card */}
-            <View style={[styles.welcomeCard, { backgroundColor: colors.surface }]}>
+            {/* Glass Card */}
+            <BlurView
+              intensity={blur.prominent}
+              tint={activeTheme === 'dark' ? 'dark' : 'light'}
+              style={[styles.glassCard, shadows.xl]}
+            >
               <Text style={[styles.welcomeTitle, typography.h2, { color: colors.textPrimary }]}>
-                Hoş Geldiniz! 👋
+                Welcome Back
               </Text>
-              <Text style={[styles.welcomeSubtitle, typography.body, { color: colors.textSecondary }]}>
-                IT sertifikalarınıza hazırlanın
+              <Text style={[styles.welcomeSubtitle, typography.caption, { color: colors.textSecondary }]}>
+                Sign in to continue your learning journey
               </Text>
 
               {/* Form */}
               <View style={styles.formContainer}>
                 <View style={styles.inputContainer}>
                   <Text style={[styles.inputLabel, typography.captionBold, { color: colors.textPrimary }]}>
-                    E-posta
+                    Email
                   </Text>
-                  <View style={[styles.inputWrapper, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
-                    <Text style={styles.inputIcon}>📧</Text>
+                  <BlurView
+                    intensity={blur.light}
+                    tint={activeTheme === 'dark' ? 'dark' : 'light'}
+                    style={[styles.inputBlur, { borderColor: colors.border }]}
+                  >
                     <TextInput
                       style={[styles.input, typography.body, { color: colors.textPrimary }]}
-                      placeholder="ornek@email.com"
+                      placeholder="your@email.com"
                       placeholderTextColor={colors.textTertiary}
                       value={email}
                       onChangeText={setEmail}
                       keyboardType="email-address"
                       autoCapitalize="none"
                       autoComplete="email"
-                      accessibilityLabel="E-posta adresi"
                     />
-                  </View>
+                  </BlurView>
                 </View>
 
                 <View style={styles.inputContainer}>
                   <Text style={[styles.inputLabel, typography.captionBold, { color: colors.textPrimary }]}>
-                    Şifre
+                    Password
                   </Text>
-                  <View style={[styles.inputWrapper, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
-                    <Text style={styles.inputIcon}>🔒</Text>
+                  <BlurView
+                    intensity={blur.light}
+                    tint={activeTheme === 'dark' ? 'dark' : 'light'}
+                    style={[styles.inputBlur, { borderColor: colors.border }]}
+                  >
                     <TextInput
                       style={[styles.input, typography.body, { color: colors.textPrimary }]}
-                      placeholder="••••••••"
+                      placeholder="Enter your password"
                       placeholderTextColor={colors.textTertiary}
                       value={password}
                       onChangeText={setPassword}
                       secureTextEntry
                       autoComplete="password"
-                      accessibilityLabel="Şifre"
                     />
-                  </View>
+                  </BlurView>
                 </View>
 
                 <Button
-                  title="Giriş Yap"
+                  title="Sign In"
                   onPress={handleLogin}
                   variant="primary"
                   size="large"
                   loading={isLoading}
                   fullWidth
-                  icon="🚀"
-                  style={{ marginTop: spacing.md }}
-                  accessibilityLabel="Giriş yap butonu"
+                  style={{ marginTop: spacing.lg }}
                 />
               </View>
 
               <View style={styles.divider}>
                 <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
-                <Text style={[styles.dividerText, typography.caption, { color: colors.textSecondary }]}>
-                  veya
+                <Text style={[styles.dividerText, typography.caption, { color: colors.textTertiary }]}>
+                  or
                 </Text>
                 <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
               </View>
 
               <Button
-                title="Misafir Olarak Devam Et"
+                title="Continue as Guest"
                 onPress={handleGuestLogin}
                 variant="outline"
                 size="large"
                 fullWidth
-                icon="👤"
-                accessibilityLabel="Misafir girişi"
               />
-            </View>
+            </BlurView>
 
             {/* Features */}
             <View style={styles.featuresContainer}>
-              <View style={[styles.featureItem, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
-                <Text style={styles.featureIcon}>✅</Text>
-                <Text style={[styles.featureText, typography.caption]}>200+ Soru</Text>
-              </View>
-              <View style={[styles.featureItem, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
-                <Text style={styles.featureIcon}>📊</Text>
-                <Text style={[styles.featureText, typography.caption]}>İlerleme Takibi</Text>
-              </View>
-              <View style={[styles.featureItem, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
-                <Text style={styles.featureIcon}>🏆</Text>
-                <Text style={[styles.featureText, typography.caption]}>Sertifika Hazırlığı</Text>
-              </View>
+              {['200+ Questions', 'Progress Tracking', 'Certification Ready'].map((feature, index) => (
+                <BlurView
+                  key={index}
+                  intensity={blur.regular}
+                  tint={activeTheme === 'dark' ? 'dark' : 'light'}
+                  style={[styles.featureItem, shadows.md]}
+                >
+                  <Text style={[styles.featureText, typography.small, { color: colors.textInverse }]}>
+                    {feature}
+                  </Text>
+                </BlurView>
+              ))}
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  background: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  orb: {
+    position: 'absolute',
+    borderRadius: 9999,
+  },
+  orb1: {
+    width: 300,
+    height: 300,
+    top: -100,
+    right: -100,
+  },
+  orb2: {
+    width: 400,
+    height: 400,
+    bottom: -150,
+    left: -150,
+  },
+  orb3: {
+    width: 200,
+    height: 200,
+    top: '40%',
+    right: -50,
   },
   safeArea: {
     flex: 1,
@@ -189,33 +242,34 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.xxxl,
   },
-  logoCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+  logoBlur: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.lg,
-    ...shadows.lg,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   logoIcon: {
-    fontSize: 60,
+    fontSize: 50,
   },
   appName: {
-    color: '#ffffff',
     marginBottom: spacing.sm,
     textAlign: 'center',
   },
   tagline: {
-    color: 'rgba(255,255,255,0.9)',
-    fontWeight: '500',
     textAlign: 'center',
   },
-  welcomeCard: {
-    borderRadius: radius.xl,
+  glassCard: {
+    borderRadius: radius.xxl,
     padding: spacing.xl,
     marginBottom: spacing.xl,
-    ...shadows.lg,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   welcomeTitle: {
     marginBottom: spacing.xs,
@@ -226,7 +280,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   formContainer: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xl,
   },
   inputContainer: {
     marginBottom: spacing.lg,
@@ -234,21 +288,15 @@ const styles = StyleSheet.create({
   inputLabel: {
     marginBottom: spacing.sm,
   },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  inputBlur: {
     borderRadius: radius.md,
-    paddingHorizontal: spacing.lg,
-    borderWidth: 2,
-    minHeight: 56,
-  },
-  inputIcon: {
-    fontSize: 20,
-    marginRight: spacing.md,
+    overflow: 'hidden',
+    borderWidth: 1,
   },
   input: {
-    flex: 1,
-    minHeight: 44,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    minHeight: 52,
   },
   divider: {
     flexDirection: 'row',
@@ -261,7 +309,6 @@ const styles = StyleSheet.create({
   },
   dividerText: {
     marginHorizontal: spacing.lg,
-    fontWeight: '600',
   },
   featuresContainer: {
     flexDirection: 'row',
@@ -270,17 +317,15 @@ const styles = StyleSheet.create({
   },
   featureItem: {
     flex: 1,
-    alignItems: 'center',
-    padding: spacing.lg,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.sm,
     borderRadius: radius.md,
-    ...shadows.sm,
-  },
-  featureIcon: {
-    fontSize: 28,
-    marginBottom: spacing.sm,
+    alignItems: 'center',
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   featureText: {
-    color: 'rgba(255,255,255,0.9)',
     fontWeight: '600',
     textAlign: 'center',
   },

@@ -1,304 +1,323 @@
 /**
- * Design System Tokens - Parny.io Inspired
- * Modern, Professional, AI-Native Design
+ * iOS-Style Glassmorphism Design System
+ * Premium, Modern, Apple-inspired Design
  */
 
-// Spacing Scale (8px base) - More generous like Parny
+// Spacing Scale - iOS generous spacing
 export const spacing = {
   xs: 4,
-  sm: 8,
-  md: 16,
-  lg: 24,
-  xl: 32,
-  xxl: 48,
-  xxxl: 64,
-  huge: 96,
-} as const;
-
-// Typography Scale - Clean & Professional
-export const typography = {
-  h1: {
-    fontSize: 48,
-    lineHeight: 56,
-    fontWeight: '800' as const,
-    letterSpacing: -1,
-  },
-  h2: {
-    fontSize: 36,
-    lineHeight: 44,
-    fontWeight: '800' as const,
-    letterSpacing: -0.5,
-  },
-  h3: {
-    fontSize: 28,
-    lineHeight: 36,
-    fontWeight: '700' as const,
-    letterSpacing: -0.3,
-  },
-  h4: {
-    fontSize: 20,
-    lineHeight: 28,
-    fontWeight: '700' as const,
-    letterSpacing: 0,
-  },
-  body: {
-    fontSize: 16,
-    lineHeight: 26,
-    fontWeight: '400' as const,
-    letterSpacing: 0,
-  },
-  bodyLarge: {
-    fontSize: 18,
-    lineHeight: 28,
-    fontWeight: '400' as const,
-    letterSpacing: 0,
-  },
-  bodyBold: {
-    fontSize: 16,
-    lineHeight: 26,
-    fontWeight: '600' as const,
-    letterSpacing: 0,
-  },
-  caption: {
-    fontSize: 14,
-    lineHeight: 22,
-    fontWeight: '400' as const,
-    letterSpacing: 0,
-  },
-  captionBold: {
-    fontSize: 14,
-    lineHeight: 22,
-    fontWeight: '600' as const,
-    letterSpacing: 0,
-  },
-  small: {
-    fontSize: 12,
-    lineHeight: 18,
-    fontWeight: '400' as const,
-    letterSpacing: 0,
-  },
-  smallBold: {
-    fontSize: 12,
-    lineHeight: 18,
-    fontWeight: '700' as const,
-    letterSpacing: 0.5,
-  },
-} as const;
-
-// Border Radius - Softer, more modern
-export const radius = {
-  xs: 6,
   sm: 8,
   md: 12,
   lg: 16,
   xl: 24,
   xxl: 32,
+  xxxl: 48,
+  huge: 64,
+} as const;
+
+// Typography - SF Pro inspired
+export const typography = {
+  h1: {
+    fontSize: 34,
+    lineHeight: 41,
+    fontWeight: '700' as const,
+    letterSpacing: 0.4,
+  },
+  h2: {
+    fontSize: 28,
+    lineHeight: 34,
+    fontWeight: '700' as const,
+    letterSpacing: 0.4,
+  },
+  h3: {
+    fontSize: 22,
+    lineHeight: 28,
+    fontWeight: '600' as const,
+    letterSpacing: 0.4,
+  },
+  h4: {
+    fontSize: 20,
+    lineHeight: 25,
+    fontWeight: '600' as const,
+    letterSpacing: 0.4,
+  },
+  body: {
+    fontSize: 17,
+    lineHeight: 22,
+    fontWeight: '400' as const,
+    letterSpacing: -0.4,
+  },
+  bodyLarge: {
+    fontSize: 19,
+    lineHeight: 24,
+    fontWeight: '400' as const,
+    letterSpacing: -0.4,
+  },
+  bodyBold: {
+    fontSize: 17,
+    lineHeight: 22,
+    fontWeight: '600' as const,
+    letterSpacing: -0.4,
+  },
+  caption: {
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: '400' as const,
+    letterSpacing: -0.2,
+  },
+  captionBold: {
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: '600' as const,
+    letterSpacing: -0.2,
+  },
+  small: {
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '400' as const,
+    letterSpacing: -0.1,
+  },
+  smallBold: {
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '600' as const,
+    letterSpacing: 0,
+  },
+} as const;
+
+// Border Radius - iOS style
+export const radius = {
+  xs: 8,
+  sm: 10,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  xxl: 28,
   full: 9999,
 } as const;
 
-// Shadows - Subtle and professional like Parny
+// Shadows - Soft iOS shadows
 export const shadows = {
   sm: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 2,
     elevation: 1,
   },
   md: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   lg: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
+  },
+  xl: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
     shadowRadius: 24,
     elevation: 6,
   },
-  xl: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.15,
-    shadowRadius: 32,
-    elevation: 8,
-  },
 } as const;
 
-// Light Theme Colors - Parny inspired
+// Light Theme - iOS Glassmorphism
 export const lightColors = {
-  // Primary - Professional Purple/Blue
-  primary: '#6366f1',
-  primaryDark: '#4f46e5',
-  primaryLight: '#818cf8',
+  // Primary - iOS Blue
+  primary: '#007AFF',
+  primaryDark: '#0051D5',
+  primaryLight: '#4DA2FF',
   
-  // Secondary
-  secondary: '#8b5cf6',
-  secondaryDark: '#7c3aed',
-  secondaryLight: '#a78bfa',
+  // Secondary - iOS Purple
+  secondary: '#AF52DE',
+  secondaryDark: '#8944AB',
+  secondaryLight: '#C77FEA',
   
-  // Accent
-  accent: '#ec4899',
-  accentDark: '#db2777',
+  // Accent - iOS Pink
+  accent: '#FF2D55',
+  accentDark: '#D50032',
   
-  // Success
-  success: '#10b981',
-  successDark: '#059669',
-  successLight: '#34d399',
+  // Success - iOS Green
+  success: '#34C759',
+  successDark: '#248A3D',
+  successLight: '#5DD67D',
   
-  // Warning
-  warning: '#f59e0b',
-  warningDark: '#d97706',
-  warningLight: '#fbbf24',
+  // Warning - iOS Orange
+  warning: '#FF9500',
+  warningDark: '#C93400',
+  warningLight: '#FFB340',
   
-  // Error
-  error: '#ef4444',
-  errorDark: '#dc2626',
-  errorLight: '#f87171',
+  // Error - iOS Red
+  error: '#FF3B30',
+  errorDark: '#D70015',
+  errorLight: '#FF6961',
   
-  // Info
-  info: '#3b82f6',
-  infoDark: '#2563eb',
-  infoLight: '#60a5fa',
+  // Info - iOS Teal
+  info: '#5AC8FA',
+  infoDark: '#0A84FF',
+  infoLight: '#64D2FF',
   
-  // Neutral Scale
-  neutral50: '#fafafa',
-  neutral100: '#f5f5f5',
-  neutral200: '#e5e5e5',
-  neutral300: '#d4d4d4',
-  neutral400: '#a3a3a3',
-  neutral500: '#737373',
-  neutral600: '#525252',
-  neutral700: '#404040',
-  neutral800: '#262626',
-  neutral900: '#171717',
+  // Neutral Scale - iOS grays
+  neutral50: '#F9F9F9',
+  neutral100: '#F2F2F7',
+  neutral200: '#E5E5EA',
+  neutral300: '#D1D1D6',
+  neutral400: '#C7C7CC',
+  neutral500: '#AEAEB2',
+  neutral600: '#8E8E93',
+  neutral700: '#636366',
+  neutral800: '#48484A',
+  neutral900: '#1C1C1E',
   
-  // Background & Surface
-  background: '#ffffff',
-  backgroundSecondary: '#fafafa',
-  surface: '#ffffff',
-  surfaceSecondary: '#f5f5f5',
-  surfaceHover: '#fafafa',
+  // Glass surfaces
+  glass: 'rgba(255, 255, 255, 0.7)',
+  glassDark: 'rgba(255, 255, 255, 0.5)',
+  glassLight: 'rgba(255, 255, 255, 0.9)',
+  
+  // Background
+  background: '#F2F2F7',
+  backgroundSecondary: '#FFFFFF',
+  surface: 'rgba(255, 255, 255, 0.8)',
+  surfaceSecondary: 'rgba(255, 255, 255, 0.6)',
+  surfaceHover: 'rgba(255, 255, 255, 0.9)',
   
   // Text Colors
-  textPrimary: '#171717',
-  textSecondary: '#525252',
-  textTertiary: '#a3a3a3',
-  textInverse: '#ffffff',
-  textDisabled: '#d4d4d4',
+  textPrimary: '#000000',
+  textSecondary: '#3C3C43',
+  textTertiary: '#8E8E93',
+  textInverse: '#FFFFFF',
+  textDisabled: '#C7C7CC',
   
-  // Border Colors
-  border: '#e5e5e5',
-  borderStrong: '#d4d4d4',
-  borderLight: '#f5f5f5',
+  // Border
+  border: 'rgba(0, 0, 0, 0.08)',
+  borderStrong: 'rgba(0, 0, 0, 0.12)',
+  borderLight: 'rgba(255, 255, 255, 0.2)',
   
   // Overlay
-  overlay: 'rgba(0, 0, 0, 0.5)',
-  overlayLight: 'rgba(0, 0, 0, 0.3)',
+  overlay: 'rgba(0, 0, 0, 0.4)',
+  overlayLight: 'rgba(0, 0, 0, 0.2)',
 } as const;
 
-// Dark Theme Colors
+// Dark Theme - iOS Dark Mode
 export const darkColors = {
-  // Primary
-  primary: '#818cf8',
-  primaryDark: '#6366f1',
-  primaryLight: '#a5b4fc',
+  // Primary - iOS Blue (brighter in dark mode)
+  primary: '#0A84FF',
+  primaryDark: '#007AFF',
+  primaryLight: '#409CFF',
   
-  // Secondary
-  secondary: '#a78bfa',
-  secondaryDark: '#8b5cf6',
-  secondaryLight: '#c4b5fd',
+  // Secondary - iOS Purple
+  secondary: '#BF5AF2',
+  secondaryDark: '#AF52DE',
+  secondaryLight: '#D27BFF',
   
-  // Accent
-  accent: '#f472b6',
-  accentDark: '#ec4899',
+  // Accent - iOS Pink
+  accent: '#FF375F',
+  accentDark: '#FF2D55',
   
-  // Success
-  success: '#34d399',
-  successDark: '#10b981',
-  successLight: '#6ee7b7',
+  // Success - iOS Green
+  success: '#32D74B',
+  successDark: '#30D158',
+  successLight: '#63DE76',
   
-  // Warning
-  warning: '#fbbf24',
-  warningDark: '#f59e0b',
-  warningLight: '#fcd34d',
+  // Warning - iOS Orange
+  warning: '#FF9F0A',
+  warningDark: '#FF9500',
+  warningLight: '#FFB340',
   
-  // Error
-  error: '#f87171',
-  errorDark: '#ef4444',
-  errorLight: '#fca5a5',
+  // Error - iOS Red
+  error: '#FF453A',
+  errorDark: '#FF3B30',
+  errorLight: '#FF6961',
   
-  // Info
-  info: '#60a5fa',
-  infoDark: '#3b82f6',
-  infoLight: '#93c5fd',
+  // Info - iOS Teal
+  info: '#64D2FF',
+  infoDark: '#5AC8FA',
+  infoLight: '#90E0FF',
   
   // Neutral Scale
-  neutral50: '#171717',
-  neutral100: '#262626',
-  neutral200: '#404040',
-  neutral300: '#525252',
-  neutral400: '#737373',
-  neutral500: '#a3a3a3',
-  neutral600: '#d4d4d4',
-  neutral700: '#e5e5e5',
-  neutral800: '#f5f5f5',
-  neutral900: '#fafafa',
+  neutral50: '#000000',
+  neutral100: '#1C1C1E',
+  neutral200: '#2C2C2E',
+  neutral300: '#3A3A3C',
+  neutral400: '#48484A',
+  neutral500: '#636366',
+  neutral600: '#8E8E93',
+  neutral700: '#AEAEB2',
+  neutral800: '#C7C7CC',
+  neutral900: '#E5E5EA',
   
-  // Background & Surface
-  background: '#0a0a0a',
-  backgroundSecondary: '#171717',
-  surface: '#171717',
-  surfaceSecondary: '#262626',
-  surfaceHover: '#1f1f1f',
+  // Glass surfaces - Dark mode frosted glass
+  glass: 'rgba(28, 28, 30, 0.7)',
+  glassDark: 'rgba(28, 28, 30, 0.5)',
+  glassLight: 'rgba(28, 28, 30, 0.9)',
+  
+  // Background
+  background: '#000000',
+  backgroundSecondary: '#1C1C1E',
+  surface: 'rgba(28, 28, 30, 0.8)',
+  surfaceSecondary: 'rgba(44, 44, 46, 0.6)',
+  surfaceHover: 'rgba(44, 44, 46, 0.9)',
   
   // Text Colors
-  textPrimary: '#fafafa',
-  textSecondary: '#d4d4d4',
-  textTertiary: '#a3a3a3',
-  textInverse: '#0a0a0a',
-  textDisabled: '#525252',
+  textPrimary: '#FFFFFF',
+  textSecondary: '#EBEBF5',
+  textTertiary: '#AEAEB2',
+  textInverse: '#000000',
+  textDisabled: '#636366',
   
-  // Border Colors
-  border: '#262626',
-  borderStrong: '#404040',
-  borderLight: '#171717',
+  // Border
+  border: 'rgba(255, 255, 255, 0.08)',
+  borderStrong: 'rgba(255, 255, 255, 0.12)',
+  borderLight: 'rgba(255, 255, 255, 0.04)',
   
   // Overlay
-  overlay: 'rgba(0, 0, 0, 0.7)',
-  overlayLight: 'rgba(0, 0, 0, 0.5)',
+  overlay: 'rgba(0, 0, 0, 0.6)',
+  overlayLight: 'rgba(0, 0, 0, 0.4)',
 } as const;
 
-// Gradients - Parny style
+// Gradients - Subtle iOS style
 export const gradients = {
-  primary: ['#6366f1', '#8b5cf6'],
-  secondary: ['#8b5cf6', '#ec4899'],
-  success: ['#10b981', '#059669'],
-  warning: ['#f59e0b', '#d97706'],
-  error: ['#ef4444', '#dc2626'],
-  purple: ['#a78bfa', '#8b5cf6'],
-  blue: ['#60a5fa', '#3b82f6'],
-  pink: ['#f472b6', '#ec4899'],
-  emerald: ['#34d399', '#10b981'],
-  // Hero gradients
-  hero: ['#6366f1', '#8b5cf6', '#ec4899'],
-  heroAlt: ['#3b82f6', '#8b5cf6'],
+  primary: ['#007AFF', '#0A84FF'],
+  secondary: ['#AF52DE', '#BF5AF2'],
+  success: ['#34C759', '#32D74B'],
+  warning: ['#FF9500', '#FF9F0A'],
+  error: ['#FF3B30', '#FF453A'],
+  purple: ['#AF52DE', '#BF5AF2'],
+  blue: ['#007AFF', '#0A84FF'],
+  pink: ['#FF2D55', '#FF375F'],
+  emerald: ['#34C759', '#32D74B'],
+  // iOS gradients
+  hero: ['#007AFF', '#AF52DE'],
+  heroAlt: ['#0A84FF', '#BF5AF2', '#FF375F'],
+  glass: ['rgba(255, 255, 255, 0.7)', 'rgba(255, 255, 255, 0.5)'],
+} as const;
+
+// Blur Intensity - for BlurView
+export const blur = {
+  light: 10,
+  regular: 20,
+  prominent: 40,
+  ultra: 60,
 } as const;
 
 // Touch Targets
 export const touchTarget = {
-  minHeight: 48,
-  minWidth: 48,
+  minHeight: 44,
+  minWidth: 44,
 } as const;
 
-// Animation Durations
+// Animation Durations - iOS-like
 export const duration = {
-  fast: 150,
-  normal: 250,
-  slow: 400,
+  fast: 200,
+  normal: 300,
+  slow: 500,
 } as const;
 
 // Z-Index Scale
