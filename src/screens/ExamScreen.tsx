@@ -284,32 +284,6 @@ export default function ExamScreen({ navigation, route }: Props) {
       >
         <SafeAreaView>
           <View style={styles.header}>
-            {/* Action Buttons Row */}
-            <View style={styles.actionButtonsRow}>
-              <TouchableOpacity
-                style={styles.headerButton}
-                onPress={() => setShowQuestionGrid(true)}
-              >
-                <Text style={styles.headerButtonText}>📋 Sorular</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity
-                style={[styles.headerButton, bookmarkedQuestions.includes(currentQuestionIndex) && styles.headerButtonActive]}
-                onPress={toggleBookmark}
-              >
-                <Text style={styles.headerButtonText}>
-                  {bookmarkedQuestions.includes(currentQuestionIndex) ? '⭐' : '☆'} İşaretle
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.headerButton, styles.finishButton]}
-                onPress={handleFinishEarly}
-              >
-                <Text style={[styles.headerButtonText, styles.finishButtonText]}>🏁 Bitir</Text>
-              </TouchableOpacity>
-            </View>
-
             <View style={styles.progressContainer}>
               <View style={styles.progressBar}>
                 <LinearGradient
@@ -326,7 +300,7 @@ export default function ExamScreen({ navigation, route }: Props) {
                   </Text>
                   <Text style={styles.modeText}>
                     {mode === 'exam' ? '🎯 Sınav Modu' : '💡 Alıştırma Modu'}
-                    {bookmarkedQuestions.length > 0 && ` • ⭐ ${bookmarkedQuestions.length} işaretli`}
+                    {bookmarkedQuestions.length > 0 && ` • ⭐ ${bookmarkedQuestions.length}`}
                   </Text>
                 </View>
                 {mode === 'exam' && (
@@ -464,43 +438,62 @@ export default function ExamScreen({ navigation, route }: Props) {
             {/* Önceki Butonu */}
             {currentQuestionIndex > 0 && (
               <TouchableOpacity
-                style={styles.prevButton}
+                style={styles.iconButton}
                 onPress={handlePreviousQuestion}
               >
-                <LinearGradient
-                  colors={['#6b7280', '#4b5563']}
-                  style={styles.prevButtonGradient}
-                >
-                  <Text style={styles.prevButtonText}>← Önceki</Text>
-                </LinearGradient>
+                <Text style={styles.iconButtonText}>←</Text>
               </TouchableOpacity>
             )}
+
+            {/* Sorular Butonu */}
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => setShowQuestionGrid(true)}
+            >
+              <Text style={styles.iconButtonText}>📋</Text>
+            </TouchableOpacity>
+
+            {/* İşaretle Butonu */}
+            <TouchableOpacity
+              style={[styles.iconButton, bookmarkedQuestions.includes(currentQuestionIndex) && styles.iconButtonActive]}
+              onPress={toggleBookmark}
+            >
+              <Text style={styles.iconButtonText}>
+                {bookmarkedQuestions.includes(currentQuestionIndex) ? '⭐' : '☆'}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Bitir Butonu */}
+            <TouchableOpacity
+              style={[styles.iconButton, styles.finishIconButton]}
+              onPress={handleFinishEarly}
+            >
+              <Text style={styles.iconButtonText}>🏁</Text>
+            </TouchableOpacity>
 
             {/* Sonraki / Bitir Butonu */}
             {currentQuestionIndex < exam.questions.length - 1 ? (
               <TouchableOpacity
-                style={[styles.nextButton, currentQuestionIndex === 0 && styles.nextButtonFull]}
+                style={styles.nextButton}
                 onPress={handleNextQuestion}
               >
                 <LinearGradient
                   colors={['#10b981', '#059669']}
                   style={styles.nextButtonGradient}
                 >
-                  <Text style={styles.nextButtonText}>
-                    {selectedAnswer === null ? 'Atla →' : 'Sonraki →'}
-                  </Text>
+                  <Text style={styles.nextButtonText}>Sonraki</Text>
                 </LinearGradient>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
-                style={[styles.nextButton, currentQuestionIndex === 0 && styles.nextButtonFull]}
+                style={styles.nextButton}
                 onPress={handleSkipAndFinish}
               >
                 <LinearGradient
                   colors={['#ef4444', '#dc2626']}
                   style={styles.nextButtonGradient}
                 >
-                  <Text style={styles.nextButtonText}>Sınavı Bitir 🏁</Text>
+                  <Text style={styles.nextButtonText}>Bitir</Text>
                 </LinearGradient>
               </TouchableOpacity>
             )}
@@ -522,33 +515,6 @@ const styles = StyleSheet.create({
   header: {
     padding: 20,
     paddingTop: 10,
-  },
-  actionButtonsRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 16,
-  },
-  headerButton: {
-    flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  headerButtonActive: {
-    backgroundColor: 'rgba(255,255,255,0.35)',
-  },
-  headerButtonText: {
-    color: '#ffffff',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  finishButton: {
-    backgroundColor: 'rgba(239, 68, 68, 0.3)',
-  },
-  finishButtonText: {
-    color: '#ffffff',
   },
   progressContainer: {
     gap: 12,
@@ -716,29 +682,30 @@ const styles = StyleSheet.create({
   },
   footerButtons: {
     flexDirection: 'row',
-    gap: 12,
-  },
-  prevButton: {
-    flex: 1,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  prevButtonGradient: {
-    paddingVertical: 14,
+    gap: 8,
     alignItems: 'center',
   },
-  prevButtonText: {
-    color: '#ffffff',
-    fontSize: 15,
-    fontWeight: '700',
+  iconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconButtonActive: {
+    backgroundColor: '#fef3c7',
+  },
+  finishIconButton: {
+    backgroundColor: '#fee2e2',
+  },
+  iconButtonText: {
+    fontSize: 20,
   },
   nextButton: {
-    flex: 2,
+    flex: 1,
     borderRadius: 12,
     overflow: 'hidden',
-  },
-  nextButtonFull: {
-    flex: 1,
   },
   nextButtonGradient: {
     paddingVertical: 14,
