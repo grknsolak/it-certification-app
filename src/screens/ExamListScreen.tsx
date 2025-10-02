@@ -54,96 +54,54 @@ export default function ExamListScreen({ navigation, route }: Props) {
     const difficulty = getDifficultyColor(item);
     
     return (
-      <View style={[styles.examCard, { backgroundColor: colors.surface }, shadows.md]}>
-        {/* Header */}
-        <View style={styles.examHeader}>
-          <View style={styles.examHeaderLeft}>
-            <View style={styles.categoryRow}>
-              <Text style={styles.examIcon}>{item.icon}</Text>
-              <Text style={[styles.examCategory, typography.captionBold, { color: colors.primary }]}>
-                {item.category}
-              </Text>
-            </View>
-            <Text style={[styles.examTitle, typography.h3, { color: colors.textPrimary }]}>
-              {item.title}
-            </Text>
-          </View>
-          <View style={[styles.difficultyBadge, { backgroundColor: `${difficulty.color}15`, borderColor: difficulty.color }]}>
-            <Text style={[styles.difficultyText, typography.smallBold, { color: difficulty.color }]}>
-              {difficulty.label}
+      <View style={[styles.compactExamCard, { backgroundColor: colors.surface }, shadows.sm]}>
+        {/* Icon */}
+        <View style={[styles.examIconWrapper, { backgroundColor: colors.backgroundSecondary }]}>
+          <Text style={styles.examIconText}>{item.icon}</Text>
+        </View>
+        
+        {/* Content */}
+        <View style={styles.examContent}>
+          <Text style={[styles.compactExamTitle, typography.bodyBold, { color: colors.textPrimary }]} numberOfLines={1}>
+            {item.title}
+          </Text>
+          <View style={styles.examMeta}>
+            <Text style={[styles.examMetaText, typography.caption, { color: colors.textSecondary }]}>
+              📝 {item.realExamQuestionCount || item.questions.length} • ⏱️ {item.timeLimit}m • 🎯 {item.passingScore}%
             </Text>
           </View>
         </View>
         
-        <Text style={[styles.examDescription, typography.body, { color: colors.textSecondary }]} numberOfLines={2}>
-          {item.description}
-        </Text>
-        
-        {/* Features - Parny style! */}
-        <View style={styles.featuresGrid}>
-          <View style={styles.featureItem}>
-            <View style={[styles.featureIcon, { backgroundColor: `${colors.primary}10` }]}>
-              <Text style={styles.featureEmoji}>📝</Text>
-            </View>
-            <Text style={[styles.featureLabel, typography.caption, { color: colors.textSecondary }]}>
-              Questions
-            </Text>
-            <Text style={[styles.featureValue, typography.bodyBold, { color: colors.textPrimary }]}>
-              {item.questions.length}
-            </Text>
-          </View>
-
-          <View style={styles.featureItem}>
-            <View style={[styles.featureIcon, { backgroundColor: `${colors.success}10` }]}>
-              <Text style={styles.featureEmoji}>⏱️</Text>
-            </View>
-            <Text style={[styles.featureLabel, typography.caption, { color: colors.textSecondary }]}>
-              Duration
-            </Text>
-            <Text style={[styles.featureValue, typography.bodyBold, { color: colors.textPrimary }]}>
-              {item.timeLimit} min
-            </Text>
-          </View>
-
-          <View style={styles.featureItem}>
-            <View style={[styles.featureIcon, { backgroundColor: `${colors.warning}10` }]}>
-              <Text style={styles.featureEmoji}>🎯</Text>
-            </View>
-            <Text style={[styles.featureLabel, typography.caption, { color: colors.textSecondary }]}>
-              Pass Score
-            </Text>
-            <Text style={[styles.featureValue, typography.bodyBold, { color: colors.textPrimary }]}>
-              {item.passingScore}%
-            </Text>
-          </View>
+        {/* Difficulty Badge */}
+        <View style={[
+          styles.compactDifficultyBadge,
+          { backgroundColor: `${difficulty.color}15`, borderColor: difficulty.color }
+        ]}>
+          <Text style={[styles.compactDifficultyText, { color: difficulty.color }]}>
+            {difficulty.label.charAt(0)}
+          </Text>
         </View>
-
-        {/* Action Buttons - 3 Modes */}
-        <View style={styles.actionRow}>
-          <Button
-            title="📚 Review"
+        
+        {/* Actions - Compact Buttons */}
+        <View style={styles.compactActions}>
+          <TouchableOpacity
+            style={[styles.compactActionButton, { backgroundColor: colors.backgroundSecondary }]}
             onPress={() => navigation.navigate('QuestionReview', { examId: item.id })}
-            variant="ghost"
-            size="small"
-            style={styles.reviewButton}
-            accessibilityLabel={`Review ${item.title}`}
-          />
-          <Button
-            title="💡 Practice"
+          >
+            <Text style={styles.compactActionIcon}>📚</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.compactActionButton, { backgroundColor: colors.primary + '20', borderWidth: 1, borderColor: colors.primary }]}
             onPress={() => navigation.navigate('Exam', { examId: item.id, mode: 'practice' })}
-            variant="outline"
-            size="small"
-            style={styles.practiceButton}
-            accessibilityLabel={`Practice ${item.title}`}
-          />
-          <Button
-            title="🚀 Exam"
+          >
+            <Text style={styles.compactActionIcon}>💡</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.compactActionButton, { backgroundColor: colors.primary }]}
             onPress={() => navigation.navigate('Exam', { examId: item.id, mode: 'exam' })}
-            variant="primary"
-            size="small"
-            style={styles.examButton}
-            accessibilityLabel={`Start ${item.title} exam`}
-          />
+          >
+            <Text style={styles.compactActionIcon}>🚀</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -164,13 +122,13 @@ export default function ExamListScreen({ navigation, route }: Props) {
             >
               <Text style={styles.backIcon}>←</Text>
             </TouchableOpacity>
-            <Text style={[styles.heroTitle, typography.h1]}>
+            <Text style={[styles.heroTitle, typography.h2]}>
               {subCategory || 'IT Certification Exams'}
             </Text>
-            <Text style={[styles.heroSubtitle, typography.bodyLarge]}>
+            <Text style={[styles.heroSubtitle, typography.caption]}>
               {subCategory 
                 ? `${filteredExams.length} certification exams available`
-                : 'Choose your path to certification. Real exam questions, real preparation.'}
+                : 'Choose your path to certification'}
             </Text>
           </View>
         </SafeAreaView>
@@ -233,11 +191,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   hero: {
-    paddingVertical: spacing.xxxl,
-    paddingTop: spacing.huge,
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.lg,
   },
   heroContent: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.md,
   },
   backButton: {
     width: 44,
@@ -281,83 +239,66 @@ const styles = StyleSheet.create({
   },
   categoryText: {},
   listContainer: {
-    padding: spacing.xl,
-    paddingBottom: spacing.huge,
-  },
-  examCard: {
-    borderRadius: radius.xl,
-    padding: spacing.xl,
-    marginBottom: spacing.xl,
-  },
-  examHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: spacing.lg,
-  },
-  examHeaderLeft: {
-    flex: 1,
-    marginRight: spacing.lg,
-  },
-  categoryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.lg,
     gap: spacing.sm,
   },
-  examIcon: {
-    fontSize: 24,
-  },
-  examCategory: {
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  examTitle: {
-    marginBottom: spacing.xs,
-  },
-  difficultyBadge: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.md,
-    borderWidth: 1,
-  },
-  difficultyText: {},
-  examDescription: {
-    marginBottom: spacing.xl,
-  },
-  featuresGrid: {
+  compactExamCard: {
     flexDirection: 'row',
-    marginBottom: spacing.xl,
-    gap: spacing.lg,
-  },
-  featureItem: {
-    flex: 1,
     alignItems: 'center',
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    gap: spacing.sm,
   },
-  featureIcon: {
-    width: 56,
-    height: 56,
+  examIconWrapper: {
+    width: 48,
+    height: 48,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.sm,
   },
-  featureEmoji: {
+  examIconText: {
     fontSize: 24,
   },
-  featureLabel: {
-    marginBottom: spacing.xs / 2,
-  },
-  featureValue: {},
-  actionRow: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  reviewButton: {
+  examContent: {
     flex: 1,
+    gap: spacing.xs / 2,
   },
-  startButton: {
-    flex: 2,
+  compactExamTitle: {
+    lineHeight: 20,
+  },
+  examMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  examMetaText: {
+    lineHeight: 16,
+  },
+  compactDifficultyBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+  },
+  compactDifficultyText: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  compactActions: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+  },
+  compactActionButton: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  compactActionIcon: {
+    fontSize: 16,
   },
   emptyContainer: {
     alignItems: 'center',
