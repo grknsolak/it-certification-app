@@ -65,7 +65,8 @@ export default function ExamScreen({ navigation, route }: Props) {
   const [timeLeft, setTimeLeft] = useState(mode === 'exam' && exam?.timeLimit ? exam.timeLimit * 60 : 0);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [bookmarkedQuestions, setBookmarkedQuestions] = useState<number[]>([]);
-  const [showQuestionGrid, setShowQuestionGrid] = useState(false);
+  const [showQuestionGrid, setShowQuestionGrid] = useState(true); // İlk girişte göster!
+  const [hasStarted, setHasStarted] = useState(false); // Kullanıcı başladı mı?
 
   useEffect(() => {
     if (!exam) {
@@ -76,16 +77,16 @@ export default function ExamScreen({ navigation, route }: Props) {
   }, [exam, navigation]);
 
   useEffect(() => {
-    // Sadece exam mode'da timer çalışsın
-    if (mode === 'exam' && timeLeft > 0 && !isSubmitted) {
+    // Sadece exam mode'da VE başladıktan sonra timer çalışsın
+    if (mode === 'exam' && hasStarted && timeLeft > 0 && !isSubmitted) {
       const timer = setTimeout(() => {
         setTimeLeft(timeLeft - 1);
       }, 1000);
       return () => clearTimeout(timer);
-    } else if (mode === 'exam' && timeLeft === 0 && !isSubmitted) {
+    } else if (mode === 'exam' && hasStarted && timeLeft === 0 && !isSubmitted) {
       handleSubmitExam();
     }
-  }, [timeLeft, isSubmitted, mode]);
+  }, [timeLeft, isSubmitted, mode, hasStarted]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -126,6 +127,11 @@ export default function ExamScreen({ navigation, route }: Props) {
     setCurrentQuestionIndex(index);
     setSelectedAnswer(null);
     setShowQuestionGrid(false);
+    
+    // İlk kez soru seçildiğinde başla
+    if (!hasStarted) {
+      setHasStarted(true);
+    }
   };
 
   const saveCurrentAnswer = () => {
@@ -160,17 +166,33 @@ export default function ExamScreen({ navigation, route }: Props) {
     }
   };
 
+  const handlePreviousQuestion = () => {
+    if (selectedAnswer !== null && exam) {
+      saveCurrentAnswer();
+    }
+    
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      setSelectedAnswer(null);
+    }
+  };
+
   const handleNextQuestion = () => {
     if (selectedAnswer !== null && exam) {
       saveCurrentAnswer();
-      
-      if (currentQuestionIndex < exam.questions.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
-        setSelectedAnswer(null);
-      } else {
-        handleSubmitExam();
-      }
     }
+    
+    if (exam && currentQuestionIndex < exam.questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setSelectedAnswer(null);
+    }
+  };
+
+  const handleSkipAndFinish = () => {
+    if (selectedAnswer !== null && exam) {
+      saveCurrentAnswer();
+    }
+    handleSubmitExam();
   };
 
   const handleFinishEarly = () => {
@@ -438,23 +460,51 @@ export default function ExamScreen({ navigation, route }: Props) {
 
       <View style={styles.footer}>
         <SafeAreaView edges={['bottom']}>
-          <TouchableOpacity
-            style={[
-              styles.nextButton,
-              selectedAnswer === null && styles.disabledButton,
-            ]}
-            onPress={handleNextQuestion}
-            disabled={selectedAnswer === null}
-          >
-            <LinearGradient
-              colors={selectedAnswer === null ? ['#cbd5e1', '#cbd5e1'] : ['#10b981', '#059669']}
-              style={styles.nextButtonGradient}
-            >
-              <Text style={styles.nextButtonText}>
-                {currentQuestionIndex === exam.questions.length - 1 ? 'Sınavı Bitir →' : 'Sonraki →'}
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
+          <View style={styles.footerButtons}>
+            {/* Önceki Butonu */}
+            {currentQuestionIndex > 0 && (
+              <TouchableOpacity
+                style={styles.prevButton}
+                onPress={handlePreviousQuestion}
+              >
+                <LinearGradient
+                  colors={['#6b7280', '#4b5563']}
+                  style={styles.prevButtonGradient}
+                >
+                  <Text style={styles.prevButtonText}>← Önceki</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            )}
+
+            {/* Sonraki / Bitir Butonu */}
+            {currentQuestionIndex < exam.questions.length - 1 ? (
+              <TouchableOpacity
+                style={[styles.nextButton, currentQuestionIndex === 0 && styles.nextButtonFull]}
+                onPress={handleNextQuestion}
+              >
+                <LinearGradient
+                  colors={['#10b981', '#059669']}
+                  style={styles.nextButtonGradient}
+                >
+                  <Text style={styles.nextButtonText}>
+                    {selectedAnswer === null ? 'Atla →' : 'Sonraki →'}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={[styles.nextButton, currentQuestionIndex === 0 && styles.nextButtonFull]}
+                onPress={handleSkipAndFinish}
+              >
+                <LinearGradient
+                  colors={['#ef4444', '#dc2626']}
+                  style={styles.nextButtonGradient}
+                >
+                  <Text style={styles.nextButtonText}>Sınavı Bitir 🏁</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            )}
+          </View>
         </SafeAreaView>
       </View>
     </View>
@@ -664,16 +714,35 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
-  nextButton: {
+  footerButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  prevButton: {
+    flex: 1,
     borderRadius: 12,
     overflow: 'hidden',
+  },
+  prevButtonGradient: {
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  prevButtonText: {
+    color: '#ffffff',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  nextButton: {
+    flex: 2,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  nextButtonFull: {
+    flex: 1,
   },
   nextButtonGradient: {
     paddingVertical: 14,
     alignItems: 'center',
-  },
-  disabledButton: {
-    opacity: 0.5,
   },
   nextButtonText: {
     color: '#ffffff',
