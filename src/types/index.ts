@@ -63,8 +63,13 @@ export interface UserPreferences {
 export type RootStackParamList = {
   Login: undefined;
   CategorySelection: undefined;
+  SubCategory: { 
+    categoryId: string;
+    categoryName: string;
+    categoryIcon: string;
+  };
   Home: undefined;
-  ExamList: { category?: string };
+  ExamList: { category?: string; subCategory?: string };
   Exam: { examId: string };
   Results: { result: ExamResult };
   Settings: undefined;

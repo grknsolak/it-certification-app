@@ -114,8 +114,12 @@ export default function CategorySelectionScreen({ navigation }: Props) {
     },
   ];
 
-  const handleCategorySelect = (categoryId: string, categoryName: string) => {
-    navigation.navigate('ExamList', { category: categoryName });
+  const handleCategorySelect = (category: any) => {
+    navigation.navigate('SubCategory', { 
+      categoryId: category.id,
+      categoryName: category.name,
+      categoryIcon: category.icon,
+    });
   };
 
   return (
@@ -151,7 +155,7 @@ export default function CategorySelectionScreen({ navigation }: Props) {
               <TouchableOpacity
                 key={category.id}
                 style={styles.categoryCardWrapper}
-                onPress={() => handleCategorySelect(category.id, category.name)}
+                onPress={() => handleCategorySelect(category)}
                 activeOpacity={0.8}
               >
                 <View style={[styles.categoryCard, { backgroundColor: colors.surface }, shadows.xl]}>
