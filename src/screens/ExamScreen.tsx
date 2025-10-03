@@ -7,8 +7,8 @@ import {
   SafeAreaView,
   Alert,
   ScrollView,
+  Dimensions,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
@@ -23,25 +23,23 @@ interface Props {
   route: ExamScreenRouteProp;
 }
 
+const { width } = Dimensions.get('window');
+
 export default function ExamScreen({ navigation, route }: Props) {
   const { examId, mode } = route.params;
   const examData = certificationExams.find(e => e.id === examId);
   
-  // Mode'a göre soruları ayarla
   const getQuestions = () => {
     if (!examData) return [];
     
     if (mode === 'exam' && examData.realExamQuestionCount) {
       const targetCount = examData.realExamQuestionCount;
       const availableQuestions = examData.questions;
-      
-      // Gerçek soru sayısına ulaşmak için soruları tekrarla
       const repeatedQuestions: Question[] = [];
       let index = 0;
       
       for (let i = 0; i < targetCount; i++) {
         const question = availableQuestions[index % availableQuestions.length];
-        // Her tekrarda unique ID oluştur
         repeatedQuestions.push({
           ...question,
           id: `${question.id}-repeat-${i}`,
@@ -54,40 +52,39 @@ export default function ExamScreen({ navigation, route }: Props) {
     
     return examData.questions;
   };
-  
-  const questions = getQuestions();
-  const exam = examData ? { ...examData, questions } : null;
-  
+
+  const exam = examData ? { ...examData, questions: getQuestions() } : null;
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | number[] | null>(null);
   const [answers, setAnswers] = useState<Answer[]>([]);
-  // Practice mode'da timer yok
-  const [timeLeft, setTimeLeft] = useState(mode === 'exam' && exam?.timeLimit ? exam.timeLimit * 60 : 0);
+  const [timeLeft, setTimeLeft] = useState(exam?.timeLimit ? exam.timeLimit * 60 : 0);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [bookmarkedQuestions, setBookmarkedQuestions] = useState<number[]>([]);
-  const [showQuestionGrid, setShowQuestionGrid] = useState(false); // Grid'i sadece buton tıklandığında göster
-  const [hasStarted, setHasStarted] = useState(true); // Otomatik başlat
-  const [questionFilter, setQuestionFilter] = useState<'all' | 'answered' | 'bookmarked' | 'unanswered'>('all');
 
   useEffect(() => {
     if (!exam) {
-      Alert.alert('Hata', 'Sınav bulunamadı');
+      Alert.alert('Error', 'Exam not found');
       navigation.goBack();
       return;
     }
+
+    setTimeLeft(exam.timeLimit * 60);
   }, [exam, navigation]);
 
   useEffect(() => {
-    // Sadece exam mode'da VE başladıktan sonra timer çalışsın
-    if (mode === 'exam' && hasStarted && timeLeft > 0 && !isSubmitted) {
+    if (mode === 'exam' && timeLeft > 0 && !isSubmitted) {
       const timer = setTimeout(() => {
         setTimeLeft(timeLeft - 1);
       }, 1000);
+
       return () => clearTimeout(timer);
-    } else if (mode === 'exam' && hasStarted && timeLeft === 0 && !isSubmitted) {
+    }
+
+    if (mode === 'exam' && timeLeft === 0 && !isSubmitted) {
       handleSubmitExam();
     }
-  }, [timeLeft, isSubmitted, mode, hasStarted]);
+  }, [timeLeft, isSubmitted]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -101,7 +98,6 @@ export default function ExamScreen({ navigation, route }: Props) {
     
     let newSelectedAnswer: number | number[];
     
-    // Çoklu cevap kontrolü
     if (Array.isArray(currentQuestion.correctAnswer)) {
       const currentSelections = (selectedAnswer as number[]) || [];
       if (currentSelections.includes(optionIndex)) {
@@ -109,7 +105,7 @@ export default function ExamScreen({ navigation, route }: Props) {
       } else if (currentSelections.length < currentQuestion.correctAnswer.length) {
         newSelectedAnswer = [...currentSelections, optionIndex];
       } else {
-        return; // Max seçim sayısına ulaşıldı
+        return;
       }
     } else {
       newSelectedAnswer = optionIndex;
@@ -117,7 +113,6 @@ export default function ExamScreen({ navigation, route }: Props) {
     
     setSelectedAnswer(newSelectedAnswer);
     
-    // Cevabı hemen kaydet
     let isCorrect = false;
     if (Array.isArray(currentQuestion.correctAnswer)) {
       const selectedArray = newSelectedAnswer as number[];
@@ -134,7 +129,6 @@ export default function ExamScreen({ navigation, route }: Props) {
       timeSpent: 0,
     };
 
-    // Eğer bu soru için zaten cevap varsa güncelle, yoksa ekle
     const existingIndex = answers.findIndex(a => a.questionId === currentQuestion.id);
     if (existingIndex !== -1) {
       const newAnswers = [...answers];
@@ -142,6 +136,26 @@ export default function ExamScreen({ navigation, route }: Props) {
       setAnswers(newAnswers);
     } else {
       setAnswers([...answers, newAnswer]);
+    }
+  };
+
+  const handleNextQuestion = () => {
+    if (exam && currentQuestionIndex < exam.questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      const nextQuestion = exam.questions[currentQuestionIndex + 1];
+      const nextAnswer = answers.find(a => a.questionId === nextQuestion.id);
+      setSelectedAnswer(nextAnswer ? nextAnswer.selectedOption : null);
+    }
+  };
+
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      const prevQuestion = exam?.questions[currentQuestionIndex - 1];
+      if (prevQuestion) {
+        const prevAnswer = answers.find(a => a.questionId === prevQuestion.id);
+        setSelectedAnswer(prevAnswer ? prevAnswer.selectedOption : null);
+      }
     }
   };
 
@@ -153,121 +167,21 @@ export default function ExamScreen({ navigation, route }: Props) {
     }
   };
 
-  const goToQuestion = (index: number) => {
-    // Seçilen soruya git
-    setCurrentQuestionIndex(index);
-    
-    // O sorunun cevabını yükle (varsa)
-    if (exam) {
-      const targetQuestion = exam.questions[index];
-      const existingAnswer = answers.find(a => a.questionId === targetQuestion.id);
-      setSelectedAnswer(existingAnswer ? existingAnswer.selectedOption : null);
-    }
-    
-    setShowQuestionGrid(false);
-  };
-
-  const saveCurrentAnswer = () => {
-    if (!exam || selectedAnswer === null) return;
-    
-    const currentQuestion = exam.questions[currentQuestionIndex];
-    let isCorrect = false;
-    
-    if (Array.isArray(currentQuestion.correctAnswer)) {
-      const selectedArray = selectedAnswer as number[];
-      isCorrect = selectedArray.length === currentQuestion.correctAnswer.length &&
-                 currentQuestion.correctAnswer.every(correct => selectedArray.includes(correct));
-    } else {
-      isCorrect = selectedAnswer === currentQuestion.correctAnswer;
-    }
-    
-    const newAnswer: Answer = {
-      questionId: currentQuestion.id,
-      selectedOption: selectedAnswer,
-      isCorrect,
-      timeSpent: 0,
-    };
-
-    // Eğer bu soru için zaten cevap varsa güncelle
-    const existingIndex = answers.findIndex(a => a.questionId === currentQuestion.id);
-    if (existingIndex !== -1) {
-      const newAnswers = [...answers];
-      newAnswers[existingIndex] = newAnswer;
-      setAnswers(newAnswers);
-    } else {
-      setAnswers([...answers, newAnswer]);
-    }
-  };
-
-  const handlePreviousQuestion = () => {
-    // Cevaplar otomatik kaydediliyor, sadece soru değiştir
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-      
-      // Önceki sorunun cevabını yükle
-      const prevQuestion = exam?.questions[currentQuestionIndex - 1];
-      if (prevQuestion) {
-        const prevAnswer = answers.find(a => a.questionId === prevQuestion.id);
-        setSelectedAnswer(prevAnswer ? prevAnswer.selectedOption : null);
-      }
-    }
-  };
-
-  const handleNextQuestion = () => {
-    // Cevaplar otomatik kaydediliyor, sadece soru değiştir
-    if (exam && currentQuestionIndex < exam.questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-      
-      // Sonraki sorunun cevabını yükle
-      const nextQuestion = exam.questions[currentQuestionIndex + 1];
-      const nextAnswer = answers.find(a => a.questionId === nextQuestion.id);
-      setSelectedAnswer(nextAnswer ? nextAnswer.selectedOption : null);
-    }
-  };
-
-  const handleSkipAndFinish = () => {
-    // Artık cevaplar otomatik kaydediliyor, direkt bitir
-    handleSubmitExam();
-  };
-
-  const handleFinishEarly = () => {
-    Alert.alert(
-      'Sınavı Bitir',
-      `${exam?.questions.length} sorudan ${answers.length} tanesini cevapladınız. Sınavı bitirmek istediğinize emin misiniz?`,
-      [
-        {
-          text: 'İptal',
-          style: 'cancel'
-        },
-        {
-          text: 'Bitir',
-          style: 'destructive',
-          onPress: () => handleSubmitExam()
-        }
-      ]
-    );
-  };
-
   const handleSubmitExam = async () => {
     if (!exam) return;
 
-    console.log('🏁 Sınav bitiriliyor...', { answersCount: answers.length, totalQuestions: exam.questions.length });
-
     let finalAnswers = [...answers];
 
-    // Cevaplanmayan soruları boş cevap olarak ekle
     exam.questions.forEach(q => {
       if (!finalAnswers.some(a => a.questionId === q.id)) {
         finalAnswers.push({
           questionId: q.id,
-          selectedOption: -1, // -1 = cevaplanmadı
+          selectedOption: -1,
           isCorrect: false,
           timeSpent: 0,
         });
       }
     });
-
-    console.log('✅ Final cevaplar hazır:', finalAnswers.length);
 
     const correctAnswers = finalAnswers.filter(answer => answer.isCorrect).length;
     const score = Math.round((correctAnswers / exam.questions.length) * 100);
@@ -284,344 +198,186 @@ export default function ExamScreen({ navigation, route }: Props) {
       answers: finalAnswers,
     };
 
-    console.log('📊 Sonuç hazır:', { score, correctAnswers, wrongAnswers: result.wrongAnswers });
-
     try {
       const existingResults = await AsyncStorage.getItem('examResults');
       const results: ExamResult[] = existingResults ? JSON.parse(existingResults) : [];
       results.push(result);
       await AsyncStorage.setItem('examResults', JSON.stringify(results));
-      console.log('💾 Sonuç AsyncStorage\'a kaydedildi');
     } catch (error) {
-      console.error('❌ Sonuç kaydedilemedi:', error);
+      console.error('Error saving result:', error);
     }
 
-    console.log('🚀 Results ekranına gidiliyor...');
     setIsSubmitted(true);
     navigation.navigate('Results', { result });
+  };
+
+  const handleFinishEarly = () => {
+    Alert.alert(
+      'Submit Exam',
+      'Are you sure you want to submit the exam now?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Submit', onPress: () => handleSubmitExam(), style: 'destructive' }
+      ]
+    );
   };
 
   if (!exam) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text>Yükleniyor...</Text>
+        <Text>Loading...</Text>
       </SafeAreaView>
     );
   }
 
   const currentQuestion = exam.questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / exam.questions.length) * 100;
+  const isBookmarked = bookmarkedQuestions.includes(currentQuestionIndex);
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#667eea', '#764ba2']}
-        style={styles.headerGradient}
-      >
-        <SafeAreaView>
-          <View style={styles.header}>
-            <View style={styles.progressContainer}>
-              <View style={styles.progressBar}>
-                <LinearGradient
-                  colors={['#f093fb', '#f5576c']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={[styles.progressFill, { width: `${progress}%` }]}
-                />
-              </View>
-              <View style={styles.progressInfo}>
-                <View>
-                  <Text style={styles.progressText}>
-                    Soru {currentQuestionIndex + 1} / {exam.questions.length}
-                  </Text>
-                  <Text style={styles.modeText}>
-                    {mode === 'exam' ? '🎯 Sınav Modu' : '💡 Alıştırma Modu'}
-                    {bookmarkedQuestions.length > 0 && ` • ⭐ ${bookmarkedQuestions.length}`}
-                  </Text>
-                </View>
-                {mode === 'exam' && (
-                  <Text style={styles.timerText}>⏱️ {formatTime(timeLeft)}</Text>
-                )}
-              </View>
-            </View>
-          </View>
-        </SafeAreaView>
-      </LinearGradient>
-
-      <ScrollView 
-        style={styles.content}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.questionContainer}>
-          {/* Sadece İşaretle İkonu - Sağ Üstte */}
+      <SafeAreaView style={styles.safeArea}>
+        {/* Modern Header */}
+        <View style={styles.header}>
           <TouchableOpacity
-            style={[
-              styles.iconOnlyBookmark,
-              bookmarkedQuestions.includes(currentQuestionIndex) && styles.iconOnlyBookmarkActive
-            ]}
+            style={styles.exitButton}
+            onPress={() => {
+              Alert.alert(
+                'Exit Exam',
+                'Your progress will be lost. Are you sure?',
+                [
+                  { text: 'Stay', style: 'cancel' },
+                  { text: 'Exit', onPress: () => navigation.goBack(), style: 'destructive' }
+                ]
+              );
+            }}
+          >
+            <Text style={styles.exitButtonText}>✕</Text>
+          </TouchableOpacity>
+
+          <View style={styles.headerCenter}>
+            <Text style={styles.examTitle}>{exam.title}</Text>
+            <Text style={styles.questionCounter}>
+              Question {currentQuestionIndex + 1} of {exam.questions.length}
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.bookmarkButton, isBookmarked && styles.bookmarkButtonActive]}
             onPress={toggleBookmark}
           >
-            <Text style={styles.iconOnlyBookmarkText}>
-              {bookmarkedQuestions.includes(currentQuestionIndex) ? '⭐' : '☆'}
-            </Text>
+            <Text style={styles.bookmarkIcon}>{isBookmarked ? '⭐' : '☆'}</Text>
           </TouchableOpacity>
-          
-          <Text style={styles.questionText}>{currentQuestion.question}</Text>
-          {Array.isArray(currentQuestion.correctAnswer) && (
-            <View style={styles.multiSelectBadge}>
-              <Text style={styles.multiSelectText}>
-                📋 {currentQuestion.correctAnswer.length} cevap seçin: {((selectedAnswer as number[]) || []).length}/{currentQuestion.correctAnswer.length}
-              </Text>
-            </View>
-          )}
         </View>
 
-        <View style={styles.optionsContainer}>
-          {currentQuestion.options.map((option, index) => {
-            const isSelected = Array.isArray(currentQuestion.correctAnswer) 
-              ? ((selectedAnswer as number[]) || []).includes(index)
-              : selectedAnswer === index;
-            const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
-              
-            return (
-              <TouchableOpacity
-                key={index}
-                style={styles.optionButton}
-                onPress={() => handleAnswerSelect(index)}
-                activeOpacity={0.7}
-              >
-                {isSelected ? (
-                  <LinearGradient
-                    colors={['#667eea', '#764ba2']}
-                    style={styles.optionGradient}
-                  >
-                    <View style={styles.optionLetter}>
-                      <Text style={styles.optionLetterTextSelected}>{letters[index]}</Text>
-                    </View>
-                    <Text style={styles.selectedOptionText}>{option}</Text>
-                    <Text style={styles.checkmark}>✓</Text>
-                  </LinearGradient>
-                ) : (
-                  <View style={styles.optionContent}>
-                    <View style={styles.optionLetterUnselected}>
-                      <Text style={styles.optionLetterTextUnselected}>{letters[index]}</Text>
-                    </View>
-                    <Text style={styles.optionText}>{option}</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            );
-          })}
+        {/* Progress Bar */}
+        <View style={styles.progressBarContainer}>
+          <View style={[styles.progressBar, { width: `${progress}%` }]} />
         </View>
-      </ScrollView>
 
-      <View style={styles.footer}>
-        <SafeAreaView>
-          {/* Üst Satır: Önceki / Sonraki */}
-          <View style={styles.footerTopRow}>
-            {/* Önceki Butonu */}
-            {currentQuestionIndex > 0 ? (
-              <TouchableOpacity
-                style={[styles.footerButton, styles.footerNavButton]}
-                onPress={handlePreviousQuestion}
-              >
-                <Text style={styles.footerButtonText}>← Önceki</Text>
-              </TouchableOpacity>
-            ) : (
-              <View style={styles.footerSpacer} />
-            )}
+        {/* Timer (for exam mode) */}
+        {mode === 'exam' && (
+          <View style={styles.timerContainer}>
+            <Text style={styles.timerIcon}>⏱️</Text>
+            <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
+          </View>
+        )}
 
-            {/* Sonraki / Bitir Son Soru Butonu */}
-            {currentQuestionIndex < exam.questions.length - 1 ? (
-              <TouchableOpacity
-                style={[styles.footerButton, styles.footerNavButton, styles.footerButtonNext]}
-                onPress={handleNextQuestion}
-              >
-                <Text style={styles.footerButtonText}>Sonraki →</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={[styles.footerButton, styles.footerNavButton, styles.footerButtonFinish]}
-                onPress={handleSkipAndFinish}
-              >
-                <Text style={styles.footerButtonText}>✓ Tamamla</Text>
-              </TouchableOpacity>
+        {/* Question Content */}
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.questionCard}>
+            <Text style={styles.questionText}>{currentQuestion.question}</Text>
+            
+            {Array.isArray(currentQuestion.correctAnswer) && (
+              <View style={styles.multiSelectBadge}>
+                <Text style={styles.multiSelectText}>
+                  Select {currentQuestion.correctAnswer.length} answers
+                </Text>
+              </View>
             )}
           </View>
 
-          {/* Alt Satır: Sorular / Bitir */}
-          <View style={styles.footerBottomRow}>
-            {/* Sorular Butonu - Toggle */}
-            <TouchableOpacity
-              style={[
-                styles.footerButton,
-                styles.footerActionButton,
-                showQuestionGrid && styles.footerButtonActive
-              ]}
-              onPress={() => setShowQuestionGrid(!showQuestionGrid)}
-            >
-              <Text style={styles.footerButtonText}>📋 Sorular</Text>
-            </TouchableOpacity>
+          {/* Options */}
+          <View style={styles.optionsContainer}>
+            {currentQuestion.options.map((option, index) => {
+              const isSelected = Array.isArray(currentQuestion.correctAnswer)
+                ? ((selectedAnswer as number[]) || []).includes(index)
+                : selectedAnswer === index;
+              const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
 
-            {/* Bitir Butonu */}
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    styles.optionButton,
+                    isSelected && styles.optionButtonSelected
+                  ]}
+                  onPress={() => handleAnswerSelect(index)}
+                  activeOpacity={0.7}
+                >
+                  <View style={[
+                    styles.optionLetter,
+                    isSelected && styles.optionLetterSelected
+                  ]}>
+                    <Text style={[
+                      styles.optionLetterText,
+                      isSelected && styles.optionLetterTextSelected
+                    ]}>
+                      {letters[index]}
+                    </Text>
+                  </View>
+                  <Text style={[
+                    styles.optionText,
+                    isSelected && styles.optionTextSelected
+                  ]}>
+                    {option}
+                  </Text>
+                  {isSelected && (
+                    <View style={styles.checkCircle}>
+                      <Text style={styles.checkmark}>✓</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </ScrollView>
+
+        {/* Navigation Footer */}
+        <View style={styles.footer}>
+          <TouchableOpacity
+            style={[
+              styles.navButton,
+              styles.previousButton,
+              currentQuestionIndex === 0 && styles.navButtonDisabled
+            ]}
+            onPress={handlePreviousQuestion}
+            disabled={currentQuestionIndex === 0}
+          >
+            <Text style={styles.navButtonText}>← Previous</Text>
+          </TouchableOpacity>
+
+          {currentQuestionIndex === exam.questions.length - 1 ? (
             <TouchableOpacity
-              style={[styles.footerButton, styles.footerActionButton, styles.footerButtonFinish]}
+              style={[styles.navButton, styles.submitButton]}
               onPress={handleFinishEarly}
             >
-              <Text style={styles.footerButtonText}>🏁 Bitir</Text>
+              <Text style={[styles.navButtonText, styles.submitButtonText]}>Submit</Text>
             </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </View>
-
-      {/* Question Grid Modal - Popup (En üstte) */}
-      {showQuestionGrid && (
-        <TouchableOpacity 
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowQuestionGrid(false)}
-        >
-          <SafeAreaView style={styles.modalSafeArea}>
-            <TouchableOpacity 
-              style={styles.modalContent}
-              activeOpacity={1}
-              onPress={(e) => e.stopPropagation()}
+          ) : (
+            <TouchableOpacity
+              style={[styles.navButton, styles.nextButton]}
+              onPress={handleNextQuestion}
             >
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Tüm Sorular</Text>
-                <TouchableOpacity onPress={() => setShowQuestionGrid(false)}>
-                  <Text style={styles.modalClose}>✕</Text>
-                </TouchableOpacity>
-              </View>
-              
-              <View style={styles.modalLegend}>
-                <TouchableOpacity 
-                  style={styles.legendItem}
-                  onPress={() => setQuestionFilter('all')}
-                >
-                  <View style={[
-                    styles.legendBox, 
-                    { backgroundColor: '#667eea' },
-                    questionFilter === 'all' && styles.legendBoxActive
-                  ]} />
-                  <Text style={[
-                    styles.legendText,
-                    questionFilter === 'all' && styles.legendTextActive
-                  ]}>Tümü</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  style={styles.legendItem}
-                  onPress={() => setQuestionFilter('answered')}
-                >
-                  <View style={[
-                    styles.legendBox, 
-                    { backgroundColor: '#10b981' },
-                    questionFilter === 'answered' && styles.legendBoxActive
-                  ]} />
-                  <Text style={[
-                    styles.legendText,
-                    questionFilter === 'answered' && styles.legendTextActive
-                  ]}>Cevaplandı</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  style={styles.legendItem}
-                  onPress={() => setQuestionFilter('bookmarked')}
-                >
-                  <View style={[
-                    styles.legendBox, 
-                    { backgroundColor: '#f59e0b' },
-                    questionFilter === 'bookmarked' && styles.legendBoxActive
-                  ]} />
-                  <Text style={[
-                    styles.legendText,
-                    questionFilter === 'bookmarked' && styles.legendTextActive
-                  ]}>⭐ İşaretli</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  style={styles.legendItem}
-                  onPress={() => setQuestionFilter('unanswered')}
-                >
-                  <View style={[
-                    styles.legendBox, 
-                    { backgroundColor: '#e5e7eb' },
-                    questionFilter === 'unanswered' && styles.legendBoxActive
-                  ]} />
-                  <Text style={[
-                    styles.legendText,
-                    questionFilter === 'unanswered' && styles.legendTextActive
-                  ]}>Cevaplanmadı</Text>
-                </TouchableOpacity>
-              </View>
-
-              <ScrollView style={styles.questionGrid} contentContainerStyle={styles.questionGridContent}>
-                {(() => {
-                  const filteredQuestions = exam.questions.filter((_, index) => {
-                    const isAnswered = answers.some(a => a.questionId === exam.questions[index].id);
-                    const isBookmarked = bookmarkedQuestions.includes(index);
-                    
-                    if (questionFilter === 'answered' && !isAnswered) return false;
-                    if (questionFilter === 'bookmarked' && !isBookmarked) return false;
-                    if (questionFilter === 'unanswered' && isAnswered) return false;
-                    return true;
-                  });
-
-                  if (filteredQuestions.length === 0) {
-                    return (
-                      <View style={styles.emptyFilterState}>
-                        <Text style={styles.emptyFilterEmoji}>🔍</Text>
-                        <Text style={styles.emptyFilterText}>
-                          {questionFilter === 'answered' && 'Henüz cevaplanan soru yok'}
-                          {questionFilter === 'bookmarked' && 'Henüz işaretlenen soru yok'}
-                          {questionFilter === 'unanswered' && 'Tüm sorular cevaplandı!'}
-                        </Text>
-                      </View>
-                    );
-                  }
-
-                  return exam.questions.map((_, index) => {
-                    const isAnswered = answers.some(a => a.questionId === exam.questions[index].id);
-                    const isBookmarked = bookmarkedQuestions.includes(index);
-                    const isCurrent = index === currentQuestionIndex;
-                    
-                    // Filter logic
-                    let shouldShow = true;
-                    if (questionFilter === 'answered' && !isAnswered) shouldShow = false;
-                    if (questionFilter === 'bookmarked' && !isBookmarked) shouldShow = false;
-                    if (questionFilter === 'unanswered' && isAnswered) shouldShow = false;
-                    
-                    if (!shouldShow) return null;
-                    
-                    return (
-                      <TouchableOpacity
-                        key={index}
-                        style={[
-                          styles.questionGridItem,
-                          isAnswered && styles.questionGridItemAnswered,
-                          isBookmarked && styles.questionGridItemBookmarked,
-                          isCurrent && styles.questionGridItemCurrent,
-                        ]}
-                        onPress={() => goToQuestion(index)}
-                      >
-                        <Text style={[
-                          styles.questionGridItemText,
-                          (isAnswered || isBookmarked || isCurrent) && styles.questionGridItemTextActive
-                        ]}>
-                          {index + 1}
-                        </Text>
-                        {isBookmarked && <Text style={styles.questionGridStar}>⭐</Text>}
-                      </TouchableOpacity>
-                    );
-                  });
-                })()}
-              </ScrollView>
+              <Text style={[styles.navButtonText, styles.nextButtonText]}>Next →</Text>
             </TouchableOpacity>
-          </SafeAreaView>
-        </TouchableOpacity>
-      )}
+          )}
+        </View>
+      </SafeAreaView>
     </View>
   );
 }
@@ -629,358 +385,228 @@ export default function ExamScreen({ navigation, route }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f7',
+    backgroundColor: '#f8f9fa',
   },
-  headerGradient: {
-    paddingBottom: 20,
+  safeArea: {
+    flex: 1,
   },
   header: {
-    padding: 20,
-    paddingTop: 10,
-  },
-  progressContainer: {
-    gap: 12,
-  },
-  progressBar: {
-    height: 10,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 10,
-  },
-  progressInfo: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
   },
-  progressText: {
-    fontSize: 15,
-    color: '#ffffff',
+  exitButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  exitButtonText: {
+    fontSize: 20,
+    color: '#6b7280',
     fontWeight: '600',
   },
-  modeText: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.8)',
+  headerCenter: {
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: 12,
+  },
+  examTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  questionCounter: {
+    fontSize: 13,
+    color: '#9ca3af',
     fontWeight: '500',
-    marginTop: 4,
+  },
+  bookmarkButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bookmarkButtonActive: {
+    backgroundColor: '#fef3c7',
+  },
+  bookmarkIcon: {
+    fontSize: 20,
+  },
+  progressBarContainer: {
+    height: 4,
+    backgroundColor: '#e5e7eb',
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#3b82f6',
+  },
+  timerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  timerIcon: {
+    fontSize: 16,
+    marginRight: 8,
   },
   timerText: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#ef4444',
   },
-  content: {
+  scrollView: {
     flex: 1,
   },
   scrollContent: {
     padding: 20,
-    paddingBottom: 40,
   },
-  questionContainer: {
+  questionCard: {
     backgroundColor: '#ffffff',
-    borderRadius: 20,
-    padding: 24,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 6,
-    position: 'relative',
-  },
-  iconOnlyBookmark: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#f3f4f6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-    zIndex: 10,
-  },
-  iconOnlyBookmarkActive: {
-    backgroundColor: '#fef3c7',
-    borderColor: '#f59e0b',
-  },
-  iconOnlyBookmarkText: {
-    fontSize: 24,
-  },
-  questionText: {
-    fontSize: 17,
-    color: '#1d1d1f',
-    lineHeight: 26,
-    fontWeight: '500',
-    paddingRight: 50, // İkon için alan bırak
-  },
-  multiSelectBadge: {
-    marginTop: 16,
-    backgroundColor: '#f0f9ff',
-    padding: 12,
-    borderRadius: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: '#667eea',
-  },
-  multiSelectText: {
-    fontSize: 14,
-    color: '#475569',
-    fontWeight: '600',
-  },
-  optionsContainer: {
-    gap: 12,
-  },
-  optionButton: {
     borderRadius: 16,
-    overflow: 'hidden',
-    backgroundColor: '#ffffff',
+    padding: 24,
+    marginBottom: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
   },
-  optionGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
+  questionText: {
+    fontSize: 18,
+    lineHeight: 28,
+    color: '#1f2937',
+    fontWeight: '500',
+  },
+  multiSelectBadge: {
+    marginTop: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#dbeafe',
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  multiSelectText: {
+    fontSize: 13,
+    color: '#1e40af',
+    fontWeight: '600',
+  },
+  optionsContainer: {
     gap: 12,
   },
-  optionContent: {
+  optionButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
     padding: 16,
-    gap: 12,
     borderWidth: 2,
     borderColor: '#e5e7eb',
-    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  optionButtonSelected: {
+    borderColor: '#3b82f6',
+    backgroundColor: '#eff6ff',
   },
   optionLetter: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  optionLetterUnselected: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
     backgroundColor: '#f3f4f6',
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 12,
   },
-  optionLetterTextSelected: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#ffffff',
+  optionLetterSelected: {
+    backgroundColor: '#3b82f6',
   },
-  optionLetterTextUnselected: {
+  optionLetterText: {
     fontSize: 16,
     fontWeight: '700',
     color: '#6b7280',
+  },
+  optionLetterTextSelected: {
+    color: '#ffffff',
   },
   optionText: {
     flex: 1,
     fontSize: 15,
-    color: '#1f2937',
     lineHeight: 22,
+    color: '#374151',
   },
-  selectedOptionText: {
-    flex: 1,
-    fontSize: 15,
-    color: '#ffffff',
-    fontWeight: '600',
-    lineHeight: 22,
+  optionTextSelected: {
+    color: '#1e40af',
+    fontWeight: '500',
+  },
+  checkCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#3b82f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
   },
   checkmark: {
-    fontSize: 20,
+    fontSize: 14,
     color: '#ffffff',
     fontWeight: '700',
   },
   footer: {
-    backgroundColor: '#ffffff',
-    padding: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  footerTopRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 8,
-    marginBottom: 8,
-  },
-  footerBottomRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  footerButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    backgroundColor: '#f3f4f6',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  footerNavButton: {
-    flex: 1,
-  },
-  footerActionButton: {
-    flex: 1,
-  },
-  footerSpacer: {
-    flex: 1,
-  },
-  footerButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1f2937',
-  },
-  footerButtonFinish: {
-    backgroundColor: '#fee2e2',
-  },
-  footerButtonNext: {
-    backgroundColor: '#d1fae5',
-  },
-  footerButtonActive: {
-    backgroundColor: '#dbeafe',
-    borderWidth: 2,
-    borderColor: '#3b82f6',
-  },
-  modalOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
-    zIndex: 9999,
-  },
-  modalSafeArea: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: '#ffffff',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    maxHeight: '80%',
-    paddingBottom: 20,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1f2937',
-  },
-  modalClose: {
-    fontSize: 28,
-    color: '#6b7280',
-    fontWeight: '300',
-  },
-  modalLegend: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    padding: 16,
-    backgroundColor: '#f9fafb',
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  legendBox: {
-    width: 16,
-    height: 16,
-    borderRadius: 4,
-  },
-  legendBoxActive: {
-    borderWidth: 3,
-    borderColor: '#1f2937',
-  },
-  legendText: {
-    fontSize: 12,
-    color: '#6b7280',
-    fontWeight: '500',
-  },
-  legendTextActive: {
-    color: '#1f2937',
-    fontWeight: '700',
-  },
-  questionGrid: {
-    flex: 1,
-  },
-  questionGridContent: {
-    padding: 16,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: 12,
+    padding: 20,
+    backgroundColor: '#ffffff',
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
   },
-  questionGridItem: {
-    width: 48,
-    height: 48,
+  navButton: {
+    flex: 1,
+    paddingVertical: 14,
     borderRadius: 12,
-    backgroundColor: '#e5e7eb',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
   },
-  questionGridItemAnswered: {
+  previousButton: {
+    backgroundColor: '#f3f4f6',
+  },
+  nextButton: {
+    backgroundColor: '#3b82f6',
+  },
+  submitButton: {
     backgroundColor: '#10b981',
   },
-  questionGridItemBookmarked: {
-    backgroundColor: '#f59e0b',
+  navButtonDisabled: {
+    opacity: 0.4,
   },
-  questionGridItemCurrent: {
-    backgroundColor: '#667eea',
-    borderWidth: 3,
-    borderColor: '#764ba2',
-  },
-  questionGridItemText: {
+  navButtonText: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '600',
     color: '#6b7280',
   },
-  questionGridItemTextActive: {
+  nextButtonText: {
     color: '#ffffff',
   },
-  questionGridStar: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    fontSize: 16,
-  },
-  emptyFilterState: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 40,
-  },
-  emptyFilterEmoji: {
-    fontSize: 48,
-    marginBottom: 12,
-  },
-  emptyFilterText: {
-    fontSize: 15,
-    color: '#6b7280',
-    fontWeight: '500',
-    textAlign: 'center',
+  submitButtonText: {
+    color: '#ffffff',
   },
 });
-
