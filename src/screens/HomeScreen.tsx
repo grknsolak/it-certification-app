@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   TextInput,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -61,6 +62,24 @@ export default function HomeScreen({ navigation }: Props) {
     } catch (error) {
       console.error('Error loading stats:', error);
     }
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: () => navigation.replace('Login')
+        }
+      ]
+    );
   };
 
   const categories = [
@@ -147,12 +166,20 @@ export default function HomeScreen({ navigation }: Props) {
                 </Text>
               </View>
             </View>
-            <TouchableOpacity
-              style={[styles.settingsButton, { backgroundColor: colors.surfaceSecondary }, shadows.sm]}
-              onPress={() => navigation.navigate('Settings')}
-            >
-              <Text style={styles.settingsIcon}>⚙️</Text>
-            </TouchableOpacity>
+            <View style={styles.headerRight}>
+              <TouchableOpacity
+                style={[styles.iconButton, { backgroundColor: colors.surfaceSecondary }, shadows.sm]}
+                onPress={() => navigation.navigate('Settings')}
+              >
+                <Text style={styles.iconButtonText}>⚙️</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.iconButton, styles.logoutButton, shadows.sm]}
+                onPress={handleLogout}
+              >
+                <Text style={styles.iconButtonText}>🚪</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Search Bar - Bike Shopping Style */}
@@ -356,15 +383,22 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs / 2,
   },
   title: {},
-  settingsButton: {
-    width: 48,
-    height: 48,
+  headerRight: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  iconButton: {
+    width: 44,
+    height: 44,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  settingsIcon: {
-    fontSize: 24,
+  logoutButton: {
+    backgroundColor: '#fee2e2',
+  },
+  iconButtonText: {
+    fontSize: 20,
   },
   searchContainer: {
     flexDirection: 'row',
