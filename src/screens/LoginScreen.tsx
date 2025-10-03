@@ -4,17 +4,14 @@ import {
   Text,
   StyleSheet,
   TextInput,
+  TouchableOpacity,
   SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
+  StatusBar,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../types';
-import { useTheme } from '../contexts/ThemeContext';
-import { spacing, typography, radius, shadows, gradients } from '../design-system/tokens';
-import Button from '../components/Button';
 
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
 
@@ -23,160 +20,158 @@ interface Props {
 }
 
 export default function LoginScreen({ navigation }: Props) {
-  const { colors, activeTheme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
 
   const handleLogin = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      navigation.navigate('CategorySelection');
-    }, 1000);
+    navigation.replace('CategorySelection');
   };
 
-  const handleGuestLogin = () => {
-    navigation.navigate('CategorySelection');
+  const handleSocialLogin = (provider: string) => {
+    console.log(`Login with ${provider}`);
+    navigation.replace('CategorySelection');
   };
 
   return (
-    <View style={styles.container}>
-      {/* Background Gradient - Bike Shopping Style */}
-      <LinearGradient
-        colors={activeTheme === 'dark' 
-          ? ['#0F172A', '#1E293B']
-          : ['#3B82F6', '#8B5CF6']}
-        style={styles.background}
-      >
-        {/* Decorative Circles */}
-        <View style={[styles.circle, styles.circle1]} />
-        <View style={[styles.circle, styles.circle2]} />
-      </LinearGradient>
-
+    <LinearGradient
+      colors={['#667eea', '#764ba2', '#f093fb']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.container}
+    >
+      <StatusBar barStyle="light-content" />
       <SafeAreaView style={styles.safeArea}>
-        <KeyboardAvoidingView 
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.keyboardView}
-        >
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
-            {/* Logo */}
-            <View style={styles.logoContainer}>
-              <View style={[styles.logoCircle, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
-                <Text style={styles.logoIcon}>🎓</Text>
-              </View>
-              <Text style={[styles.appName, typography.h1, { color: '#ffffff' }]}>
-                IT Certification
-              </Text>
-              <Text style={[styles.tagline, typography.body, { color: 'rgba(255,255,255,0.9)' }]}>
-                Your path to certification success
-              </Text>
-            </View>
+        <View style={styles.content}>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.welcomeText}>Welcome Back!</Text>
+            <Text style={styles.subtitle}>Sign in to continue</Text>
+          </View>
 
-            {/* Card - Bike Shopping Style */}
-            <View style={[styles.card, { backgroundColor: colors.surface }, shadows.xl]}>
-              <Text style={[styles.welcomeTitle, typography.h2, { color: colors.textPrimary }]}>
-                Welcome Back! 👋
-              </Text>
-              <Text style={[styles.welcomeSubtitle, typography.caption, { color: colors.textSecondary }]}>
-                Sign in to continue your learning journey
-              </Text>
-
-              {/* Form */}
-              <View style={styles.formContainer}>
-                <View style={styles.inputContainer}>
-                  <Text style={[styles.inputLabel, typography.captionBold, { color: colors.textPrimary }]}>
+          {/* Login Card */}
+          <View style={styles.card}>
+            {/* Email Input */}
+            <View style={styles.inputContainer}>
+              <View style={[
+                styles.inputWrapper,
+                emailFocused && styles.inputWrapperFocused
+              ]}>
+                <View style={styles.iconContainer}>
+                  <Text style={styles.icon}>✉️</Text>
+                </View>
+                <View style={styles.inputContent}>
+                  <Text style={[styles.label, (emailFocused || email) && styles.labelActive]}>
                     Email Address
                   </Text>
-                  <View style={[styles.inputWrapper, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
-                    <Text style={styles.inputIcon}>📧</Text>
-                    <TextInput
-                      style={[styles.input, typography.body, { color: colors.textPrimary }]}
-                      placeholder="your@email.com"
-                      placeholderTextColor={colors.textTertiary}
-                      value={email}
-                      onChangeText={setEmail}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      autoComplete="email"
-                    />
-                  </View>
+                  <TextInput
+                    style={styles.input}
+                    value={email}
+                    onChangeText={setEmail}
+                    onFocus={() => setEmailFocused(true)}
+                    onBlur={() => setEmailFocused(false)}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    placeholderTextColor="transparent"
+                  />
                 </View>
+              </View>
+            </View>
 
-                <View style={styles.inputContainer}>
-                  <Text style={[styles.inputLabel, typography.captionBold, { color: colors.textPrimary }]}>
+            {/* Password Input */}
+            <View style={styles.inputContainer}>
+              <View style={[
+                styles.inputWrapper,
+                passwordFocused && styles.inputWrapperFocused
+              ]}>
+                <View style={styles.iconContainer}>
+                  <Text style={styles.icon}>🔒</Text>
+                </View>
+                <View style={styles.inputContent}>
+                  <Text style={[styles.label, (passwordFocused || password) && styles.labelActive]}>
                     Password
                   </Text>
-                  <View style={[styles.inputWrapper, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
-                    <Text style={styles.inputIcon}>🔒</Text>
-                    <TextInput
-                      style={[styles.input, typography.body, { color: colors.textPrimary }]}
-                      placeholder="Enter your password"
-                      placeholderTextColor={colors.textTertiary}
-                      value={password}
-                      onChangeText={setPassword}
-                      secureTextEntry
-                      autoComplete="password"
-                    />
-                  </View>
+                  <TextInput
+                    style={styles.input}
+                    value={password}
+                    onChangeText={setPassword}
+                    onFocus={() => setPasswordFocused(true)}
+                    onBlur={() => setPasswordFocused(false)}
+                    secureTextEntry
+                    placeholderTextColor="transparent"
+                  />
                 </View>
-
-                <Button
-                  title="Sign In"
-                  onPress={handleLogin}
-                  variant="primary"
-                  size="large"
-                  loading={isLoading}
-                  fullWidth
-                  icon="🚀"
-                  style={{ marginTop: spacing.lg }}
-                />
               </View>
-
-              <View style={styles.divider}>
-                <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
-                <Text style={[styles.dividerText, typography.caption, { color: colors.textTertiary }]}>
-                  or
-                </Text>
-                <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
-              </View>
-
-              <Button
-                title="Continue as Guest"
-                onPress={handleGuestLogin}
-                variant="outline"
-                size="large"
-                fullWidth
-                icon="👤"
-              />
             </View>
 
-            {/* Features */}
-            <View style={styles.featuresContainer}>
-              {[
-                { icon: '✅', text: '200+ Questions' },
-                { icon: '📊', text: 'Track Progress' },
-                { icon: '🏆', text: 'Get Certified' },
-              ].map((feature, index) => (
-                <View
-                  key={index}
-                  style={[styles.featureItem, { backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}
-                >
-                  <Text style={styles.featureIcon}>{feature.icon}</Text>
-                  <Text style={[styles.featureText, typography.small, { color: '#ffffff' }]}>
-                    {feature.text}
-                  </Text>
-                </View>
-              ))}
+            {/* Forgot Password */}
+            <TouchableOpacity style={styles.forgotPassword}>
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </TouchableOpacity>
+
+            {/* Login Button */}
+            <TouchableOpacity
+              style={styles.loginButton}
+              onPress={handleLogin}
+              activeOpacity={0.9}
+            >
+              <LinearGradient
+                colors={['#667eea', '#764ba2']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.loginButtonGradient}
+              >
+                <Text style={styles.loginButtonText}>Sign In</Text>
+                <Text style={styles.loginButtonIcon}>→</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            {/* Divider */}
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>Or continue with</Text>
+              <View style={styles.dividerLine} />
             </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
+
+            {/* Social Login */}
+            <View style={styles.socialContainer}>
+              <TouchableOpacity
+                style={styles.socialButton}
+                onPress={() => handleSocialLogin('Google')}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.socialIcon}>G</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.socialButton}
+                onPress={() => handleSocialLogin('Apple')}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.socialIcon}>🍎</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.socialButton}
+                onPress={() => handleSocialLogin('Microsoft')}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.socialIcon}>Ⓜ</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Sign Up Link */}
+          <View style={styles.signupContainer}>
+            <Text style={styles.signupText}>Don't have an account? </Text>
+            <TouchableOpacity onPress={handleLogin}>
+              <Text style={styles.signupLink}>Sign Up</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </SafeAreaView>
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -184,131 +179,174 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  background: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  circle: {
-    position: 'absolute',
-    borderRadius: 9999,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  circle1: {
-    width: 300,
-    height: 300,
-    top: -100,
-    right: -100,
-  },
-  circle2: {
-    width: 400,
-    height: 400,
-    bottom: -150,
-    left: -150,
-  },
   safeArea: {
     flex: 1,
   },
-  keyboardView: {
+  content: {
     flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    padding: spacing.md,
+    padding: 24,
     justifyContent: 'center',
   },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: spacing.xxxl,
+  header: {
+    marginBottom: 40,
   },
-  logoCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.lg,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+  welcomeText: {
+    fontSize: 36,
+    fontWeight: '800',
+    color: '#ffffff',
+    marginBottom: 8,
+    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
-  logoIcon: {
-    fontSize: 50,
-  },
-  appName: {
-    marginBottom: spacing.sm,
-    textAlign: 'center',
-  },
-  tagline: {
-    textAlign: 'center',
+  subtitle: {
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.9)',
+    fontWeight: '500',
   },
   card: {
-    borderRadius: radius.xl,
-    padding: spacing.xl,
-    marginBottom: spacing.xl,
-  },
-  welcomeTitle: {
-    marginBottom: spacing.xs,
-    textAlign: 'center',
-  },
-  welcomeSubtitle: {
-    textAlign: 'center',
-    marginBottom: spacing.xl,
-  },
-  formContainer: {
-    marginBottom: spacing.xl,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
   },
   inputContainer: {
-    marginBottom: spacing.lg,
-  },
-  inputLabel: {
-    marginBottom: spacing.sm,
+    marginBottom: 20,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    borderWidth: 1,
-    minHeight: 52,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    paddingHorizontal: 16,
+    paddingVertical: 4,
   },
-  inputIcon: {
+  inputWrapperFocused: {
+    borderColor: '#667eea',
+    backgroundColor: '#ffffff',
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
     fontSize: 20,
-    marginRight: spacing.sm,
+  },
+  inputContent: {
+    flex: 1,
+    paddingVertical: 8,
+  },
+  label: {
+    fontSize: 14,
+    color: '#9ca3af',
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  labelActive: {
+    fontSize: 12,
+    color: '#667eea',
   },
   input: {
-    flex: 1,
+    fontSize: 16,
+    color: '#1f2937',
+    fontWeight: '600',
+    padding: 0,
+    height: 24,
+  },
+  forgotPassword: {
+    alignSelf: 'flex-end',
+    marginBottom: 24,
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    color: '#667eea',
+    fontWeight: '600',
+  },
+  loginButton: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 24,
+    shadowColor: '#667eea',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  loginButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 18,
+    gap: 8,
+  },
+  loginButtonText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#ffffff',
+    letterSpacing: 0.5,
+  },
+  loginButtonIcon: {
+    fontSize: 24,
+    color: '#ffffff',
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: spacing.xl,
+    marginBottom: 24,
   },
   dividerLine: {
     flex: 1,
     height: 1,
+    backgroundColor: '#e5e7eb',
   },
   dividerText: {
-    marginHorizontal: spacing.lg,
-    fontWeight: '600',
+    marginHorizontal: 16,
+    fontSize: 13,
+    color: '#9ca3af',
+    fontWeight: '500',
   },
-  featuresContainer: {
+  socialContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    gap: spacing.sm,
+    justifyContent: 'center',
+    gap: 16,
   },
-  featureItem: {
-    flex: 1,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.sm,
-    borderRadius: radius.md,
+  socialButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: '#f8f9fa',
     alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: '#e5e7eb',
   },
-  featureIcon: {
+  socialIcon: {
     fontSize: 24,
-    marginBottom: spacing.xs,
+    fontWeight: '700',
   },
-  featureText: {
-    fontWeight: '600',
-    textAlign: 'center',
+  signupContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  signupText: {
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.9)',
+    fontWeight: '500',
+  },
+  signupLink: {
+    fontSize: 15,
+    color: '#ffffff',
+    fontWeight: '700',
+    textDecorationLine: 'underline',
   },
 });
