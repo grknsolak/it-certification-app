@@ -8,6 +8,7 @@ import {
   Alert,
   ScrollView,
   Dimensions,
+  Modal,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -61,6 +62,9 @@ export default function ExamScreen({ navigation, route }: Props) {
   const [timeLeft, setTimeLeft] = useState(exam?.timeLimit ? exam.timeLimit * 60 : 0);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [bookmarkedQuestions, setBookmarkedQuestions] = useState<number[]>([]);
+  const [isPaused, setIsPaused] = useState(false);
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [examResult, setExamResult] = useState<ExamResult | null>(null);
 
   useEffect(() => {
     if (!exam) {
@@ -73,7 +77,7 @@ export default function ExamScreen({ navigation, route }: Props) {
   }, [exam, navigation]);
 
   useEffect(() => {
-    if (mode === 'exam' && timeLeft > 0 && !isSubmitted) {
+    if (mode === 'exam' && timeLeft > 0 && !isSubmitted && !isPaused) {
       const timer = setTimeout(() => {
         setTimeLeft(timeLeft - 1);
       }, 1000);
@@ -84,7 +88,7 @@ export default function ExamScreen({ navigation, route }: Props) {
     if (mode === 'exam' && timeLeft === 0 && !isSubmitted) {
       handleSubmitExam();
     }
-  }, [timeLeft, isSubmitted]);
+  }, [timeLeft, isSubmitted, isPaused]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -167,6 +171,10 @@ export default function ExamScreen({ navigation, route }: Props) {
     }
   };
 
+  const togglePause = () => {
+    setIsPaused(!isPaused);
+  };
+
   const handleSubmitExam = async () => {
     if (!exam) return;
 
@@ -208,7 +216,8 @@ export default function ExamScreen({ navigation, route }: Props) {
     }
 
     setIsSubmitted(true);
-    navigation.navigate('Results', { result });
+    setExamResult(result);
+    setShowResultModal(true);
   };
 
   const handleFinishEarly = () => {
@@ -222,6 +231,18 @@ export default function ExamScreen({ navigation, route }: Props) {
     );
   };
 
+  const handleViewDetails = () => {
+    if (examResult) {
+      setShowResultModal(false);
+      navigation.navigate('Results', { result: examResult });
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowResultModal(false);
+    navigation.navigate('Home');
+  };
+
   if (!exam) {
     return (
       <SafeAreaView style={styles.container}>
@@ -233,6 +254,7 @@ export default function ExamScreen({ navigation, route }: Props) {
   const currentQuestion = exam.questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / exam.questions.length) * 100;
   const isBookmarked = bookmarkedQuestions.includes(currentQuestionIndex);
+  const passed = examResult ? examResult.score >= 70 : false;
 
   return (
     <View style={styles.container}>
@@ -263,6 +285,15 @@ export default function ExamScreen({ navigation, route }: Props) {
           </View>
 
           <View style={styles.headerActions}>
+            {mode === 'exam' && (
+              <TouchableOpacity
+                style={[styles.pauseButton, isPaused && styles.pauseButtonActive]}
+                onPress={togglePause}
+              >
+                <Text style={styles.pauseIcon}>{isPaused ? '▶' : '⏸'}</Text>
+              </TouchableOpacity>
+            )}
+            
             <TouchableOpacity
               style={[styles.bookmarkButton, isBookmarked && styles.bookmarkButtonActive]}
               onPress={toggleBookmark}
@@ -289,6 +320,7 @@ export default function ExamScreen({ navigation, route }: Props) {
           <View style={styles.timerContainer}>
             <Text style={styles.timerIcon}>⏱️</Text>
             <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
+            {isPaused && <Text style={styles.pausedText}>PAUSED</Text>}
           </View>
         )}
 
@@ -383,6 +415,80 @@ export default function ExamScreen({ navigation, route }: Props) {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
+
+      {/* Result Modal */}
+      <Modal
+        visible={showResultModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowResultModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {/* Success/Fail Icon */}
+            <View style={[
+              styles.resultIconContainer,
+              passed ? styles.successBackground : styles.failBackground
+            ]}>
+              <Text style={styles.resultIcon}>{passed ? '🎉' : '😔'}</Text>
+            </View>
+
+            {/* Result Text */}
+            <Text style={styles.resultTitle}>
+              {passed ? 'Congratulations!' : 'Not Passed'}
+            </Text>
+            <Text style={styles.resultSubtitle}>
+              {passed 
+                ? 'You have successfully passed the exam!' 
+                : 'Keep practicing and try again!'}
+            </Text>
+
+            {/* Score Display */}
+            <View style={styles.scoreContainer}>
+              <Text style={styles.scoreLabel}>Your Score</Text>
+              <Text style={[
+                styles.scoreValue,
+                passed ? styles.scoreSuccess : styles.scoreFail
+              ]}>
+                {examResult?.score}%
+              </Text>
+            </View>
+
+            {/* Stats */}
+            <View style={styles.statsRow}>
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>{examResult?.correctAnswers}</Text>
+                <Text style={styles.statLabel}>Correct</Text>
+              </View>
+              <View style={styles.statDivider} />
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>{examResult?.wrongAnswers}</Text>
+                <Text style={styles.statLabel}>Wrong</Text>
+              </View>
+              <View style={styles.statDivider} />
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>{examResult?.totalQuestions}</Text>
+                <Text style={styles.statLabel}>Total</Text>
+              </View>
+            </View>
+
+            {/* Action Buttons */}
+            <TouchableOpacity
+              style={styles.detailsButton}
+              onPress={handleViewDetails}
+            >
+              <Text style={styles.detailsButtonText}>View Details</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={handleCloseModal}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -439,6 +545,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
+  pauseButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#fef3c7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pauseButtonActive: {
+    backgroundColor: '#fca5a5',
+  },
+  pauseIcon: {
+    fontSize: 16,
+    color: '#92400e',
+  },
   bookmarkButton: {
     width: 40,
     height: 40,
@@ -487,15 +608,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
+    gap: 8,
   },
   timerIcon: {
     fontSize: 16,
-    marginRight: 8,
   },
   timerText: {
     fontSize: 16,
     fontWeight: '700',
     color: '#ef4444',
+  },
+  pausedText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#dc2626',
+    backgroundColor: '#fee2e2',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginLeft: 8,
   },
   scrollView: {
     flex: 1,
@@ -629,5 +760,132 @@ const styles = StyleSheet.create({
   },
   nextButtonText: {
     color: '#ffffff',
+  },
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#ffffff',
+    borderRadius: 24,
+    padding: 32,
+    width: '100%',
+    maxWidth: 400,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  resultIconContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  successBackground: {
+    backgroundColor: '#d1fae5',
+  },
+  failBackground: {
+    backgroundColor: '#fee2e2',
+  },
+  resultIcon: {
+    fontSize: 50,
+  },
+  resultTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  resultSubtitle: {
+    fontSize: 16,
+    color: '#6b7280',
+    marginBottom: 32,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  scoreContainer: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  scoreLabel: {
+    fontSize: 14,
+    color: '#9ca3af',
+    fontWeight: '500',
+    marginBottom: 8,
+  },
+  scoreValue: {
+    fontSize: 64,
+    fontWeight: '700',
+  },
+  scoreSuccess: {
+    color: '#10b981',
+  },
+  scoreFail: {
+    color: '#ef4444',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    width: '100%',
+    paddingVertical: 20,
+    backgroundColor: '#f9fafb',
+    borderRadius: 12,
+    marginBottom: 32,
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 13,
+    color: '#6b7280',
+    fontWeight: '500',
+  },
+  statDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: '#e5e7eb',
+  },
+  detailsButton: {
+    width: '100%',
+    paddingVertical: 16,
+    backgroundColor: '#3b82f6',
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  detailsButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  closeButton: {
+    width: '100%',
+    paddingVertical: 16,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#6b7280',
   },
 });
