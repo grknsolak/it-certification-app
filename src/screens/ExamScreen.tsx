@@ -262,12 +262,21 @@ export default function ExamScreen({ navigation, route }: Props) {
             </Text>
           </View>
 
-          <TouchableOpacity
-            style={[styles.bookmarkButton, isBookmarked && styles.bookmarkButtonActive]}
-            onPress={toggleBookmark}
-          >
-            <Text style={styles.bookmarkIcon}>{isBookmarked ? '⭐' : '☆'}</Text>
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={[styles.bookmarkButton, isBookmarked && styles.bookmarkButtonActive]}
+              onPress={toggleBookmark}
+            >
+              <Text style={styles.bookmarkIcon}>{isBookmarked ? '⭐' : '☆'}</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={styles.finishButton}
+              onPress={handleFinishEarly}
+            >
+              <Text style={styles.finishIcon}>✓</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Progress Bar */}
@@ -361,21 +370,17 @@ export default function ExamScreen({ navigation, route }: Props) {
             <Text style={styles.navButtonText}>← Previous</Text>
           </TouchableOpacity>
 
-          {currentQuestionIndex === exam.questions.length - 1 ? (
-            <TouchableOpacity
-              style={[styles.navButton, styles.submitButton]}
-              onPress={handleFinishEarly}
-            >
-              <Text style={[styles.navButtonText, styles.submitButtonText]}>Submit</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              style={[styles.navButton, styles.nextButton]}
-              onPress={handleNextQuestion}
-            >
-              <Text style={[styles.navButtonText, styles.nextButtonText]}>Next →</Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            style={[
+              styles.navButton,
+              styles.nextButton,
+              currentQuestionIndex === exam.questions.length - 1 && styles.navButtonDisabled
+            ]}
+            onPress={handleNextQuestion}
+            disabled={currentQuestionIndex === exam.questions.length - 1}
+          >
+            <Text style={[styles.navButtonText, styles.nextButtonText]}>Next →</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     </View>
@@ -430,6 +435,10 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
     fontWeight: '500',
   },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
   bookmarkButton: {
     width: 40,
     height: 40,
@@ -443,6 +452,24 @@ const styles = StyleSheet.create({
   },
   bookmarkIcon: {
     fontSize: 20,
+  },
+  finishButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#10b981',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#10b981',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  finishIcon: {
+    fontSize: 20,
+    color: '#ffffff',
+    fontWeight: 'bold',
   },
   progressBarContainer: {
     height: 4,
@@ -592,9 +619,6 @@ const styles = StyleSheet.create({
   nextButton: {
     backgroundColor: '#3b82f6',
   },
-  submitButton: {
-    backgroundColor: '#10b981',
-  },
   navButtonDisabled: {
     opacity: 0.4,
   },
@@ -604,9 +628,6 @@ const styles = StyleSheet.create({
     color: '#6b7280',
   },
   nextButtonText: {
-    color: '#ffffff',
-  },
-  submitButtonText: {
     color: '#ffffff',
   },
 });
