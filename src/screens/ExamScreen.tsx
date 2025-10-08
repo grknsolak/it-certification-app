@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -59,13 +59,14 @@ export default function ExamScreen({ navigation, route }: Props) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | number[] | null>(null);
   const [answers, setAnswers] = useState<Answer[]>([]);
-  const [timeLeft, setTimeLeft] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(exam?.timeLimit ? exam.timeLimit * 60 : 0);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [bookmarkedQuestions, setBookmarkedQuestions] = useState<number[]>([]);
   const [isPaused, setIsPaused] = useState(false);
   const [showResultModal, setShowResultModal] = useState(false);
   const [examResult, setExamResult] = useState<ExamResult | null>(null);
-  const [timerStarted, setTimerStarted] = useState(false);
+  
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!exam) {
@@ -73,39 +74,38 @@ export default function ExamScreen({ navigation, route }: Props) {
       navigation.goBack();
       return;
     }
+  }, [exam, navigation]);
 
-    if (mode === 'exam') {
-      const initialTime = exam.timeLimit * 60;
-      setTimeLeft(initialTime);
-      setTimerStarted(true);
-      console.log('⏱️ Timer initialized:', initialTime, 'seconds');
-    }
-  }, [exam, navigation, mode]);
-
+  // Timer useEffect
   useEffect(() => {
-    if (mode === 'exam' && timeLeft > 0 && !isSubmitted && !isPaused) {
-      console.log('⏱️ Timer tick:', timeLeft);
-      const timer = setInterval(() => {
-        setTimeLeft(prev => {
-          const newTime = prev - 1;
-          console.log('⏱️ New time:', newTime);
-          if (newTime === 0) {
-            console.log('⏱️ Time is up! Auto-submitting...');
-          }
-          return newTime;
-        });
-      }, 1000);
-
-      return () => clearInterval(timer);
+    if (mode === 'exam' && !isSubmitted && !isPaused) {
+      if (timeLeft > 0) {
+        timerRef.current = setInterval(() => {
+          setTimeLeft(prev => {
+            if (prev <= 1) {
+              // Time's up!
+              if (timerRef.current) clearInterval(timerRef.current);
+              setTimeout(() => handleSubmitExam(), 100);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     }
-  }, [timeLeft, isSubmitted, isPaused, mode]);
 
-  useEffect(() => {
-    if (mode === 'exam' && timeLeft === 0 && !isSubmitted && timerStarted) {
-      console.log('⏱️ Time reached zero, submitting exam...');
-      handleSubmitExam();
-    }
-  }, [timeLeft, isSubmitted, mode, timerStarted]);
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [mode, isSubmitted, isPaused, timeLeft]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -192,9 +192,10 @@ export default function ExamScreen({ navigation, route }: Props) {
     setIsPaused(!isPaused);
   };
 
-  const handleSubmitExam = async () => {
+  const handleSubmitExam = () => {
+    if (!exam || isSubmitted) return;
+
     console.log('📝 handleSubmitExam called!');
-    if (!exam) return;
 
     let finalAnswers = [...answers];
 
@@ -224,19 +225,29 @@ export default function ExamScreen({ navigation, route }: Props) {
       answers: finalAnswers,
     };
 
-    try {
-      const existingResults = await AsyncStorage.getItem('examResults');
-      const results: ExamResult[] = existingResults ? JSON.parse(existingResults) : [];
-      results.push(result);
-      await AsyncStorage.setItem('examResults', JSON.stringify(results));
-    } catch (error) {
-      console.error('Error saving result:', error);
+    // Save to AsyncStorage
+    AsyncStorage.getItem('examResults')
+      .then(existingResults => {
+        const results: ExamResult[] = existingResults ? JSON.parse(existingResults) : [];
+        results.push(result);
+        return AsyncStorage.setItem('examResults', JSON.stringify(results));
+      })
+      .catch(error => {
+        console.error('Error saving result:', error);
+      });
+
+    // Clear timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
     }
 
+    // Show modal
     setIsSubmitted(true);
     setExamResult(result);
     setShowResultModal(true);
-    console.log('🎉 Modal should show now!', { score: result.score, showResultModal: true });
+    
+    console.log('🎉 Result:', { score: result.score, correct: correctAnswers, total: exam.questions.length });
   };
 
   const handleFinishEarly = () => {
@@ -248,10 +259,7 @@ export default function ExamScreen({ navigation, route }: Props) {
         { text: 'Cancel', style: 'cancel' },
         { 
           text: 'Submit', 
-          onPress: async () => {
-            console.log('✅ Submit confirmed!');
-            await handleSubmitExam();
-          }, 
+          onPress: () => handleSubmitExam(), 
           style: 'destructive' 
         }
       ]
