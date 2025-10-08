@@ -65,6 +65,7 @@ export default function ExamScreen({ navigation, route }: Props) {
   const [isPaused, setIsPaused] = useState(false);
   const [showResultModal, setShowResultModal] = useState(false);
   const [examResult, setExamResult] = useState<ExamResult | null>(null);
+  const [timerStarted, setTimerStarted] = useState(false);
 
   useEffect(() => {
     if (!exam) {
@@ -74,8 +75,10 @@ export default function ExamScreen({ navigation, route }: Props) {
     }
 
     if (mode === 'exam') {
-      setTimeLeft(exam.timeLimit * 60);
-      console.log('⏱️ Timer initialized:', exam.timeLimit * 60, 'seconds');
+      const initialTime = exam.timeLimit * 60;
+      setTimeLeft(initialTime);
+      setTimerStarted(true);
+      console.log('⏱️ Timer initialized:', initialTime, 'seconds');
     }
   }, [exam, navigation, mode]);
 
@@ -86,18 +89,23 @@ export default function ExamScreen({ navigation, route }: Props) {
         setTimeLeft(prev => {
           const newTime = prev - 1;
           console.log('⏱️ New time:', newTime);
+          if (newTime === 0) {
+            console.log('⏱️ Time is up! Auto-submitting...');
+          }
           return newTime;
         });
       }, 1000);
 
       return () => clearInterval(timer);
     }
+  }, [timeLeft, isSubmitted, isPaused, mode]);
 
-    if (mode === 'exam' && timeLeft === 0 && !isSubmitted) {
-      console.log('⏱️ Time is up! Auto-submitting...');
+  useEffect(() => {
+    if (mode === 'exam' && timeLeft === 0 && !isSubmitted && timerStarted) {
+      console.log('⏱️ Time reached zero, submitting exam...');
       handleSubmitExam();
     }
-  }, [timeLeft, isSubmitted, isPaused, mode]);
+  }, [timeLeft, isSubmitted, mode, timerStarted]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
