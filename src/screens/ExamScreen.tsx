@@ -88,7 +88,7 @@ export default function ExamScreen({ navigation, route }: Props) {
     if (mode === 'exam' && timeLeft === 0 && !isSubmitted) {
       handleSubmitExam();
     }
-  }, [timeLeft, isSubmitted, isPaused]);
+  }, [timeLeft, isSubmitted, isPaused, mode]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -176,6 +176,7 @@ export default function ExamScreen({ navigation, route }: Props) {
   };
 
   const handleSubmitExam = async () => {
+    console.log('📝 handleSubmitExam called!');
     if (!exam) return;
 
     let finalAnswers = [...answers];
@@ -218,15 +219,24 @@ export default function ExamScreen({ navigation, route }: Props) {
     setIsSubmitted(true);
     setExamResult(result);
     setShowResultModal(true);
+    console.log('🎉 Modal should show now!', { score: result.score, showResultModal: true });
   };
 
   const handleFinishEarly = () => {
+    console.log('🏁 Finish button clicked!');
     Alert.alert(
       'Submit Exam',
       'Are you sure you want to submit the exam now?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Submit', onPress: () => handleSubmitExam(), style: 'destructive' }
+        { 
+          text: 'Submit', 
+          onPress: async () => {
+            console.log('✅ Submit confirmed!');
+            await handleSubmitExam();
+          }, 
+          style: 'destructive' 
+        }
       ]
     );
   };
@@ -305,7 +315,7 @@ export default function ExamScreen({ navigation, route }: Props) {
               style={styles.finishButton}
               onPress={handleFinishEarly}
             >
-              <Text style={styles.finishIcon}>✓</Text>
+              <Text style={styles.finishIcon}>🏁</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -578,19 +588,17 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#10b981',
+    backgroundColor: '#ef4444',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#10b981',
+    shadowColor: '#ef4444',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.4,
     shadowRadius: 4,
     elevation: 3,
   },
   finishIcon: {
-    fontSize: 20,
-    color: '#ffffff',
-    fontWeight: 'bold',
+    fontSize: 18,
   },
   progressBarContainer: {
     height: 4,
