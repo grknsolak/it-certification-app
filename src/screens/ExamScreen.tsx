@@ -78,25 +78,35 @@ export default function ExamScreen({ navigation, route }: Props) {
 
   // Timer useEffect
   useEffect(() => {
-    if (mode === 'exam' && !isSubmitted && !isPaused) {
-      if (timeLeft > 0) {
-        timerRef.current = setInterval(() => {
-          setTimeLeft(prev => {
-            if (prev <= 1) {
-              // Time's up!
-              if (timerRef.current) clearInterval(timerRef.current);
-              setTimeout(() => handleSubmitExam(), 100);
-              return 0;
+    console.log('⏱️ Timer effect triggered', { mode, isSubmitted, isPaused, timeLeft });
+    
+    // Clear any existing timer first
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    // Only run timer in exam mode, not submitted, not paused, and time > 0
+    if (mode === 'exam' && !isSubmitted && !isPaused && timeLeft > 0) {
+      console.log('⏱️ Starting timer...');
+      
+      timerRef.current = setInterval(() => {
+        setTimeLeft(prev => {
+          console.log('⏱️ Tick:', prev);
+          
+          if (prev <= 1) {
+            console.log('⏱️ Time is up!');
+            if (timerRef.current) {
+              clearInterval(timerRef.current);
+              timerRef.current = null;
             }
-            return prev - 1;
-          });
-        }, 1000);
-      }
-    } else {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
+            handleSubmitExam();
+            return 0;
+          }
+          
+          return prev - 1;
+        });
+      }, 1000);
     }
 
     return () => {
@@ -105,7 +115,7 @@ export default function ExamScreen({ navigation, route }: Props) {
         timerRef.current = null;
       }
     };
-  }, [mode, isSubmitted, isPaused, timeLeft]);
+  }, [mode, isSubmitted, isPaused]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
